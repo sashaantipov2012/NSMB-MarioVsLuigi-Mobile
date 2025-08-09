@@ -6,39 +6,42 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_linux:
-    name: Build WebGL, Android & iOS Xcode
+  build_webgl:
+    name: Build WebGL
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Cache Unity Library
-        uses: actions/cache@v3
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ runner.os }}-${{ hashFiles('**/Packages/manifest.json') }}
+          key: Library-WebGL-${{ hashFiles('**/Packages/manifest.json') }}
           restore-keys: |
-            Library-${{ runner.os }}-
-
-      # WebGL
-      - name: Build WebGL
-        uses: game-ci/unity-builder@v4
+            Library-WebGL-
+      - uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: WebGL
-
+          versioning: None
       - uses: actions/upload-artifact@v4
         with:
           name: WebGL-build
           path: build/WebGL
 
-      # Android
-      - name: Build Android
-        uses: game-ci/unity-builder@v4
+  build_android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-Android-${{ hashFiles('**/Packages/manifest.json') }}
+          restore-keys: |
+            Library-Android-
+      - uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -46,37 +49,43 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           targetPlatform: Android
-
+          versioning: None
       - uses: actions/upload-artifact@v4
         with:
           name: Android-build
           path: build/Android
 
-      # iOS (Xcode project only)
-      - name: Build iOS Xcode project
-        uses: game-ci/unity-builder@v4
+  build_ios_xcode:
+    name: Build iOS Xcode Project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-iOS-${{ hashFiles('**/Packages/manifest.json') }}
+          restore-keys: |
+            Library-iOS-
+      - uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: iOS
-
+          versioning: None
       - uses: actions/upload-artifact@v4
         with:
           name: iOS-xcode
           path: build/iOS
 
   build_ios_ipa:
-    name: Create Unsigned IPA from Xcode project
+    name: Create Unsigned IPA
     runs-on: macos-latest
-    needs: build_linux
+    needs: build_ios_xcode
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download iOS Xcode Project
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
         with:
           name: iOS-xcode
           path: ios-project
