@@ -6,54 +6,54 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_webgl:
-    name: Build WebGL
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v3
-        with:
-          path: Library
-          key: Library-WebGL-${{ hashFiles('**/Packages/manifest.json') }}
-          restore-keys: |
-            Library-WebGL-
-      - uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          targetPlatform: WebGL
-          versioning: None
-      - uses: actions/upload-artifact@v4
-        with:
-          name: WebGL-build
-          path: build/WebGL
+  # build_webgl:
+  #   name: Build WebGL
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: Library
+  #         key: Library-WebGL-${{ hashFiles('**/Packages/manifest.json') }}
+  #         restore-keys: |
+  #           Library-WebGL-
+  #     - uses: game-ci/unity-builder@v4
+  #       env:
+  #         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  #         UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+  #         UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+  #       with:
+  #         targetPlatform: WebGL
+  #         versioning: None
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: WebGL-build
+  #         path: build/WebGL
 
-  build_android:
-    name: Build Android
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v3
-        with:
-          path: Library
-          key: Library-Android-${{ hashFiles('**/Packages/manifest.json') }}
-          restore-keys: |
-            Library-Android-
-      - uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        with:
-          targetPlatform: Android
-          versioning: None
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Android-build
-          path: build/Android
+  # build_android:
+  #   name: Build Android
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: Library
+  #         key: Library-Android-${{ hashFiles('**/Packages/manifest.json') }}
+  #         restore-keys: |
+  #           Library-Android-
+  #     - uses: game-ci/unity-builder@v4
+  #       env:
+  #         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  #         UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+  #         UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+  #         UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+  #       with:
+  #         targetPlatform: Android
+  #         versioning: None
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Android-build
+  #         path: build/Android
 
   build_ios_xcode:
     name: Build iOS Xcode Project
@@ -85,11 +85,16 @@ jobs:
     needs: build_ios_xcode
     steps:
       - uses: actions/checkout@v4
+  
       - uses: actions/download-artifact@v4
         with:
           name: iOS-xcode
           path: ios-project
-
+  
+      - name: List downloaded iOS Xcode project files
+        run: |
+          ls -R ios-project
+  
       - name: Create ExportOptions.plist dynamically
         run: |
           cat <<EOF > ExportOptions.plist
@@ -110,7 +115,8 @@ jobs:
           </dict>
           </plist>
           EOF
-
+  
+      # Adjust this path depending on where the xcodeproj actually is
       - name: Archive Xcode Project
         run: |
           cd ios-project
@@ -120,7 +126,7 @@ jobs:
             -archivePath ../MyGame.xcarchive \
             archive \
             CODE_SIGNING_ALLOWED=NO
-
+  
       - name: Export Unsigned IPA
         run: |
           mkdir -p out
@@ -129,7 +135,7 @@ jobs:
             -exportOptionsPlist ExportOptions.plist \
             -exportPath out \
             CODE_SIGNING_ALLOWED=NO
-
+  
       - uses: actions/upload-artifact@v4
         with:
           name: iOS-IPA
