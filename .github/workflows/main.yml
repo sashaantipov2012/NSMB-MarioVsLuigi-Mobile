@@ -154,15 +154,49 @@ jobs:
       #       archive \
       #       CODE_SIGNING_ALLOWED=NO
 
-      - name: Export Unsigned IPA
+      # - name: Export Unsigned IPA
+      #   run: |
+      #     mkdir -p out
+      #     xcodebuild -exportArchive \
+      #       -archivePath MyGame.xcarchive \
+      #       -exportOptionsPlist ExportOptions.plist \
+      #       -exportPath out \
+      #       CODE_SIGNING_ALLOWED=NO
+      - name: Export Unsigned IPA with debug
         run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Listing current directory ==="
+          ls -la
+          echo "=== Listing ../../ directory contents ==="
+          ls -la ../../
+          
           mkdir -p out
+      
+          ARCHIVE_PATH=../../MyGame.xcarchive
+          EXPORT_OPTIONS=../../ExportOptions.plist
+      
+          echo "Using archive path: $ARCHIVE_PATH"
+          if [ ! -d "$ARCHIVE_PATH" ]; then
+            echo "Error: Archive path does not exist!"
+            exit 1
+          fi
+      
+          echo "Using export options plist: $EXPORT_OPTIONS"
+          if [ ! -f "$EXPORT_OPTIONS" ]; then
+            echo "Error: Export options plist does not exist!"
+            exit 1
+          fi
+      
+          echo "Running xcodebuild -exportArchive..."
           xcodebuild -exportArchive \
-            -archivePath MyGame.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportOptionsPlist "$EXPORT_OPTIONS" \
             -exportPath out \
             CODE_SIGNING_ALLOWED=NO
-  
+      
+          echo "=== Listing out/ directory after export ==="
+          ls -la out
       - uses: actions/upload-artifact@v4
         with:
           name: iOS-IPA
