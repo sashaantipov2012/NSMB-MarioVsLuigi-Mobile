@@ -1,0 +1,127 @@
+name: Unity — WebGL, Android & iOS IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_linux:
+    name: Build WebGL, Android & iOS Xcode
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Unity Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ runner.os }}-${{ hashFiles('**/Packages/manifest.json') }}
+          restore-keys: |
+            Library-${{ runner.os }}-
+
+      # WebGL
+      - name: Build WebGL
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WebGL-build
+          path: build/WebGL
+
+      # Android
+      - name: Build Android
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          targetPlatform: Android
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Android-build
+          path: build/Android
+
+      # iOS (Xcode project only)
+      - name: Build iOS Xcode project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: iOS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iOS-xcode
+          path: build/iOS
+
+  build_ios_ipa:
+    name: Create Unsigned IPA from Xcode project
+    runs-on: macos-latest
+    needs: build_linux
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download iOS Xcode Project
+        uses: actions/download-artifact@v4
+        with:
+          name: iOS-xcode
+          path: ios-project
+
+      - name: Create ExportOptions.plist dynamically
+        run: |
+          cat <<EOF > ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>ad-hoc</string>
+            <key>compileBitcode</key>
+            <false/>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>teamID</key>
+            <string></string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Archive Xcode Project
+        run: |
+          cd ios-project
+          xcodebuild -project Unity-iPhone.xcodeproj \
+            -scheme Unity-iPhone \
+            -configuration Release \
+            -archivePath ../MyGame.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Export Unsigned IPA
+        run: |
+          mkdir -p out
+          xcodebuild -exportArchive \
+            -archivePath MyGame.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath out \
+            CODE_SIGNING_ALLOWED=NO
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iOS-IPA
+          path: out/*.ipa
