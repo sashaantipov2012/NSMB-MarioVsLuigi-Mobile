@@ -117,16 +117,43 @@ jobs:
           EOF
   
       # Adjust this path depending on where the xcodeproj actually is
-      - name: Archive Xcode Project
+      # - name: Archive Xcode Project
+      #   run: |
+      #     cd ios-project
+      #     xcodebuild -project Unity-iPhone.xcodeproj \
+      #       -scheme Unity-iPhone \
+      #       -configuration Release \
+      #       -archivePath ../MyGame.xcarchive \
+      #       archive \
+      #       CODE_SIGNING_ALLOWED=NO
+      - name: Archive Xcode Project with debug
         run: |
-          cd ios-project
+          echo "=== Before cd ==="
+          pwd
+          ls -la
+          echo "=== cd ios-project ==="
+          cd ios-project || (echo "Failed to cd into ios-project" && exit 1)
+          pwd
+          ls -la
+          echo "Listing files with full path and info:"
+          find "$(pwd)" -name "Unity-iPhone.xcodeproj" -exec ls -ld {} \;
+          echo "Trying to open the Xcode project directory:"
+          if [ -d "Unity-iPhone.xcodeproj" ]; then
+            echo "Directory Unity-iPhone.xcodeproj exists"
+            echo "Contents:"
+            ls -la Unity-iPhone.xcodeproj
+          else
+            echo "Directory Unity-iPhone.xcodeproj does NOT exist"
+            exit 1
+          fi
+          echo "Running xcodebuild now..."
           xcodebuild -project Unity-iPhone.xcodeproj \
             -scheme Unity-iPhone \
             -configuration Release \
             -archivePath ../MyGame.xcarchive \
             archive \
             CODE_SIGNING_ALLOWED=NO
-  
+
       - name: Export Unsigned IPA
         run: |
           mkdir -p out
