@@ -162,19 +162,18 @@ jobs:
       #       -exportOptionsPlist ExportOptions.plist \
       #       -exportPath out \
       #       CODE_SIGNING_ALLOWED=NO
+
       - name: Export Unsigned IPA with debug
         run: |
           echo "=== Current directory ==="
           pwd
           echo "=== Listing current directory ==="
           ls -la
-          echo "=== Listing ../../ directory contents ==="
-          ls -la ../../
-          
+      
           mkdir -p out
       
-          ARCHIVE_PATH=../../MyGame.xcarchive
-          EXPORT_OPTIONS=../../ExportOptions.plist
+          ARCHIVE_PATH=./MyGame.xcarchive
+          EXPORT_OPTIONS=./ExportOptions.plist
       
           echo "Using archive path: $ARCHIVE_PATH"
           if [ ! -d "$ARCHIVE_PATH" ]; then
@@ -197,6 +196,7 @@ jobs:
       
           echo "=== Listing out/ directory after export ==="
           ls -la out
+
       - uses: actions/upload-artifact@v4
         with:
           name: iOS-IPA
