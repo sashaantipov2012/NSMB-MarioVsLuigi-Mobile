@@ -1,0 +1,39 @@
+fileFormatVersion: 2
+guid: ad743bef4190848eda6c8685591a9195
+PluginImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  iconMap: {}
+  executionOrder: {}
+  defineConstraints: []
+  isPreloaded: 0
+  isOverridable: 0
+  isExplicitlyReferenced: 0
+  validateReferences: 1
+  platformData:
+  - first:
+      Android: Android
+    second:
+      enabled: 1
+      settings: {}
+  - first:
+      Any: 
+    second:
+      enabled: 0
+      settings: {}
+  - first:
+      Editor: Editor
+    second:
+      enabled: 0
+      settings:
+        DefaultValueInitialized: true
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309744
+  packageName: "Share for iOS and Android\u2122"
+  packageVersion: 1.2.1
+  assetPath: Assets/Sych/ShareAssets/Plugins/Android/Share.aar
+  uploadId: 762573

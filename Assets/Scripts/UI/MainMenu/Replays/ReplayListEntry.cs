@@ -11,6 +11,8 @@ using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
+using Sych.ShareAssets.Runtime;
+using System.Collections.Generic;
 
 namespace NSMB.UI.MainMenu.Submenus.Replays {
     public class ReplayListEntry : MonoBehaviour {
@@ -188,27 +190,31 @@ namespace NSMB.UI.MainMenu.Submenus.Replays {
         }
 
         public void OnExportClick() {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            if (ReplayFile.LoadAllIfNeeded() == ReplayParseResult.Success) {
-                using MemoryStream stream = new((int) ReplayFile.FileSize);
-                long replaySize = ReplayFile.WriteToStream(stream);
-                DownloadFile(name, nameof(FileDownloadedCallback), ReplayFile.Header.GetDisplayName() + ".mvlreplay", stream.ToArray(), (int) replaySize);
+            if (!Share.IsPlatformSupported) {
+                Debug.LogWarning("Share: platform not supported");
+                return;
             }
-#else
-            TranslationManager tm = GlobalController.Instance.translationManager;
-            StandaloneFileBrowser.SaveFilePanelAsync(tm.GetTranslation("ui.extras.replays.actions.export.prompt"), null, ReplayFile.Header.GetDisplayName(), "mvlreplay", (file) => {
-                if (string.IsNullOrWhiteSpace(file)) {
-                    return;
-                }
 
-                if (ReplayFile.LoadAllIfNeeded() == ReplayParseResult.Success) {
-                    using FileStream stream = new(file, FileMode.OpenOrCreate);
+            if (ReplayFile.LoadAllIfNeeded() == ReplayParseResult.Success) {
+                // Write replay file into persistentDataPath
+                string filePath = Path.Combine(Application.persistentDataPath, ReplayFile.Header.GetDisplayName() + ".mvlreplay");
+
+                using (FileStream stream = new(filePath, FileMode.Create, FileAccess.Write)) {
                     ReplayFile.WriteToStream(stream);
                 }
-            });
-#endif
-        }
 
+                // Build the share items list
+                var items = new List<string> {
+            "Check out this replay!",
+            filePath
+        };
+
+                // Open the share sheet
+                Share.Items(items, success => {
+                    Debug.Log($"Share: {(success ? "share sheet opened" : "failed to open share sheet")}");
+                });
+            }
+        }
         [Preserve]        
         private void FileDownloadedCallback() {
 

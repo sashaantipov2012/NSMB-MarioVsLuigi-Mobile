@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 176550a680b654cccb30309d84b64c48
+timeCreated: 1723376389
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309744
+  packageName: "Share for iOS and Android\u2122"
+  packageVersion: 1.2.1
+  assetPath: Assets/Sych/ShareAssets/Runtime/Tools/UnityMainThreadDispatcher.cs
+  uploadId: 762573

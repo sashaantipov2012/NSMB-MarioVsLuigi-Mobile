@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <plugin_name>Share</plugin_name>
+  <plugin_description>Plugin that enables sharing text, images, videos, audio files, URLs, and other documents.</plugin_description>
+  <support_email>vadim.sych@icloud.com</support_email>
+  <current_asset_store_link>https://assetstore.unity.com/packages/tools/integration/share-for-ios-and-android309744#reviews</current_asset_store_link>
+  <all_asset_store_link>https://assetstore.unity.com/publishers/95321</all_asset_store_link>
+  <license>Free</license>
+  <is_introduction_enabled>false</is_introduction_enabled>
+  <android_bundle_main_type>ShareNativeBridge</android_bundle_main_type>
+  <ios_bundle_main_type>ShareNativeBridge</ios_bundle_main_type>
+  <android_bundle_main_assembly>Sych.ShareAssets.Runtime.Android</android_bundle_main_assembly>
+  <ios_bundle_main_assembly>Sych.ShareAssets.Runtime.iOS</ios_bundle_main_assembly>
+</settings>

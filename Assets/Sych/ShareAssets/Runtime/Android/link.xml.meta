@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 36e0781a85a27490db12e5a175c848c5
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309744
+  packageName: "Share for iOS and Android\u2122"
+  packageVersion: 1.2.1
+  assetPath: Assets/Sych/ShareAssets/Runtime/Android/link.xml
+  uploadId: 762573

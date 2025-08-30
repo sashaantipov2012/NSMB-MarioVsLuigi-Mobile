@@ -1,0 +1,19 @@
+{
+    "name": "Sych.ShareAssets.Runtime.Android",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ae413db7e740c4282a1f2a3e33f4a4e1"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

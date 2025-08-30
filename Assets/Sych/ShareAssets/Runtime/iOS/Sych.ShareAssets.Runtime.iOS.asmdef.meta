@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 115d9c88170ad48448730d6c7fa9068f
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309744
+  packageName: "Share for iOS and Android\u2122"
+  packageVersion: 1.2.1
+  assetPath: Assets/Sych/ShareAssets/Runtime/iOS/Sych.ShareAssets.Runtime.iOS.asmdef
+  uploadId: 762573

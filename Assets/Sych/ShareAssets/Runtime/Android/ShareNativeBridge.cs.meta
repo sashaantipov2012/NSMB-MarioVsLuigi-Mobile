@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: de366bdf98ee4079a4b0f422fd8fa72a
+timeCreated: 1742383006
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309744
+  packageName: "Share for iOS and Android\u2122"
+  packageVersion: 1.2.1
+  assetPath: Assets/Sych/ShareAssets/Runtime/Android/ShareNativeBridge.cs
+  uploadId: 762573
