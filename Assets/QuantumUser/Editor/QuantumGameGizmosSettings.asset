@@ -63,6 +63,14 @@ MonoBehaviour:
         _value: 0
       DisableFill:
         _value: 0
+    ParametricInertiaShape:
+      Enabled: 1
+      Color: {r: 1, g: 0.92156863, b: 0.015686275, a: 0.25}
+      Scale: 0
+      OnlyDrawSelected:
+        _value: 1
+      DisableFill:
+        _value: 0
     AsleepColliders:
       Enabled: 1
       Color: {r: 0.5192922, g: 0.4622621, b: 0.6985294, a: 0.5}
@@ -75,6 +83,14 @@ MonoBehaviour:
       Enabled: 1
       Color: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
       Scale: 0
+      OnlyDrawSelected:
+        _value: 0
+      DisableFill:
+        _value: 0
+    CenterOfMass:
+      Enabled: 0
+      Color: {r: 1, g: 0, b: 0.5, a: 0.5}
+      Scale: 0.1
       OnlyDrawSelected:
         _value: 0
       DisableFill:
@@ -181,6 +197,7 @@ MonoBehaviour:
         _value: 1
       DisableFill:
         _value: 0
+      DrawTriangleId: 0
     NavMeshVertexNormals:
       Enabled: 0
       Color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
