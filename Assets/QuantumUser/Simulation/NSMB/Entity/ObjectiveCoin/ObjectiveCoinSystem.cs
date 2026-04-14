@@ -1,6 +1,5 @@
 using Photon.Deterministic;
 using Quantum.Physics2D;
-using UnityEngine;
 
 namespace Quantum {
     public unsafe class ObjectiveCoinSystem : SystemMainThread, ISignalOnMarioPlayerDropObjective, ISignalOnMarioPlayerCollectedCoin,
@@ -45,12 +44,12 @@ namespace Quantum {
             bool spawnedStarCoin = false;
             for (int i = 0; i < spawnpoints; i++) {
                 // Find a spot...
-                if (f.Global->UsedStarSpawnCount >= spawnpoints) {
+                int setBits = usedSpawnpoints.GetSetCount();
+                if (setBits >= spawnpoints) {
                     usedSpawnpoints.ClearAll();
-                    f.Global->UsedStarSpawnCount = 0;
                 }
 
-                int count = f.RNG->Next(0, spawnpoints - f.Global->UsedStarSpawnCount);
+                int count = f.RNG->Next(0, spawnpoints - setBits);
                 int index = 0;
                 for (int j = 0; j < spawnpoints; j++) {
                     if (!usedSpawnpoints.IsSet(j)) {
@@ -62,7 +61,6 @@ namespace Quantum {
                     }
                 }
                 usedSpawnpoints.Set(index);
-                f.Global->UsedStarSpawnCount++;
 
                 // Spawn a coin.
                 FPVector2 position = stage.BigStarSpawnpoints[index];
@@ -70,13 +68,16 @@ namespace Quantum {
 
                 if (hits.Count == 0) {
                     // Hit no players
-                    var gamemode = f.FindAsset(f.Global->Rules.Gamemode) as CoinRunnersGamemode;
+                    var gamemode = (CoinRunnersGamemode) f.FindAsset(f.Global->Rules.Gamemode);
                     EntityRef newEntity = f.Create(gamemode.StarCoinPrototype);
                     f.Global->MainBigStar = newEntity;
                     var newStarCoinTransform = f.Unsafe.GetPointer<Transform2D>(newEntity);
                     newStarCoinTransform->Position = position;
                     spawnedStarCoin = true;
+                    f.Events.BigCollectableAttemptedSpawn(index, position, Success: true);
                     break;
+                } else {
+                    f.Events.BigCollectableAttemptedSpawn(index, position, Success: false);
                 }
             }
 

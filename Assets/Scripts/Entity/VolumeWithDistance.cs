@@ -31,14 +31,16 @@ public class VolumeWithDistance : MonoBehaviour {
             originalVolumes[i] = audioSources[i].volume;
         }
 
-        stage = (VersusStageData) QuantumUnityDB.GetGlobalAsset(FindFirstObjectByType<QuantumMapData>().Asset.UserAsset);
+        stage = (VersusStageData) QuantumUnityDB.GetGlobalAsset(FindFirstObjectByType<QuantumMapData>().GetAsset(false).UserAsset);
     }
 
     public void LateUpdate() {
         float minDistance = float.MaxValue;
         FP xDifference = 0;
-        foreach (var pe in PlayerElements.AllPlayerElements) {
-            float distance = QuantumUtils.WrappedDistance(stage, pe.Camera.transform.position.ToFPVector2(), soundOrigin.position.ToFPVector2(), out FP tempXDifference).AsFloat * Mathf.Min(1, (3.5f / pe.Camera.orthographicSize));
+        FPVector2 originPos = soundOrigin.position.ToFPVector2();
+        foreach (var playerElement in PlayerElements.AllPlayerElements) {
+            var camera = playerElement.Camera;
+            float distance = QuantumUtils.WrappedDistance(stage, camera.transform.position.ToFPVector2(), originPos, out FP tempXDifference).AsFloat * Mathf.Min(1, (3.5f / camera.orthographicSize));
             if (distance < minDistance) {
                 minDistance = distance;
                 xDifference = tempXDifference;

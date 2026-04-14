@@ -774,6 +774,8 @@ MonoBehaviour:
           Value: 1
         IsMiniOnly:
           Value: 0
+        TransitionOnlyPanning:
+          Value: 1
     - rid: 448232034075148292
       type: {class: InteractablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -852,6 +854,8 @@ MonoBehaviour:
         IgnorePlayerWhenRespawning:
           Value: 1
         DisableRespawning:
+          Value: 0
+        StayAtHomeWhenOffscreen:
           Value: 0
     - rid: 692988744814297093
       type: {class: FreezablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
@@ -950,6 +954,8 @@ MonoBehaviour:
         IsCeilingPipe:
           Value: 0
         IsMiniOnly:
+          Value: 0
+        TransitionOnlyPanning:
           Value: 0
     - rid: 710687458932555780
       type: {class: InteractablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
@@ -2938,6 +2944,8 @@ MonoBehaviour:
           Value: 1
         DisableRespawning:
           Value: 0
+        StayAtHomeWhenOffscreen:
+          Value: 0
     - rid: 4642328894244913157
       type: {class: FreezablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3035,6 +3043,8 @@ MonoBehaviour:
         IsCeilingPipe:
           Value: 0
         IsMiniOnly:
+          Value: 0
+        TransitionOnlyPanning:
           Value: 0
     - rid: 4673924657949179908
       type: {class: InteractablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
@@ -4023,6 +4033,8 @@ MonoBehaviour:
           Value: 0
         IsMiniOnly:
           Value: 0
+        TransitionOnlyPanning:
+          Value: 1
     - rid: 7089375187459637252
       type: {class: InteractablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:

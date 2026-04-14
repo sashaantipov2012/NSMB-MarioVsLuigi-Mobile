@@ -1,3 +1,5 @@
+using NSMB.Sound;
+using NSMB.Utilities;
 using NSMB.Utilities.Extensions;
 using Quantum;
 using UnityEngine;
@@ -14,7 +16,7 @@ namespace NSMB.Entities.Enemies {
         [SerializeField] private Transform bobber;
         [SerializeField] private SpriteRenderer sRenderer;
         [SerializeField] private Animator animator;
-        [SerializeField] private AudioSource sfx;
+        [SerializeField] private SoundEffectPlayer sfx;
         [SerializeField] private float sinSpeed = 1f, sinAmplitude = 0.0875f;
 
         public void OnValidate() {
@@ -37,8 +39,11 @@ namespace NSMB.Entities.Enemies {
 
             bobber.localPosition = new(0, Mathf.Sin(2 * Mathf.PI * time * sinSpeed) * sinAmplitude);
 
-            var boo = f.Unsafe.GetPointer<Boo>(EntityRef);
-            var enemy = f.Unsafe.GetPointer<Enemy>(EntityRef);
+            if (!f.Unsafe.TryGetPointer(EntityRef, out Boo* boo)
+                || !f.Unsafe.TryGetPointer(EntityRef, out Enemy* enemy)) {
+
+                return;
+            }
 
             animator.SetBool(ParamFacingRight, enemy->FacingRight);
             animator.SetBool(ParamScared, boo->UnscaredFrames > 0);
@@ -64,7 +69,7 @@ namespace NSMB.Entities.Enemies {
                 return;
             }
 
-            sfx.PlayOneShot(QuantumUtils.GetComboSoundEffect(e.Combo));
+            sfx.PlayOneShot(QuantumViewUtils.GetComboSoundEffect(e.Combo));
         }
     }
 }

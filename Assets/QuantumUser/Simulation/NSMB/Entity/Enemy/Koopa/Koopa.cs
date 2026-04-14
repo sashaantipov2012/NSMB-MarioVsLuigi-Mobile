@@ -48,7 +48,7 @@ namespace Quantum {
             f.Events.EnemyKicked(entity, false);
         }
 
-        public void Kill(Frame f, EntityRef koopaEntity, EntityRef killerEntity, KillReason reason) {
+        public void Kill(Frame f, EntityRef koopaEntity, EntityRef killerEntity, EnemyKillReason reason) {
             var enemy = f.Unsafe.GetPointer<Enemy>(koopaEntity);
             var physicsObject = f.Unsafe.GetPointer<PhysicsObject>(koopaEntity);
             var holdable = f.Unsafe.GetPointer<Holdable>(koopaEntity);
@@ -99,6 +99,7 @@ namespace Quantum {
             IsInShell = false;
             IsKicked = false;
             IsFlipped = false;
+            enemy->SetDelayedRespawn();
 
             f.Events.EnemyKilled(koopaEntity, killerEntity, reason, center);
         }

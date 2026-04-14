@@ -1685,7 +1685,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: room_customlevel
+      name: room_addons
       rect:
         serializedVersion: 2
         x: 112
@@ -2168,6 +2168,226 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: playernumber_1
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2644883a8518b4349b1c9bd5c163fdaa
+      internalID: 1489559867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_2
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e9125de618334bf4f98676f54b0f0b90
+      internalID: -53457600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_3
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d998b99b5cc01e49a3c861645830ccd
+      internalID: 241958594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_4
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 893a7a8d3beecb64bb554d1430dea088
+      internalID: -1353960921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_5
+      rect:
+        serializedVersion: 2
+        x: 124
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2864dc71dbba0014399370830de0f4fd
+      internalID: -1014470120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_6
+      rect:
+        serializedVersion: 2
+        x: 141
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 356c1c0588b51984a9ca4902d7bd41cd
+      internalID: -28238104
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_7
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 03165fac471e74440acafe8b3503e560
+      internalID: 445070807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_8
+      rect:
+        serializedVersion: 2
+        x: 175
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f70877b104813814c9828285c5532a1a
+      internalID: 180310867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_9
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 861c827ee63242447b3b06f0e4571713
+      internalID: -416960693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: playernumber_10
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 158
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 37c62ecc2adb421449a0bcdf0fd9732e
+      internalID: -1402656431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -2230,11 +2450,21 @@ TextureImporter:
       level_author: -1902142894
       level_composer: -152457862
       player_muted: 1560846788
+      playernumber_1: 1489559867
+      playernumber_10: -1402656431
+      playernumber_2: -53457600
+      playernumber_3: 241958594
+      playernumber_4: -1353960921
+      playernumber_5: -1014470120
+      playernumber_6: -28238104
+      playernumber_7: 445070807
+      playernumber_8: 180310867
+      playernumber_9: -416960693
       r_button: 907324317
+      room_addons: -971827560
       room_camera: -1332971411
       room_coins: 1534273505
       room_create: 1496232669
-      room_customlevel: -971827560
       room_host: -9005941153719796207
       room_layers: -1043678390
       room_lives: 1261997413

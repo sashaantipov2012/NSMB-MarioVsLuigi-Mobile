@@ -17,7 +17,8 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             Frame f = game.Frames.Predicted;
             var playerData = QuantumUtils.GetPlayerData(f, game.GetLocalPlayers()[0]);
 
-            TeamAsset team = f.FindAsset(f.SimulationConfig.Teams[index]);
+            var teams = f.Context.GetAllAssets<TeamAsset>();
+            TeamAsset team = teams[index % teams.Count];
             flag.sprite = Settings.Instance.GraphicsColorblind ? team.spriteColorblind : team.spriteNormal;
         }
 
@@ -26,9 +27,9 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
         }
 
         private unsafe void OnColorblindModeChanged() {
-            var game = QuantumRunner.DefaultGame;
-            Frame f = game.Frames.Predicted;
-            TeamAsset team = f.FindAsset(f.SimulationConfig.Teams[index]);
+            Frame f = QuantumRunner.DefaultGame.Frames.Predicted;
+            var teams = f.Context.GetAllAssets<TeamAsset>();
+            TeamAsset team = teams[index % teams.Count];
             flag.sprite = Settings.Instance.GraphicsColorblind ? team.spriteColorblind : team.spriteNormal;
         }
     }

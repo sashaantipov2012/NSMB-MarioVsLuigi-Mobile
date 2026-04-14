@@ -13,7 +13,7 @@ component IceBlock {
 	[ExcludeFromPrototype] LiquidType InLiquidType;
 }
 
-signal OnIceBlockBroken(EntityRef brokenIceBlock, IceBlockBreakReason breakReason);
+signal OnIceBlockBroken(EntityRef brokenIceBlock, IceBlockBreakReason breakReason, EntityRef attacker);
 
 event IceBlockSinking {
 	EntityRef Entity;

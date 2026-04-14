@@ -4,7 +4,7 @@ using Quantum.Task;
 
 namespace Quantum {
 #if MULTITHREADED
-    public unsafe class CameraSystem : SystemArrayFilter<CameraSystem.Filter> {
+    public unsafe class CameraSystem : SystemThreadedFilter<CameraSystem.Filter> {
 #else
     [UnityEngine.Scripting.Preserve]
     public unsafe class CameraSystem : SystemMainThreadFilterStage<CameraSystem.Filter> {

@@ -79,12 +79,17 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             }
 
             QuantumCallback.Subscribe<CallbackLocalPlayerAddConfirmed>(this, OnLocalPlayerAddConfirmed);
+            QuantumCallback.Subscribe<CallbackLocalPlayerAddFailed>(this, OnLocalPlayerAddFailed);
             QuantumCallback.Subscribe<CallbackGameDestroyed>(this, OnGameDestroyed);
             QuantumEvent.Subscribe<EventStartingCountdownChanged>(this, OnStartingCountdownChanged);
             QuantumEvent.Subscribe<EventGameStateChanged>(this, OnGameStateChanged);
             QuantumEvent.Subscribe<EventHostChanged>(this, OnHostChanged);
             QuantumEvent.Subscribe<EventCountdownTick>(this, OnCountdownTick);
-            QuantumEvent.Subscribe<EventPlayerDataChanged>(this, OnPlayerDataChanged);
+            QuantumEvent.Subscribe<EventPlayerDataChanged>(this, OnPlayerDataChanged, onlyIfActiveAndEnabled: true);
+        }
+
+        private void OnLocalPlayerAddFailed(CallbackLocalPlayerAddFailed callback) {
+            Debug.LogError("Failed to add local player! " + callback.Message);
         }
 
         public void OnEnable() {
@@ -174,7 +179,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             bool isHost = game.PlayerIsLocal(f.Global->Host);
             seconds ??= Mathf.RoundToInt(f.Global->GameStartFrames / 60f);
 
-            if (seconds <= 0) {
+            if (seconds <= 0 && f.Global->GameState == GameState.PreGameRoom) {
                 // Cancelled
                 startGameButton.interactable = !isHost || QuantumUtils.IsGameStartable(f);
                 if (isHost) {
@@ -205,7 +210,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
                 startGameButtonText.text = tm.GetTranslationWithReplacements("ui.inroom.buttons.starting", "countdown", seconds.ToString());
                 startGameButtonText.horizontalAlignment = tm.RightToLeft ? HorizontalAlignmentOptions.Right : HorizontalAlignmentOptions.Left;
 
-                if (seconds == 1) {
+                if (seconds <= 1 && fadeMusicCoroutine == null) {
                     // Start fade
                     fadeMusicCoroutine = StartCoroutine(FadeMusic());
                 }
@@ -242,7 +247,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
                 foreach (int slot in game.GetLocalPlayerSlots()) {
                     game.SendCommand(slot, new CommandToggleReady());
                 }
-
+                
                 Canvas.PlaySound(ready ? SoundEffect.UI_Back : SoundEffect.UI_Decide);
             }
         }
@@ -298,16 +303,19 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
 
         private void OnLocalPlayerAddConfirmed(CallbackLocalPlayerAddConfirmed e) {
             UpdateStartButton(e.Game, e.Game.Frames.Predicted);
+            GlobalController.Instance.connecting.SetActive(false);
         }
 
         private void OnGameStateChanged(EventGameStateChanged e) {
-            UpdateStartButton(e.Game, e.Game.Frames.Predicted);
+            if (e.NewState == GameState.PreGameRoom) {
+                UpdateStartButton(e.Game, e.Game.Frames.Predicted);
 
-            if (fadeMusicCoroutine != null) {
-                StopCoroutine(fadeMusicCoroutine);
-                fadeMusicCoroutine = null;
+                if (fadeMusicCoroutine != null) {
+                    StopCoroutine(fadeMusicCoroutine);
+                    fadeMusicCoroutine = null;
+                }
+                musicSource.volume = 1;
             }
-            musicSource.volume = 1;
         }
 
         private void OnHostChanged(EventHostChanged e) {
@@ -342,6 +350,10 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
                 startGameButton.interactable = QuantumUtils.IsGameStartable(f);
             } else {
                 startGameButton.interactable = f.Global->GameStartFrames == 0;
+            }
+
+            if (e.Game.PlayerIsLocal(e.Player)) {
+                UpdateStartButton(e.Game, f);
             }
         }
 

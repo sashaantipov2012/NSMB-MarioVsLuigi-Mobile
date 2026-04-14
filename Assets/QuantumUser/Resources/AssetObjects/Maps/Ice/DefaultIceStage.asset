@@ -627,8 +627,6 @@ MonoBehaviour:
           RawValue: 39322
         MaximumShootRadius:
           RawValue: 458752
-        BulletBillCount: 0
-        TimeToShootFrames: 0
     - rid: 1649462287150350336
       type: {class: Transform2DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -701,8 +699,6 @@ MonoBehaviour:
           RawValue: 39322
         MaximumShootRadius:
           RawValue: 458752
-        BulletBillCount: 0
-        TimeToShootFrames: 0
     - rid: 1759927271897956352
       type: {class: Transform2DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -1277,6 +1273,8 @@ MonoBehaviour:
           Value: 0
         DisableRespawning:
           Value: 0
+        StayAtHomeWhenOffscreen:
+          Value: 1
     - rid: 4372145401587826694
       type: {class: FreezablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2252,6 +2250,8 @@ MonoBehaviour:
           Value: 0
         DisableRespawning:
           Value: 0
+        StayAtHomeWhenOffscreen:
+          Value: 1
     - rid: 8707424676512530438
       type: {class: FreezablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:

@@ -67,10 +67,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
         public unsafe void PopulatePlayerEntries(Frame f) {
             RemoveAllPlayerEntries();
 
-            var playerDataFilter = f.Filter<PlayerData>();
-            playerDataFilter.UseCulling = false;
-
-            while (playerDataFilter.NextUnsafe(out _, out PlayerData* playerData)) {
+            foreach ((_, var playerData) in f.Unsafe.GetComponentBlockIterator<PlayerData>()) {
                 AddPlayerEntry(f, playerData->PlayerRef);
             }
         }

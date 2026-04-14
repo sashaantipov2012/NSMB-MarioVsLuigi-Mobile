@@ -15,11 +15,12 @@ namespace Quantum {
             systems.Add(new MvLCullingSystem());
             systems.Add(new GameLogicSystem());
             systems.Add(
-                new StartDisabledSystemGroup("gameplay",
+                new StartDisabledSystemGroup(
                     new PrePhysicsObjectSystem(),
                     new InteractionPhysicsQuerySystem(),
                     new GenericMoverSystem(),
                     new SpinnerSystem(),
+                    new DonutBlockSystem(),
                     new MovingPlatformPhysicsQuerySystem(),
                     new PhysicsSystem2D(),
                     new MovingPlatformSystem(),
@@ -30,12 +31,14 @@ namespace Quantum {
                     new KoopaSystem(),
                     new BobombSystem(),
                     new PiranhaPlantSystem(),
+                    new BulletBillLauncherSystem(),
                     new BulletBillSystem(),
                     new BooSystem(),
                     new ProjectileSystem(),
                     new CoinItemSystem(),
                     new PowerupSystem(),
                     new BlockBumpSystem(),
+                    new BreakableObjectSystem(),
                     new MarioPlayerSystem(),
                     new CoinSystem(),
                     new GoldBlockSystem(),
@@ -46,7 +49,6 @@ namespace Quantum {
                     new IceBlockSystem(),
                     new CameraSystem(),
                     new LiquidSystem(),
-                    new BreakableObjectSystem(),
                     new MarioBrosPlatformSystem(),
                     new EnterablePipeSystem(),
                     new InvisibleBlockSystem()
@@ -55,10 +57,14 @@ namespace Quantum {
             );
             systems.Add(new StageSystem());
 
-#if MVL_DEBUG
-            // This HAS to be the last system otherwise it breaks replays.
-            systems.Add(new MvLDebugSystem());
-#endif
+            if (!gameConfig.IsRealGame) {
+                var debugSystem = DebugCommand.CreateSystem();
+                if (debugSystem != null) {
+                    systems.Add(debugSystem);
+                }
+
+                systems.Add(new MvLDebugSystem());
+            }
         }
     }
 }

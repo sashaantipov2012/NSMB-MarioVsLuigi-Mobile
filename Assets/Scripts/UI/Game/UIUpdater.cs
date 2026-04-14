@@ -29,7 +29,7 @@ namespace NSMB.UI.Game {
         [SerializeField] private TrackIcon playerTrackTemplate, starTrackTemplate, starCoinTrackTemplate, objectiveCoinTrackTemplate;
         [SerializeField] private Sprite storedItemNull;
         [SerializeField] private TMP_Text uiTeamObjective, uiMainObjective, uiCoins, uiDebug, uiLives, uiCountdown;
-        [SerializeField] private Image itemReserve, itemColor, deathFade;
+        [SerializeField] private Image itemReserve, itemColor;
         [SerializeField] private GameObject boos, reserveItemBox;
         [SerializeField] private Animation reserveAnimation;
 
@@ -200,17 +200,33 @@ namespace NSMB.UI.Game {
             }
             if (playAnimation) {
                 if (powerup) {
-                    reserveAnimation.Play("reserve-in");
                     itemReserve.sprite = powerup.ReserveSprite;
+                    reserveSummonCoroutine = StartCoroutine(PlayThenWait("reserve-in", () => {
+                        reserveAnimation.Play("reserve-idle");
+                    }));
                 } else {
-                    reserveAnimation.Play("reserve-out");
-                    reserveSummonCoroutine = StartCoroutine(ReserveSummonCoroutine());
+                    reserveSummonCoroutine = StartCoroutine(PlayThenWait("reserve-out", () => {
+                        itemReserve.sprite = storedItemNull;
+                        reserveAnimation.Play("reserve-empty");
+                    }));
                 }
             } else {
-                itemReserve.sprite = (powerup && powerup.ReserveSprite) ? powerup.ReserveSprite : storedItemNull;
-                reserveAnimation.Play();
+                if (powerup && powerup.ReserveSprite) {
+                    itemReserve.sprite = powerup.ReserveSprite;
+                    reserveAnimation.Play("reserve-idle");
+                } else {
+                    itemReserve.sprite = storedItemNull;
+                    reserveAnimation.Play("reserve-empty");
+                }
             }
             previousPowerup = powerup;
+        }
+
+        private IEnumerator PlayThenWait(string clipName, Action callback) {
+            reserveAnimation.Play(clipName);
+            yield return new WaitForSeconds(reserveAnimation.GetClip(clipName).length);
+            reserveSummonCoroutine = null;
+            callback();
         }
 
         private void UpdateElementVisibility(Frame f, bool marioExists) {
@@ -222,37 +238,20 @@ namespace NSMB.UI.Game {
             reserveItemBox.SetActive(marioExists);
         }
 
-        private IEnumerator ReserveSummonCoroutine() {
-            yield return new WaitForSeconds(reserveAnimation.GetClip("reserve-out").length);
-            itemReserve.sprite = storedItemNull;
-            reserveAnimation.Play();
-            reserveSummonCoroutine = null;
-        }
-
         private void OnStartCameraFadeOut(EventStartCameraFadeOut e) {
             if (e.Entity != Target) {
                 return;
             }
-            StartCoroutine(FadeOutThenInCoroutine());
-        }
 
-        private IEnumerator FadeOutThenInCoroutine() {
-            yield return FadeCoroutine(1, 0.25f);
-            yield return new WaitForSeconds(0.1f);
-            yield return FadeCoroutine(0, 0.25f);
-        }
-
-        private IEnumerator FadeCoroutine(float target, float duration) {
-            float totalDuration = duration;
-            Color color = deathFade.color;
-            float startAlpha = color.a;
-
-            while (duration > 0) {
-                duration -= Time.deltaTime;
-                color.a = Mathf.Lerp(target, startAlpha, duration / totalDuration);
-                deathFade.color = color;
-                yield return null;
-            }
+            // do bowser death anim -> set sprite to character's silhouette -> do respawn anim
+            GlobalController.Instance.fader.Fade(AnimatedFader.FadeStyle.Respawn, AnimatedFader.FadeStyle.Respawn, () => {
+                GlobalController.Instance.fader.SetRespawnStyleSilhouetteSprite(
+                    e.Game.Frames.Predicted.Unsafe.TryGetPointer(Target, out MarioPlayer* mario) &&
+                    QuantumUnityDB.TryGetGlobalAsset(mario->CharacterAsset, out CharacterAsset character)
+                        ? character.SilhouetteSprite
+                        : null
+                );
+            });
         }
 
         private void OnTimerExpired(EventTimerExpired e) {
@@ -291,7 +290,7 @@ namespace NSMB.UI.Game {
                     int teamObjective = Mathf.Max(0, gamemode.GetTeamObjectiveCount(f, teamIndex));
                     if (cachedTeamObjective != teamObjective) {
                         cachedTeamObjective = teamObjective;
-                        TeamAsset team = f.FindAsset(f.SimulationConfig.Teams[teamIndex]);
+                        TeamAsset team = f.Context.GetAllAssets<TeamAsset>()[teamIndex];
                         string objectiveString = "x" + cachedTeamObjective;
                         if (gamemode is StarChasersGamemode) {
                             objectiveString += "/" + rules.StarsToWin;
@@ -435,6 +434,8 @@ namespace NSMB.UI.Game {
                 foreach (var mario in MarioPlayerAnimator.AllMarioPlayers) {
                     entityTrackIcons[mario] = CreateTrackIcon(Updater, PredictedFrame, mario.EntityRef, mario.transform);
                 }
+            } else if (e.NewState == GameState.Playing) {
+                GlobalController.Instance.fader.FadeBehindUi = true;
             }
         }
 
@@ -454,18 +455,17 @@ namespace NSMB.UI.Game {
             } else if (hasWinner) {
                 if (teamMode) {
                     // Winning team
-                    var teams = f.SimulationConfig.Teams;
-                    winner = tm.GetTranslation(f.FindAsset(teams[e.WinningTeam % teams.Length]).nameTranslationKey);
+                    var teams = f.Context.GetAllAssets<TeamAsset>();
+                    winner = tm.GetTranslation(teams[e.WinningTeam].nameTranslationKey);
                     resultText = tm.GetTranslationWithReplacements("ui.result.teamwin", "team", winner);
                     ChatManager.Instance.AddSystemMessage("ui.inroom.chat.server.ended.team", color: ChatManager.Red, "team", winner);
                 } else {
                     // Winning player
-                    var allPlayers = f.Filter<PlayerData>();
-                    allPlayers.UseCulling = false;
-                    while (allPlayers.NextUnsafe(out _, out PlayerData* data)) {
+                    foreach ((_, var data) in f.Unsafe.GetComponentBlockIterator<PlayerData>()) {
                         if (data->RealTeam == e.WinningTeam) {
                             RuntimePlayer runtimePlayer = f.GetPlayerData(data->PlayerRef);
                             winner = runtimePlayer?.PlayerNickname.ToValidNickname(f, data->PlayerRef);
+                            break;
                         }
                     }
                     resultText = tm.GetTranslationWithReplacements("ui.result.playerwin", "playername", winner);

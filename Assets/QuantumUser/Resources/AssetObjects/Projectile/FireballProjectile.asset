@@ -35,3 +35,4 @@ MonoBehaviour:
   DoesntEffectBlueShell: 1
   DestroyParticleEffect: 5
   ShootSound: 44
+  SfxOverrides: []

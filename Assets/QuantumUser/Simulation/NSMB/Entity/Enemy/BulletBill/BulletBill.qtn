@@ -10,8 +10,8 @@ component BulletBillLauncher {
 	ushort TimeToShoot;
 	FP MinimumShootRadius;
 	FP MaximumShootRadius;
-	byte BulletBillCount;
-	ushort TimeToShootFrames;
+	[ExcludeFromPrototype] byte BulletBillCount;
+	[ExcludeFromPrototype] ushort TimeToShootFrames;
 }
 
 event BulletBillHitByProjectile {

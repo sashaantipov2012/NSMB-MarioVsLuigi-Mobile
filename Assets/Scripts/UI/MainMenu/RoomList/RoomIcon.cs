@@ -16,8 +16,13 @@ namespace NSMB.UI.MainMenu.Submenus.RoomList {
         public bool HasGameStarted {
             get {
                 GetCustomProperty(room.CustomProperties, Enums.NetRoomProperties.BoolProperties, out int boolPropertiesPacked);
-                BooleanProperties boolProperties = boolPropertiesPacked;
-                return boolProperties.GameStarted;
+                return ((BooleanProperties) boolPropertiesPacked).GameStarted;
+            }
+        }
+        public bool HasAddons {
+            get {
+                GetCustomProperty(room.CustomProperties, Enums.NetRoomProperties.BoolProperties, out int boolPropertiesPacked);
+                return ((BooleanProperties) boolPropertiesPacked).AddonsEnabled;
             }
         }
 
@@ -53,6 +58,7 @@ namespace NSMB.UI.MainMenu.Submenus.RoomList {
 
             StringBuilder symbols = new();
 
+
             if (boolProperties.CustomPowerups) {
                 symbols.Append("<sprite name=room_powerups>");
             }
@@ -74,6 +80,11 @@ namespace NSMB.UI.MainMenu.Submenus.RoomList {
             }
 
             symbols.Append("<sprite name=room_coins>").Append(Utils.GetSymbolString(intProperties.CoinRequirement.ToString(), Utils.smallSymbols));
+
+            if (boolProperties.AddonsEnabled) {
+                symbols.Append("<sprite name=room_addons>");
+            }
+            
             symbolsText.text = symbols.ToString();
 
 

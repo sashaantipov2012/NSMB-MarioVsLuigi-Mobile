@@ -46,8 +46,7 @@ namespace NSMB.Utilities {
                 int discriminator = 0;
                 PlayerData* ourPlayerData = QuantumUtils.GetPlayerData(f, player);
                 if (ourPlayerData != null) {
-                    var filter = f.Filter<PlayerData>();
-                    while (filter.NextUnsafe(out _, out PlayerData* otherPlayerData)) {
+                    foreach ((_, var otherPlayerData) in f.Unsafe.GetComponentBlockIterator<PlayerData>()) {
                         if (otherPlayerData->PlayerRef == player) {
                             // Ignore ourselves
                             continue;

@@ -71,8 +71,7 @@ namespace NSMB.UI.Loading {
                 statusText.text = secondsUntilKick <= 10 ? secondsUntilKick.ToString() : tm.GetTranslation("ui.loading.waiting");
 
                 StringBuilder loadingListBuilder = new();
-                var playerDataFilter = f.Filter<PlayerData>();
-                while (playerDataFilter.NextUnsafe(out _, out PlayerData* otherPlayerData)) {
+                foreach ((_, var otherPlayerData) in f.Unsafe.GetComponentBlockIterator<PlayerData>()) {
                     if (otherPlayerData->IsLoaded) {
                         continue;
                     }

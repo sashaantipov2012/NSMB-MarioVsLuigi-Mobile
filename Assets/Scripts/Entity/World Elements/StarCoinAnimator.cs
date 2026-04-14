@@ -57,7 +57,7 @@ namespace NSMB.Entities.World {
                 sfx.PlayOneShot(SoundEffect.World_Starcoin_Store);
             }
             mRenderer.enabled = false;
-            Destroy(gameObject, SoundEffect.World_Starcoin_Store.GetClip().length + 1);
+            Destroy(gameObject, 2);
             StarCoinDestroyed?.Invoke(VerifiedFrame, this);
         }
 
@@ -73,8 +73,8 @@ namespace NSMB.Entities.World {
 
         private bool IsCollectedByCameraFocus(EntityRef entity, Camera camera) {
             foreach (var playerElement in PlayerElements.AllPlayerElements) {
-                if (camera == playerElement.Camera || camera == playerElement.ScrollCamera || camera == playerElement.UICamera) {
-                    return playerElement.Entity == entity;
+                if (playerElement.Entity == entity && playerElement.IsOurCamera(camera)) {
+                    return true;
                 }
             }
             return false;

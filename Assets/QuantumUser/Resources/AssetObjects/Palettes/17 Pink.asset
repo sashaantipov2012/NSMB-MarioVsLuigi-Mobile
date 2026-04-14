@@ -16,8 +16,8 @@ MonoBehaviour:
     Path: QuantumUser/Resources/AssetObjects/Palettes/17 Pink
     Guid:
       Value: 459398035224653976
-  colors:
-  - character:
+  Colors:
+  - Character:
       Id:
         Value: 0
     ShirtColor:
@@ -30,7 +30,7 @@ MonoBehaviour:
       G: 178
       B: 158
       A: 255
-    shirtColor: {r: 1, g: 0.43137255, b: 0.6666667, a: 1}
-    overallsColor: {r: 1, g: 0.6967669, b: 0.43137252, a: 1}
-    hatUsesOverallsColor: 0
-  translationKey: skin.pink
+    HatUsesOverallsColor: 0
+  TranslationKey: skin.pink
+  Order: 1800
+  IsLegacy: 1

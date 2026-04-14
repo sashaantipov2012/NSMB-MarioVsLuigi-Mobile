@@ -8,11 +8,13 @@ ArianLust
 Atwer
 Ave
 BluCorDev
+Cleeaf
 Cubby Crazes
 davart154
 dotjp
 DonKaiStorm
 GithubSPerez
+GoldyFredy9
 GradedWarrior
 HyperC@T
 Jeffjewett27
@@ -50,7 +52,8 @@ AprilShade <color=#AAAAAA>(en-gb)</color>
 ArianLust <color=#AAAAAA>(de-de)</color>
 Atwer <color=#AAAAAA>(fr-FR)</color>
 Bilhal <color=#AAAAAA>(el-gr)</color>
-Cecilia <color=#AAAAAA>(es-es)</color>
+Cecilia <3 <color=#AAAAAA>(es-es)</color>
+Cleeaf <color=#AAAAAA>(sv-se)</color>
 Davodio <color=#AAAAAA>(de-de)</color>
 Filipianosol <color=#AAAAAA>(pl-pl)</color>
 Floofdoge <color=#AAAAAA>(ar-eg)</color>
@@ -67,6 +70,7 @@ Kate Karui <color=#AAAAAA>(sv-sv)</color>
 Laxan3000 <color=#AAAAAA>(it-it)</color>
 LyroyTheToad <color=#AAAAAA>(it-it)</color>
 Maestrike <color=#AAAAAA>(it-it)</color>
+MagMah <color=#AAAAAA>(pt-pt)</color>
 Maksymilian Król <color=#AAAAAA>(pl-pl)</color>
 marbo <color=#AAAAAA>(pt-br)</color>
 Mark19 <color=#AAAAAA>(es-es)</color>
@@ -74,6 +78,7 @@ MasterMindo <color=#AAAAAA>(it-it)</color>
 Med Animations <color=#AAAAAA>(ar-eg)</color>
 Meddourk95 <color=#AAAAAA>(ar-eg)</color>
 Moddimation <color=#AAAAAA>(de-de)</color>
+MODSTER_TAFFY <color=#AAAAAA>(af-za)</color>
 miyavmeow <color=#AAAAAA>(tr-tr)</color>
 Mr-STF <color=#AAAAAA>(es-la)</color>
 MUI_Noam <color=#AAAAAA>(he-il)</color>
@@ -81,14 +86,19 @@ notossdekasaihassei <color=#AAAAAA>(ja-jp)</color>
 ossdekasaihassei <color=#AAAAAA>(ja-jp)</color>
 Pedro Lunar <color=#AAAAAA>(es-la)</color>
 pixelated <color=#AAAAAA>(he-il)</color>
+RmgeodashFR <color=#AAAAAA>(cy-gb)</color>
+rm1300 <color=#AAAAAA>(cs-cz)</color>
 SadeceZinzap <color=#AAAAAA>(tr-tr)</color>
 SlavaWOW <color=#AAAAAA>(ru-ru)</color>
 SLG64 <color=#AAAAAA>(es-la)</color>
 Snayp <color=#AAAAAA>(fr-fr)</color>
+SwordCatMeow <color=#AAAAAA>(es-es)</color>
 Thebababois369 <color=#AAAAAA>(id-id)</color>
 Tombuntu <color=#AAAAAA>(ja-jp)</color>
 Windows10V <color=#AAAAAA>(pt-br)</color>
 vlco_o <color=#AAAAAA>(es-es, ro-ro)</color>
+ZilverLining <color=#AAAAAA>(fi-fi)</color>
+Zoey Green <color=#AAAAAA>(af-za)</color>
 
 <color=yellow>{ui.about.credits.qa}</color>
 AprilShade

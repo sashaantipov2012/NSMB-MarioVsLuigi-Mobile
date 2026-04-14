@@ -18,24 +18,31 @@ public static class Enums {
         MegaMushroom = 1 << 1,
     }
 
-    public enum PrefabParticle : byte {
-        [PrefabParticleData("Prefabs/Particle/GreenPipe")] Pipe_Break_Green,
-        [PrefabParticleData("Prefabs/Particle/GreenPipe-D")] Pipe_Break_Green_Broken,
-        [PrefabParticleData("Prefabs/Particle/BluePipe")] Pipe_Break_Blue,
-        [PrefabParticleData("Prefabs/Particle/BluePipe-D")] Pipe_Break_Blue_Broken,
-        [PrefabParticleData("Prefabs/Particle/RedPipe")] Pipe_Break_Red,
-        [PrefabParticleData("Prefabs/Particle/RedPipe-D")] Pipe_Break_Red_Broken,
+    public enum PrefabParticle : byte
+    {
+        [PrefabParticleData("Particle/GreenPipe")] Pipe_Break_Green,
+        [PrefabParticleData("Particle/GreenPipe-D")] Pipe_Break_Green_Broken,
+        [PrefabParticleData("Particle/BluePipe")] Pipe_Break_Blue,
+        [PrefabParticleData("Particle/BluePipe-D")] Pipe_Break_Blue_Broken,
+        [PrefabParticleData("Particle/RedPipe")] Pipe_Break_Red,
+        [PrefabParticleData("Particle/RedPipe-D")] Pipe_Break_Red_Broken,
 
-        [PrefabParticleData("Prefabs/Particle/BulletBillLauncher")] BulletBillLauncher_Break,
+        [PrefabParticleData("Particle/BulletBillLauncher")] BulletBillLauncher_Break,
 
-        [PrefabParticleData("Prefabs/Particle/Puff")] Enemy_Puff,
-        [PrefabParticleData("Prefabs/Particle/EnemyHardKick")] Enemy_HardKick,
-        [PrefabParticleData("Prefabs/Particle/KillPoof")] Enemy_KillPoof,
+        [PrefabParticleData("Particle/Puff")] Enemy_Puff,
+        [PrefabParticleData("Particle/EnemyHardKick")] Enemy_HardKick,
+        [PrefabParticleData("Particle/KillPoof")] Enemy_KillPoof,
 
-        [PrefabParticleData("Prefabs/Particle/WalljumpParticle")] Player_WallJump,
-        [PrefabParticleData("Prefabs/Particle/GroundpoundDust")] Player_Groundpound,
-        [PrefabParticleData("Prefabs/Particle/MegaMushroomGrow")] Player_MegaMushroom,
-        [PrefabParticleData("Prefabs/Particle/WaterDust")] Player_WaterDust,
+        [PrefabParticleData("Particle/WalljumpParticle")] Player_WallJump,
+        [PrefabParticleData("Particle/GroundpoundDust")] Player_Groundpound,
+        [PrefabParticleData("Particle/MegaGroundpoundStars")] Player_MegaGroundpoundStars,
+        [PrefabParticleData("Particle/MegaGroundpoundDust")] Player_MegaGroundpoundDust,
+        [PrefabParticleData("Particle/MegaGroundpoundImpact")] Player_MegaGroundpoundImpact,
+        [PrefabParticleData("Particle/MegaMushroomGrow")] Player_MegaMushroom,
+        [PrefabParticleData("Particle/WaterDust")] Player_WaterDust,
+        [PrefabParticleData("Particle/TripleJumpLandingDust")] Player_TripleJumpLandingDust,
+        [PrefabParticleData("Particle/MegaFootstep")] Player_MegaFootstep,
+        [PrefabParticleData("Particle/PlayerBounce")] Player_PlayerBump,
     }
 
     #endregion

@@ -10,13 +10,8 @@ using Input = Quantum.Input;
 namespace NSMB.Quantum {
     public class InputCollector : MonoBehaviour {
 
-        //---Properties
-        public bool IsPaused { get; set; }
-
         //---Serialized Variables
-#if UNITY_EDITOR || MVL_DEBUG
         [SerializeField] private List<DebugSpawnCommand> debugSpawnCommands = new();
-#endif
         [SerializeField] private PlayerElements playerElements;
 
         public void Start() {
@@ -28,35 +23,32 @@ namespace NSMB.Quantum {
             Settings.Controls.Player.ReserveItem.performed -= OnPowerupAction;
         }
 
-
-#if UNITY_EDITOR || MVL_DEBUG
         public void Update() {
+            var game = QuantumRunner.DefaultGame;
+            if (game == null || game.Configurations.Runtime.IsRealGame) {
+                return;
+            }
+            var keyboard = Keyboard.current;
+
             foreach (var debug in debugSpawnCommands) {
-                if (UnityEngine.Input.GetKeyDown(debug.KeyCode)) {
-                    QuantumRunner.DefaultGame.SendCommand(new CommandMvLDebugCmd { 
+                if (keyboard[debug.Key].wasPressedThisFrame) {
+                    game.SendCommand(new CommandMvLDebugCmd {
                         CommandId = CommandMvLDebugCmd.DebugCommand.SpawnEntity,
                         SpawnData = debug.Entity,
                     });
                 }
             }
-            if (UnityEngine.Input.GetKeyDown(KeyCode.P)) {
-                QuantumRunner.DefaultGame.SendCommand(new CommandMvLDebugCmd {
+            if (keyboard[Key.P].wasPressedThisFrame) {
+                game.SendCommand(new CommandMvLDebugCmd {
                     CommandId = CommandMvLDebugCmd.DebugCommand.KillSelf,
                 });
             }
-            if (UnityEngine.Input.GetKeyDown(KeyCode.O)) {
-                QuantumRunner.DefaultGame.SendCommand(new CommandMvLDebugCmd {
+            if (keyboard[Key.O].wasPressedThisFrame) {
+                game.SendCommand(new CommandMvLDebugCmd {
                     CommandId = CommandMvLDebugCmd.DebugCommand.FreezeSelf,
                 });
             }
         }
-
-        [Serializable]
-        public class DebugSpawnCommand {
-            public KeyCode KeyCode;
-            public AssetRef<EntityPrototype> Entity;
-        }
-#endif
 
         public void OnPowerupAction(InputAction.CallbackContext context) {
             if (!playerElements.IsSpectating && !playerElements.PauseMenu.IsPaused) {
@@ -67,7 +59,7 @@ namespace NSMB.Quantum {
         public void OnPollInput(CallbackPollInput callback) {
             Input i;
 
-            if (IsPaused) {
+            if (playerElements.PauseMenu.IsPaused) {
                 i = new();
             } else {
                 Settings.Controls.Player.Enable();
@@ -80,9 +72,9 @@ namespace NSMB.Quantum {
                 bool left = Vector2.Dot(normalizedJoystick, Vector2.left) > 0.4f;
                 bool right = Vector2.Dot(normalizedJoystick, Vector2.right) > 0.4f;
 
-                bool jump = Settings.Controls.Player.Jump.ReadValue<float>() > 0.5f;
-                bool sprint = (Settings.Controls.Player.Sprint.ReadValue<float>() > 0.5f) ^ Settings.Instance.controlsAutoSprint;
-                bool powerupAction = Settings.Controls.Player.PowerupAction.ReadValue<float>() > 0.5f;
+                bool jump = Settings.Controls.Player.Jump.IsPressed();
+                bool sprint = Settings.Controls.Player.Sprint.IsPressed() ^ Settings.Instance.controlsAutoSprint;
+                bool powerupAction = Settings.Controls.Player.PowerupAction.IsPressed();
 
                 i = new() {
                     Up = up,
@@ -94,10 +86,19 @@ namespace NSMB.Quantum {
                     PowerupAction = powerupAction,
                     FireballPowerupAction = Settings.Instance.controlsFireballSprint && sprint,
                     PropellerPowerupAction = Settings.Instance.controlsPropellerJump && jump,
+                    AllowGroundpoundWithLeftRight = Settings.Instance.controlsAllowGroundpoundWithLeftRight,
                 };
             }
 
             callback.SetInput(i, DeterministicInputFlags.Repeatable);
         }
+
+
+        [Serializable]
+        public class DebugSpawnCommand {
+            public Key Key;
+            public AssetRef<EntityPrototype> Entity;
+        }
+
     }
 }

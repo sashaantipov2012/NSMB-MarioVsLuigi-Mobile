@@ -7,7 +7,7 @@ namespace Quantum {
             f.Unsafe.GetPointer<Interactable>(entity)->ColliderDisabled = false;
         }
 
-        public readonly void Kill(Frame f, EntityRef goombaEntity, EntityRef killerEntity, KillReason reason) {
+        public readonly void Kill(Frame f, EntityRef goombaEntity, EntityRef killerEntity, EnemyKillReason reason) {
             var enemy = f.Unsafe.GetPointer<Enemy>(goombaEntity);
             var goomba = f.Unsafe.GetPointer<Goomba>(goombaEntity);
             var physicsObject = f.Unsafe.GetPointer<PhysicsObject>(goombaEntity);
@@ -22,7 +22,7 @@ namespace Quantum {
                 gamemode.SpawnLooseCoin(f, center);
             }
 
-            if (reason != KillReason.Normal) {
+            if (reason != EnemyKillReason.Normal) {
                 // Fall off screen
                 if (f.Unsafe.TryGetPointer(killerEntity, out Transform2D* killerTransform)) {
                     QuantumUtils.UnwrapWorldLocations(f, goombaTransform->Position, killerTransform->Position, out FPVector2 ourPos, out FPVector2 theirPos);
@@ -52,6 +52,7 @@ namespace Quantum {
             }
 
             enemy->IsDead = true;
+            enemy->SetDelayedRespawn();
             f.Unsafe.GetPointer<Interactable>(goombaEntity)->ColliderDisabled = true;
 
             var collider = f.Unsafe.GetPointer<PhysicsCollider2D>(goombaEntity);

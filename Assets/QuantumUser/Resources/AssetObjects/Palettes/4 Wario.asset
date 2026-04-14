@@ -16,8 +16,8 @@ MonoBehaviour:
     Path: QuantumUser/Resources/AssetObjects/Palettes/4 Wario
     Guid:
       Value: 439818323390480907
-  colors:
-  - character:
+  Colors:
+  - Character:
       Id:
         Value: 0
     ShirtColor:
@@ -30,7 +30,7 @@ MonoBehaviour:
       G: 13
       B: 140
       A: 255
-    shirtColor: {r: 0.9056604, g: 0.69068044, b: 0, a: 1}
-    overallsColor: {r: 0.41230103, g: 0.04903879, b: 0.5471698, a: 1}
-    hatUsesOverallsColor: 0
-  translationKey: skin.wario
+    HatUsesOverallsColor: 0
+  TranslationKey: skin.wario
+  Order: 500
+  IsLegacy: 1

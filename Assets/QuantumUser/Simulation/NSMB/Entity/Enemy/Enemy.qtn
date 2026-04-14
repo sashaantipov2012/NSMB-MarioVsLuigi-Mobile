@@ -1,11 +1,19 @@
+#define EnemyMaxDistFromMario 8
+#define EnemyHomeBoxBuffer 8
+
 component Enemy {
 	FPVector2 Spawnpoint;
 	bool IgnorePlayerWhenRespawning;
 	bool DisableRespawning;
+	bool StayAtHomeWhenOffscreen;
 
 	[ExcludeFromPrototype] bool IsActive;
 	[ExcludeFromPrototype] bool IsDead;
+	[ExcludeFromPrototype] bool IgnoreOffscreen;
 	[ExcludeFromPrototype] bool FacingRight;
+	[ExcludeFromPrototype] int RespawnTimer;
+	[ExcludeFromPrototype] int RespawnSparklesTimer;
+	[ExcludeFromPrototype] int IntangibilityFrames;
 }
 
 signal OnEnemyDespawned(EntityRef entity);
@@ -13,22 +21,20 @@ signal OnEnemyRespawned(EntityRef entity);
 signal OnEnemyEnemyCollision(EntityRef a, EntityRef b);
 signal OnEnemyKilledByStageReset(EntityRef entity);
 signal OnEnemyTurnaround(EntityRef entity);
+signal OnEnemyReturnedHome(EntityRef entity);
+signal OnEnemyRespawnSparkles(EntityRef entity);
 
-enum KillReason : Byte {
+enum EnemyKillReason : Byte {
 	Normal,
 	Special,
 	Groundpounded,
 	InWall
 }
 
-event EnemyDespawned {
-	EntityRef Entity;
-}
-
 event EnemyKilled {
 	EntityRef Enemy;
 	EntityRef Killer;
-	KillReason KillReason;
+	EnemyKillReason KillReason;
 	nothashed FPVector2 EnemyCenter;
 }
 
@@ -44,4 +50,17 @@ event PlayBumpSound {
 event EnemyKicked {
 	EntityRef Entity;
 	bool Groundpounded;
+}
+
+event EnemyDespawnedOffscreen {
+	EntityRef Entity;
+	nothashed FPVector2 Position;
+}
+
+event EnemyPreRespawned {
+	EntityRef Entity;
+}
+
+event EnemyAfterDelayedRespawn {
+	EntityRef Entity;
 }

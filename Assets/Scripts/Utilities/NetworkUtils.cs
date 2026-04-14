@@ -1,3 +1,4 @@
+using NSMB.Addons;
 using Photon.Client;
 using Photon.Realtime;
 using Quantum;
@@ -10,8 +11,8 @@ namespace NSMB.Utilities {
             [Enums.NetRoomProperties.HostName] = "noname",
             [Enums.NetRoomProperties.IntProperties] = (int) IntegerProperties.Default,
             [Enums.NetRoomProperties.BoolProperties] = (int) BooleanProperties.Default,
-            [Enums.NetRoomProperties.StageGuid] = QuantumUnityDB.GetGlobalAsset(GlobalController.Instance.config.DefaultGamemode).DefaultRules.Stage.Id.ToString(),
-            [Enums.NetRoomProperties.GamemodeGuid] = GlobalController.Instance.config.DefaultGamemode.Id.ToString(),
+            [Enums.NetRoomProperties.StageGuid] = AssetRepository<GamemodeAsset>.AllAssets[0].DefaultRules.Stage.Id.ToString(),
+            [Enums.NetRoomProperties.GamemodeGuid] = AssetRepository<GamemodeAsset>.AllAssets[0].Identifier.Guid.ToString(),
         };
 
         public static Dictionary<short, string> RealtimeErrorCodes = new() {
@@ -33,6 +34,7 @@ namespace NSMB.Utilities {
             [DisconnectCause.ClientTimeout] = "ui.error.timeout",
             [DisconnectCause.Exception] = "ui.error.unknown",
             [DisconnectCause.DisconnectByServerLogic] = "ui.error.plugin",
+            [AddonManager.DisconnectCauseMissingAddon] = "ui.error.join.addons.downloadfailed"
         };
 
         public struct IntegerProperties {
@@ -41,7 +43,6 @@ namespace NSMB.Utilities {
                 StarRequirement = 10
             };
 
-            // Level :: Value ranges from 0-63: 6 bits
             // Timer :: Value ranges from 0-99: 7 bits
             // Lives :: Value ranges from 1-25: 5 bits
             // CoinRequirement :: Value ranges from 3-25: 5 bits
@@ -49,8 +50,8 @@ namespace NSMB.Utilities {
             // MaxPlayers :: Value ranges from 1-10: 4 bits
 
             // 31....26   25.....19   18...14   13...9   8...4   3..0
-            // Level      Timer       Lives     Coins    Stars   Unused
-            public int /*Level,*/ Timer, Lives, CoinRequirement, StarRequirement;
+            // Unused     Timer       Lives     Coins    Stars   Unused
+            public int Timer, Lives, CoinRequirement, StarRequirement;
 
             public static implicit operator int(IntegerProperties props) {
                 int value = 0;
@@ -83,7 +84,7 @@ namespace NSMB.Utilities {
                 CustomPowerups = true
             };
 
-            public bool CustomPowerups, Teams, DrawOnTimeUp, GameStarted;
+            public bool CustomPowerups, Teams, DrawOnTimeUp, GameStarted, AddonsEnabled;
 
             public static implicit operator int(BooleanProperties props) {
                 int value = 0;
@@ -92,6 +93,7 @@ namespace NSMB.Utilities {
                 Utils.BitSet(ref value, 1, props.Teams);
                 Utils.BitSet(ref value, 2, props.DrawOnTimeUp);
                 Utils.BitSet(ref value, 3, props.GameStarted);
+                Utils.BitSet(ref value, 4, props.AddonsEnabled);
 
                 return value;
             }
@@ -102,6 +104,7 @@ namespace NSMB.Utilities {
                     Teams = Utils.BitTest(bits, 1),
                     DrawOnTimeUp = Utils.BitTest(bits, 2),
                     GameStarted = Utils.BitTest(bits, 3),
+                    AddonsEnabled = Utils.BitTest(bits, 4)
                 };
             }
         };

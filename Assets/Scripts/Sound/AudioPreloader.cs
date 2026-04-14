@@ -16,7 +16,7 @@ namespace NSMB.Sound {
             QuantumEvent.Subscribe<EventGameStateChanged>(this, OnGameStateChanged);
 
             foreach (SoundEffect sfx in Enum.GetValues(typeof(SoundEffect))) {
-                CharacterAsset[] characters = GlobalController.Instance.config.CharacterDatas.Select(QuantumUnityDB.GetGlobalAsset).ToArray();
+                CharacterAsset[] characters = QuantumUnityDB.Global.GetAssets(new() { Type = typeof(CharacterAsset) }).Cast<CharacterAsset>().ToArray();
                 PreloadSoundEffect(sfx, characters);
             }
         }
@@ -45,6 +45,9 @@ namespace NSMB.Sound {
         }
 
         private void PreloadMusic(LoopingMusicData musicData) {
+            if (!musicData) {
+                return;
+            }
             PreloadClip(musicData.clip);
             PreloadClip(musicData.fastClip);
         }
@@ -66,6 +69,7 @@ namespace NSMB.Sound {
         }
 
         private void PreloadSoundEffect(SoundEffect sfx, CharacterAsset[] characters) {
+            /* TODO: fix
             var data = sfx.GetSoundData();
             if (data.Sound.Contains("{char}")) {
                 foreach (var character in characters) {
@@ -86,6 +90,7 @@ namespace NSMB.Sound {
                     sfx.GetClip();
                 }
             }
+            */
         }
 
         //---Callbacks & Events

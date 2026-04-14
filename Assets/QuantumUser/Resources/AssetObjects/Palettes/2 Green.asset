@@ -16,8 +16,8 @@ MonoBehaviour:
     Path: QuantumUser/Resources/AssetObjects/Palettes/2 Green
     Guid:
       Value: 359165249679469206
-  colors:
-  - character:
+  Colors:
+  - Character:
       Id:
         Value: 0
     ShirtColor:
@@ -30,7 +30,7 @@ MonoBehaviour:
       G: 227
       B: 111
       A: 255
-    shirtColor: {r: 0, g: 0.3962264, b: 0.20370966, a: 1}
-    overallsColor: {r: 0.10588236, g: 0.89019614, b: 0.43529415, a: 1}
-    hatUsesOverallsColor: 0
-  translationKey: skin.green
+    HatUsesOverallsColor: 0
+  TranslationKey: skin.green
+  Order: 100
+  IsLegacy: 1

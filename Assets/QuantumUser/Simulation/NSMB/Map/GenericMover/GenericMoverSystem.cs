@@ -1,7 +1,13 @@
+// #define MULTITHREADED
 using Photon.Deterministic;
+using Quantum.Task;
 
 namespace Quantum {
-    public unsafe class GenericMoverSystem : SystemMainThreadEntityFilter<GenericMover, GenericMoverSystem.Filter> {
+#if MULTITHREADED
+        public unsafe class GenericMoverSystem : SystemThreadedFilter<GenericMoverSystem.Filter> {
+#else
+        public unsafe class GenericMoverSystem : SystemMainThreadEntityFilter<GenericMover, GenericMoverSystem.Filter> {
+#endif
         public struct Filter {
             public EntityRef Entity;
             public Transform2D* Transform;
@@ -9,8 +15,14 @@ namespace Quantum {
             public MovingPlatform* Platform;
         }
 
+#if MULTITHREADED
+        public override void Update(FrameThreadSafe f, ref Filter filter) {
+            var globals = f.GetGlobal();
+#else
         public override void Update(Frame f, ref Filter filter, VersusStageData stage) {
-            if (f.Global->GameState is not (GameState.Starting or GameState.Playing)) {
+            var globals = f.Global;
+#endif 
+            if (globals->GameState is not (GameState.Starting or GameState.Playing)) {
                 return;
             }
 
@@ -19,8 +31,8 @@ namespace Quantum {
             var transform = filter.Transform;
             var asset = f.FindAsset(genericMover->MoverAsset);
 
-            FP currentTime = ((f.Number - f.Global->StartFrame) * f.DeltaTime) + genericMover->StartOffset;
-            FP nextTime = ((f.Number - f.Global->StartFrame + 1) * f.DeltaTime) + genericMover->StartOffset;
+            FP currentTime = ((f.Number - globals->StartFrame) * f.DeltaTime) + genericMover->StartOffset;
+            FP nextTime = ((f.Number - globals->StartFrame + 1) * f.DeltaTime) + genericMover->StartOffset;
 
             FPVector2 currentPos = SamplePosition(asset.ObjectPath, currentTime, asset.LoopMode);
             FPVector2 nextPos = SamplePosition(asset.ObjectPath, nextTime, asset.LoopMode);

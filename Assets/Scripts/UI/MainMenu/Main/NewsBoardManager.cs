@@ -25,16 +25,19 @@ namespace NSMB.UI.MainMenu.Submenus.Main {
 #if USE_CACHE
         private Dictionary<int, NewsBoardEntry.NewsBoardData> cachedPosts;
 #endif
+        private bool gotPosts;
 
-        public void Awake() {
+        public void OnEnable() {
+            if (!gotPosts) {
 #if USE_CACHE
-            try {
-                cachedPosts = JArray.Parse(PlayerPrefs.GetString("NewsCache", "")).Select(jt => jt.ToObject<NewsBoardEntry.NewsBoardData>()).ToDictionary(d => d.Id);
-            } catch (Exception e) {
-                cachedPosts = new();
-            }
+                try {
+                    cachedPosts = JArray.Parse(PlayerPrefs.GetString("NewsCache", "")).Select(jt => jt.ToObject<NewsBoardEntry.NewsBoardData>()).ToDictionary(d => d.Id);
+                } catch (Exception e) {
+                    cachedPosts = new();
+                }
 #endif
-            GlobalController.Instance.StartCoroutine(FetchPosts());
+                GlobalController.Instance.StartCoroutine(FetchPosts());
+            }
         }
 
 #if USE_CACHE
@@ -97,6 +100,7 @@ namespace NSMB.UI.MainMenu.Submenus.Main {
                     newPost.Initialize(postData);
                     posts.Add(newPost);
                 }
+                gotPosts = true;
             } else {
                 Debug.LogWarning($"[News] Failed to get list of posts at '{webRequest.url}' (Response Code: {webRequest.responseCode})");
             }

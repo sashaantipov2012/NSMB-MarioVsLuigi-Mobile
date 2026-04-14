@@ -1,3 +1,5 @@
+using NSMB.Utilities;
+using NSMB.Utilities.Extensions;
 using Quantum;
 using UnityEngine;
 
@@ -7,26 +9,23 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
         //---Properties
         public override bool CanIncreaseValue {
             get {
-                QuantumGame game = QuantumRunner.DefaultGame;
-                var allGamemodes = game.Configurations.Simulation.AllGamemodes;
+                var allGamemodes = AssetRepository<GamemodeAsset>.AllAssetRefs;
                 int currentIndex = allGamemodes.IndexOf(gm => gm == (AssetRef<GamemodeAsset>) value);
-                return currentIndex < allGamemodes.Length - 1;
+                return currentIndex < allGamemodes.Count - 1;
             }
         }
         public override bool CanDecreaseValue {
             get {
-                QuantumGame game = QuantumRunner.DefaultGame;
-                var allGamemodes = game.Configurations.Simulation.AllGamemodes;
+                var allGamemodes = AssetRepository<GamemodeAsset>.AllAssetRefs;
                 int currentIndex = allGamemodes.IndexOf(gm => gm == (AssetRef<GamemodeAsset>) value);
                 return currentIndex > 0;
             }
         }
 
         protected override void IncreaseValueInternal() {
-            QuantumGame game = QuantumRunner.DefaultGame;
-            var allGamemodes = game.Configurations.Simulation.AllGamemodes;
+            var allGamemodes = AssetRepository<GamemodeAsset>.AllAssetRefs;
             int currentIndex = allGamemodes.IndexOf(gm => gm == (AssetRef<GamemodeAsset>) value);
-            int newIndex = Mathf.Min(currentIndex + 1, allGamemodes.Length - 1);
+            int newIndex = Mathf.Min(currentIndex + 1, allGamemodes.Count - 1);
 
             if (currentIndex != newIndex) {
                 value = allGamemodes[newIndex];
@@ -36,8 +35,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
         }
 
         protected override void DecreaseValueInternal() {
-            QuantumGame game = QuantumRunner.DefaultGame;
-            var allGamemodes = game.Configurations.Simulation.AllGamemodes;
+            var allGamemodes = AssetRepository<GamemodeAsset>.AllAssetRefs;
             int currentIndex = allGamemodes.IndexOf(gm => gm == (AssetRef<GamemodeAsset>) value);
             int newIndex = Mathf.Max(currentIndex - 1, 0);
 
@@ -60,8 +58,10 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
                 break;
             }
 
-            int slot = game.GetLocalPlayerSlots()[game.GetLocalPlayers().IndexOf(game.Frames.Predicted.Global->Host)];
-            game.SendCommand(slot, cmd);
+            PlayerRef host = game.Frames.Predicted.Global->Host;
+            if (game.PlayerIsLocal(host)) {
+                game.SendCommand(game.GetLocalPlayerSlots()[game.GetLocalPlayers().IndexOf(host)], cmd);
+            }
         }
 
         protected override void UpdateLabel() {

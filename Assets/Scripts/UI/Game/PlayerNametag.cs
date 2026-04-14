@@ -37,7 +37,7 @@ namespace NSMB.UI.Game {
             this.parent = parent;
 
             var mario = f.Unsafe.GetPointer<MarioPlayer>(Entity);
-            this.character = f.FindAsset(mario->CharacterAsset);
+            character = f.FindAsset(mario->CharacterAsset);
             stage = f.FindAsset<VersusStageData>(f.Map.UserAsset);
             UpdateCachedNickname(f, mario);
 
@@ -46,6 +46,7 @@ namespace NSMB.UI.Game {
             gameObject.SetActive(true);
 
             UpdateText(f);
+            Settings.OnColorblindModeChanged += OnColorblindModeChanged;
         }
 
         public void Start() {
@@ -63,6 +64,10 @@ namespace NSMB.UI.Game {
             }
         }
 
+        public void OnDestroy() {
+            Settings.OnColorblindModeChanged -= OnColorblindModeChanged;
+        }
+
         public unsafe void LateUpdate() {
             // If our parent object despawns, we also die.
             if (!parent) {
@@ -70,36 +75,39 @@ namespace NSMB.UI.Game {
                 return;
             }
 
-            Frame f = game.Frames.Predicted;
-            if (!f.Unsafe.TryGetPointer(Entity, out MarioPlayer* mario)) {
-                return;
-            }
-
-            nametag.SetActive(elements.Entity != Entity && !(mario->IsDead && (mario->IsRespawning || transform.position.y <= stage.StageWorldMin.Y.AsFloat + 0.1f)) && f.Global->GameState >= GameState.Playing);
-            if (!nametag.activeInHierarchy) {
-                return;
-            }
-
-            var shape = f.Unsafe.GetPointer<PhysicsCollider2D>(Entity)->Shape;
-            Vector2 worldPos = parent.models.transform.position;
-            worldPos.y += shape.Box.Extents.Y.AsFloat * 2.4f + 0.5f;
-
-            Camera cam = elements.Camera;
-            if (stage.IsWrappingLevel) {
-                // Wrapping
-                if (Mathf.Abs(worldPos.x - cam.transform.position.x) > (stage.TileDimensions.X * 0.25f)) {
-                    worldPos.x += (cam.transform.position.x > ((stage.StageWorldMin.X + stage.StageWorldMax.X) / 2).AsFloat ? 1 : -1) * (stage.TileDimensions.X * 0.5f);
+            // Bodge: for some reason, the TryGetPointer throws an exception in 3.1 in `Has`. No idea/
+            try {
+                Frame f = game.Frames.Predicted;
+                if (!f.Unsafe.TryGetPointer(Entity, out MarioPlayer* mario)) {
+                    return;
                 }
-            }
 
-            RectTransform parentTransform = (RectTransform) transform.parent;
-            transform.localPosition = (cam.WorldToViewportPoint(worldPos) * 2) - Vector3.one;
-            transform.localPosition = transform.localPosition.Multiply(parentTransform.rect.size / 2);
-            transform.localScale = Vector3.one * (3.5f / cam.orthographicSize);
+                nametag.SetActive(elements.Entity != Entity && !(mario->IsDead && (mario->IsRespawning || transform.position.y <= stage.StageWorldMin.Y.AsFloat + 0.1f)) && f.Global->GameState >= GameState.Playing);
+                if (!nametag.activeInHierarchy) {
+                    return;
+                }
 
-            if (!nicknameColor.Constant) {
-                text.color = nicknameColor.Sample();
-            }
+                var shape = f.Unsafe.GetPointer<PhysicsCollider2D>(Entity)->Shape;
+                Vector2 worldPos = parent.models.transform.position;
+                worldPos.y += shape.Box.Extents.Y.AsFloat * 2.4f + 0.5f;
+
+                Camera cam = elements.Camera;
+                if (stage.IsWrappingLevel) {
+                    // Wrapping
+                    if (Mathf.Abs(worldPos.x - cam.transform.position.x) > (stage.TileDimensions.X * 0.25f)) {
+                        worldPos.x += (cam.transform.position.x > ((stage.StageWorldMin.X + stage.StageWorldMax.X) / 2).AsFloat ? 1 : -1) * (stage.TileDimensions.X * 0.5f);
+                    }
+                }
+
+                RectTransform parentTransform = (RectTransform) transform.parent;
+                transform.localPosition = (cam.WorldToViewportPoint(worldPos) * 2) - Vector3.one;
+                transform.localPosition = transform.localPosition.Multiply(parentTransform.rect.size / 2);
+                transform.localScale = Vector3.one * (3.5f / cam.orthographicSize);
+
+                if (!nicknameColor.Constant) {
+                    text.color = nicknameColor.Sample();
+                }
+            } catch { }
         }
 
         private static readonly StringBuilder stringBuilder = new();
@@ -111,10 +119,14 @@ namespace NSMB.UI.Game {
 
             stringBuilder.Clear();
 
-            if (f.Global->Rules.TeamsEnabled && Settings.Instance.GraphicsColorblind && mario->GetTeam(f) is byte teamIndex) {
-                var teams = f.SimulationConfig.Teams;
-                TeamAsset team = f.FindAsset(teams[teamIndex % teams.Length]);
-                stringBuilder.Append(team.textSpriteColorblindBig);
+            if (Settings.Instance.GraphicsColorblind) {
+                if (f.Global->Rules.TeamsEnabled && mario->GetTeam(f) is byte teamIndex) {
+                    var teams = f.Context.GetAllAssets<TeamAsset>();
+                    TeamAsset team = teams[teamIndex % teams.Count];
+                    stringBuilder.Append(team.textSpriteColorblindBig);
+                } else {
+                    stringBuilder.Append(Utils.GetPlayerIcon(f, mario->PlayerRef));
+                }
             }
             stringBuilder.AppendLine(cachedNickname);
 
@@ -185,6 +197,10 @@ namespace NSMB.UI.Game {
                 UpdateCachedNickname(f, mario);
             }
             UpdateText(f);
+        }
+
+        private void OnColorblindModeChanged() {
+            UpdateText(QuantumRunner.DefaultGame.Frames.Predicted);
         }
     }
 }

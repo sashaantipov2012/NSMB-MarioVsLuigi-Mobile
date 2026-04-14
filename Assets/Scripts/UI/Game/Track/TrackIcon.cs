@@ -49,22 +49,11 @@ namespace NSMB.UI.Game.Track {
             transform.localPosition = new(percentage * trackWidth - trackMaxX, transform.localPosition.y, transform.localPosition.z);
 
             if (upArrow && downArrow) {
-                float cameraBottom = stage.CameraMinPosition.Y.AsFloat;
-                float cameraTop = Mathf.Max(stage.CameraMinPosition.Y.AsFloat + 7, stage.CameraMaxPosition.Y.AsFloat);
-                float stageHeight = cameraTop - cameraBottom;
-                if (stageHeight > 18) {
-                    // Thirds
-                    upArrow.enabled = targetTransform.position.y > cameraBottom - (stageHeight / 3f);
-                    downArrow.enabled = targetTransform.position.y < cameraTop + (stageHeight / 3f);
-                } else if (stageHeight > 12) {
-                    // Halves
-                    upArrow.enabled = targetTransform.position.y > cameraBottom + (stageHeight / 2f);
-                    downArrow.enabled = !upArrow.enabled;
-                } else {
-                    // Screen bounds
-                    upArrow.enabled = targetTransform.position.y > cameraTop;
-                    downArrow.enabled = targetTransform.position.y < cameraBottom;
-                }
+                var camera = playerElements.Camera;
+                float offset = camera.orthographicSize - 0.25f;
+
+                upArrow.enabled = camera.transform.position.y + offset < targetTransform.position.y;
+                downArrow.enabled = camera.transform.position.y - offset > targetTransform.position.y;
             }
         }
     }

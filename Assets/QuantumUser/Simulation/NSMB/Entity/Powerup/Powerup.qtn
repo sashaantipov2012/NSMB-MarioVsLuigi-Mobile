@@ -1,9 +1,8 @@
 component Powerup {
 	bool FacingRight;
 
-	FPVector2 AnimationCurveOrigin;
-	FP AnimationCurveTimer;
-	[ExcludeFromPrototype] byte IgnorePlayerFrames;
+	[ExcludeFromPrototype] FPVector2 AnimationCurveOrigin;
+	[ExcludeFromPrototype] FP AnimationCurveTimer;
 }
 
 signal OnMarioPlayerCollectedPowerup(EntityRef mario, EntityRef powerup);
@@ -28,8 +27,7 @@ enum PowerupSpawnReason : Byte {
 }
 
 enum PowerupReserveResult : Byte {
-    None,
-    NoneButPlaySound,
-    ReserveOldPowerup,
-    ReserveNewPowerup,
+	KeepOldReserveNew,
+    CollectNewReserveOld,
+    CollectNewIgnoreOld,
 }

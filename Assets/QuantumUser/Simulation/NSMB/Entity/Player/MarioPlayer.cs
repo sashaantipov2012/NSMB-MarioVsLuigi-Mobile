@@ -1,17 +1,103 @@
 using Photon.Deterministic;
-using Quantum.Collections;
-using Quantum.Core;
 using System;
+using UnityEngine;
 
 namespace Quantum {
     public unsafe partial struct MarioPlayer {
 
+        public bool FacingRight {
+            readonly get => Flags.IsSet(0); 
+            set => SetValue(ref Flags, 0, value); 
+        }
+        public bool IsSkidding {
+            readonly get => Flags.IsSet(1);
+            set => SetValue(ref Flags, 1, value);
+        }
+        public bool IsTurnaround {
+            readonly get => Flags.IsSet(2);
+            set => SetValue(ref Flags, 2, value);
+        }
+        public bool DoEntityBounce {
+            readonly get => Flags.IsSet(3);
+            set => SetValue(ref Flags, 3, value);
+        }
+        public bool WallslideLeft {
+            readonly get => Flags.IsSet(4);
+            set => SetValue(ref Flags, 4, value);
+        }
+        public bool WallslideRight {
+            readonly get => Flags.IsSet(5);
+            set => SetValue(ref Flags, 5, value);
+        }
+        public bool IsGroundpounding {
+            readonly get => Flags.IsSet(6);
+            set => SetValue(ref Flags, 6, value);
+        }
+        public bool IsGroundpoundActive {
+            readonly get => Flags.IsSet(7);
+            set => SetValue(ref Flags, 7, value);
+        }
+        public bool IsInWeakKnockback {
+            readonly get => Flags.IsSet(8);
+            set => SetValue(ref Flags, 8, value);
+        }
+        public bool KnockForwards {
+            readonly get => Flags.IsSet(9);
+            set => SetValue(ref Flags, 9, value);
+        }
+        public bool KnockbackWasOriginallyFacingRight {
+            readonly get => Flags.IsSet(10);
+            set => SetValue(ref Flags, 10, value);
+        }
+        public bool IsCrouching {
+            readonly get => Flags.IsSet(11);
+            set => SetValue(ref Flags, 11, value);
+        }
+        public bool IsSliding {
+            readonly get => Flags.IsSet(12);
+            set => SetValue(ref Flags, 12, value);
+        }
+        public bool IsSpinnerFlying {
+            readonly get => Flags.IsSet(13);
+            set => SetValue(ref Flags, 13, value);
+        }
+        public bool IsDrilling {
+            readonly get => Flags.IsSet(14);
+            set => SetValue(ref Flags, 14, value);
+        }
+        public bool IsStuckInBlock {
+            readonly get => Flags.IsSet(15);
+            set => SetValue(ref Flags, 15, value);
+        }
+        public bool MegaMushroomStationaryEnd {
+            readonly get => Flags.IsSet(16);
+            set => SetValue(ref Flags, 16, value);
+        }
+        public bool IsInShell {
+            readonly get => Flags.IsSet(17);
+            set => SetValue(ref Flags, 17, value);
+        }
+        public bool IsPropellerFlying {
+            readonly get => Flags.IsSet(18);
+            set => SetValue(ref Flags, 18, value);
+        }
+        public bool UsedPropellerThisJump {
+            readonly get => Flags.IsSet(19);
+            set => SetValue(ref Flags, 19, value);
+        }
+        public bool PipeEntering {
+            readonly get => Flags.IsSet(20);
+            set => SetValue(ref Flags, 20, value);
+        }
+
         public readonly bool IsStarmanInvincible => InvincibilityFrames > 0;
         public readonly bool IsWallsliding => WallslideLeft || WallslideRight;
-        public readonly bool IsCrouchedInShell => CurrentPowerupState == PowerupState.BlueShell && (IsCrouching || (IsGroundpounding && GroundpoundStartFrames == 0)) && !IsInShell;
+        public readonly bool IsCrouchedInShell => CurrentPowerupState == PowerupState.BlueShell && (IsCrouching || IsGroundpounding && GroundpoundStartFrames <= 11) && !IsInShell;
         public readonly bool IsDamageable => !IsStarmanInvincible && DamageInvincibilityFrames == 0;
         public readonly bool IsInKnockback => CurrentKnockback != KnockbackStrength.None;
         public readonly bool CanCollectOwnTeamsObjectiveCoins => !IsInKnockback && DamageInvincibilityFrames == 0;
+
+        public readonly bool IsValid(Frame f) => !Disconnected && !(f.Global->Rules.IsLivesEnabled && Lives == 0);
 
         public readonly byte? GetTeam(Frame f) {
             var data = QuantumUtils.GetPlayerData(f, PlayerRef);
@@ -89,7 +175,7 @@ namespace Quantum {
             return CurrentPowerupState == PowerupState.MegaMushroom
                 || IsStarmanInvincible
                 || IsInShell
-                || (((includeSliding && IsSliding) || IsCrouchedInShell) && FPMath.Abs(physicsObject->Velocity.X) > FP._0_33);
+                || includeSliding && IsSliding && FPMath.Abs(physicsObject->Velocity.X) > FP._0_33;
         }
 
         public readonly int GetSpeedStage(PhysicsObject* physicsObject, MarioPlayerPhysicsInfo physicsInfo) {
@@ -158,31 +244,24 @@ namespace Quantum {
                 return;
             }
 
+            var gamemode = f.FindAsset(f.Global->Rules.Gamemode);
+            int oldObjectiveCount = gamemode.GetObjectiveCount(f, f.Unsafe.GetPointer<MarioPlayer>(entity));
+
             IsDead = true;
             FireDeath = fire;
+            QuantumUtils.Decrement(ref Lives);
             f.Unsafe.GetPointer<Interactable>(entity)->ColliderDisabled = true;
-
             PreRespawnFrames = 180;
             RespawnFrames = 78;
+            DeathAnimationFrames = 36;
 
-            if ((f.Global->Rules.IsLivesEnabled && QuantumUtils.Decrement(ref Lives)) || Disconnected) {
+            if (dropObjectives) {
                 f.Signals.OnMarioPlayerDropObjective(entity, 1, attacker);
-                DeathAnimationFrames = (GamemodeData.StarChasers->Stars > 0) ? (byte) 30 : (byte) 36;
-            } else {
-                if (dropObjectives) {
-                    int objectiveCount = 1;
-                    /*
-                    if (f.Unsafe.TryGetPointer(attacker, out MarioPlayer* attackerMario) && attackerMario->IsGroundpoundActive) {
-                        objectiveCount = 3;
-                    }
-                    */
-                    f.Signals.OnMarioPlayerDropObjective(entity, objectiveCount, attacker);
-                }
-                DeathAnimationFrames = 36;
             }
 
             // OnSpinner = null;
-            CurrentPipe = default;
+            DoEntityBounce = false;
+            CurrentPipe = EntityRef.None;
             IsInShell = false;
             IsPropellerFlying = false;
             PropellerLaunchFrames = 0;
@@ -199,16 +278,8 @@ namespace Quantum {
             WallslideRight = false;
             WallslideLeft = false;
             ForceJumpTimer = 0;
-
-            /*
-            IsWaterWalking = false;
-            IsFrozen = false;
-           
-            if (FrozenCube) {
-                Runner.Despawn(FrozenCube.Object);
-            }
-            */
-
+            LastAttacker = EntityRef.None;
+            
             if (f.Unsafe.TryGetPointer(HeldEntity, out Holdable* holdable)) {
                 holdable->DropWithoutThrowing(f, HeldEntity);
             }
@@ -219,7 +290,7 @@ namespace Quantum {
             physicsObject->CurrentData = default;
 
             f.Signals.OnMarioPlayerDied(entity);
-            f.Events.MarioPlayerDied(entity, fire);
+            f.Events.MarioPlayerDied(entity, fire, oldObjectiveCount, attacker);
         }
 
         public bool Powerdown(Frame f, EntityRef entity, bool ignoreInvincible, EntityRef attacker) {
@@ -232,6 +303,9 @@ namespace Quantum {
             if (!doDamage) {
                 return false;
             }
+
+            var gamemode = f.FindAsset(f.Global->Rules.Gamemode);
+            int oldObjectiveCount = gamemode.GetObjectiveCount(f, f.Unsafe.GetPointer<MarioPlayer>(entity));
 
             PreviousPowerupState = CurrentPowerupState;
 
@@ -265,62 +339,10 @@ namespace Quantum {
             UsedPropellerThisJump = false;
 
             if (!IsDead) {
-                DamageInvincibilityFrames = 2 * 60;
-                f.Events.MarioPlayerTookDamage(entity);
+                DamageInvincibilityFrames = Constants.DamageInvincibilityFrames;
+                f.Events.MarioPlayerTookDamage(entity, oldObjectiveCount, attacker);
             }
             return true;
-        }
-
-        public void SpawnStars(Frame f, EntityRef entity, int amount) {
-            var stage = f.FindAsset<VersusStageData>(f.Map.UserAsset);
-            var transform = f.Unsafe.GetPointer<Transform2D>(entity);
-            bool fastStars = amount > 2 && GamemodeData.StarChasers->Stars > 2;
-            int starDirection = FacingRight ? 1 : 2;
-
-            if (f.Global->Rules.IsLivesEnabled && Lives == 0) {
-                fastStars = true;
-                NoLivesStarDirection = (byte) ((NoLivesStarDirection + 1) % 4);
-                starDirection = NoLivesStarDirection;
-
-                starDirection = starDirection switch {
-                    2 => 1,
-                    1 => 2,
-                    _ => starDirection
-                };
-            }
-
-            int droppedStars = 0;
-            while (amount > 0) {
-                if (GamemodeData.StarChasers->Stars <= 0) {
-                    break;
-                }
-
-                int actualStarDirection = starDirection % 4;
-                if (!fastStars) {
-                    actualStarDirection = starDirection switch {
-                        0 => 2,
-                        3 => 1,
-                        _ => starDirection
-                    };
-                }
-
-                var gamemode = f.FindAsset(f.Global->Rules.Gamemode) as StarChasersGamemode;
-                EntityRef newStarEntity = f.Create(gamemode.BigStarPrototype);
-                var newStar = f.Unsafe.GetPointer<BigStar>(newStarEntity);
-                var newStarTransform = f.Unsafe.GetPointer<Transform2D>(newStarEntity);
-                newStarTransform->Position = transform->Position;
-                newStar->InitializeMovingStar(f, stage, newStarEntity, actualStarDirection);
-
-                GamemodeData.StarChasers->Stars--;
-                amount--;
-                droppedStars++;
-                starDirection++;
-            }
-
-            if (droppedStars > 0) {
-                f.Events.MarioPlayerDroppedStar(entity);
-                GameLogicSystem.CheckForGameEnd(f);
-            }
         }
 
         public void PreRespawn(Frame f, EntityRef entity, VersusStageData stage) {
@@ -329,7 +351,7 @@ namespace Quantum {
 
             RespawnFrames = 78;
 
-            if ((f.Global->Rules.IsLivesEnabled && Lives == 0) || Disconnected) {
+            if (!IsValid(f)) {
                 f.Destroy(entity);
                 return;
             }
@@ -341,6 +363,7 @@ namespace Quantum {
             IsDead = true;
             f.Unsafe.GetPointer<Freezable>(entity)->FrozenCubeEntity = EntityRef.None;
             IsRespawning = true;
+            DoEntityBounce = false;
             FacingRight = true;
             WallslideLeft = false;
             WallslideRight = false;
@@ -353,13 +376,11 @@ namespace Quantum {
             PropellerSpinFrames = 0;
             JumpState = JumpState.None;
             PreviousPowerupState = CurrentPowerupState = PowerupState.NoPowerup;
-            //animationController.DisableAllModels();
             DamageInvincibilityFrames = 0;
             InvincibilityFrames = 0;
             MegaMushroomFrames = 0;
             MegaMushroomStartFrames = 0;
             MegaMushroomEndFrames = 0;
-            // f.ResolveHashSet(WaterColliders).Clear();
             IsCrouching = false;
             IsSliding = false;
             IsTurnaround = false;
@@ -382,22 +403,23 @@ namespace Quantum {
 
             IsDead = false;
             IsRespawning = false;
-            DamageInvincibilityFrames = 120;
+            DamageInvincibilityFrames = Constants.DamageInvincibilityFrames;
             CoyoteTimeFrames = 0;
             ForceJumpTimer = 0;
+            LastAttacker = EntityRef.None;
 
             physicsObject->IsFrozen = false;
             physicsObject->DisableCollision = false;
 
             f.Events.MarioPlayerRespawned(entity);
 
-            if (Disconnected) {
+            if (!IsValid(f)) {
                 // Disconnected while respawning
                 Death(f, entity, false, true, EntityRef.None);
             }
         }
 
-        public bool DoKnockback(Frame f, EntityRef entity, bool fromRight, int starsToDrop, KnockbackStrength strength, EntityRef attacker, bool bypassDamageInvincibility = false) {
+        public bool DoKnockback(Frame f, EntityRef entity, bool fromRight, int starsToDrop, KnockbackStrength strength, EntityRef attacker, bool bypassDamageInvincibility = false, ProjectileEffectType projectileEffectType = ProjectileEffectType.None, bool wasBlueShell = false) {
             var physicsObject = f.Unsafe.GetPointer<PhysicsObject>(entity);
             if (physicsObject->IsUnderwater) {
                 strength = KnockbackStrength.Normal;
@@ -413,7 +435,7 @@ namespace Quantum {
             }
 
             if (IsInKnockback) {
-                ResetKnockback();
+                ResetKnockback(f, entity);
             }
 
             if (CurrentPowerupState == PowerupState.MiniMushroom && strength >= KnockbackStrength.Groundpound) {
@@ -426,17 +448,19 @@ namespace Quantum {
                 starsToDrop = Math.Min(1, starsToDrop);
             }
 
+            var gamemode = f.FindAsset(f.Global->Rules.Gamemode);
+            int oldObjectiveCount = gamemode.GetObjectiveCount(f, f.Unsafe.GetPointer<MarioPlayer>(entity));
+
+            /*
             // Don't go into walls
             var transform = f.Unsafe.GetPointer<Transform2D>(entity);
             var collider = f.Unsafe.GetPointer<PhysicsCollider2D>(entity);
 
-            /*
-            if (strength > KnockbackStrength.Bump && PhysicsObjectSystem.Raycast((FrameThreadSafe) f, null, transform->Position + collider->Shape.Centroid, fromRight ? FPVector2.Left : FPVector2.Right, FP._0_33, out _)) {
+            if (!IsInWeakKnockback && PhysicsObjectSystem.Raycast(f, null, transform->Position + collider->Shape.Centroid, fromRight ? FPVector2.Left : FPVector2.Right, FP._0_33, out _)) {
                 fromRight = !fromRight;
             }
             */
 
-            var physics = f.FindAsset(PhysicsAsset);
             FPVector2 knockbackVelocity = strength switch {
                 KnockbackStrength.Groundpound => new(Constants._8_25 / 2, Constants._3_50),
                 KnockbackStrength.FireballBump => new(Constants._3_75 / 2, 0),
@@ -448,6 +472,7 @@ namespace Quantum {
             }
             knockbackVelocity.X *= fromRight ? -1 : 1;
             if (CurrentPowerupState == PowerupState.MiniMushroom) {
+                var physics = f.FindAsset(PhysicsAsset);
                 knockbackVelocity.X *= physics.KnockbackMiniMultiplier.X;
                 knockbackVelocity.Y *= physics.KnockbackMiniMultiplier.Y;
             }
@@ -455,7 +480,7 @@ namespace Quantum {
             KnockbackTick = f.Number;
 
             bool forceWeak = false;
-            if (freezable->IsFrozen(f)) {
+            if (freezable->IsFrozen(f) && strength != KnockbackStrength.Normal && strength != KnockbackStrength.Groundpound) {
                 forceWeak = true;
                 KnockbackTick -= 25;
             }
@@ -483,8 +508,14 @@ namespace Quantum {
             IsSliding = false;
             IsDrilling = false;
             WallslideLeft = WallslideRight = false;
-            
+
+            if (f.Unsafe.TryGetPointer(attacker, out Projectile* projectile)) {
+                attacker = projectile->Owner;
+            }
+            LastAttacker = attacker;
+
             f.Signals.OnMarioPlayerDropObjective(entity, starsToDrop, attacker);
+            f.Events.MarioPlayerTookKnockback(entity, attacker, starsToDrop, oldObjectiveCount, strength, projectileEffectType, wasBlueShell);
             return true;
         }
 
@@ -502,18 +533,20 @@ namespace Quantum {
             }
             if (IsInWeakKnockback || DoEntityBounce || physicsObject->IsUnderwater) {
                 // No getup frames
-                ResetKnockback();
+                ResetKnockback(f, entity);
             } else {
                 KnockbackGetupFrames = 25;
             }
         }
 
-        public void ResetKnockback() {
+        public void ResetKnockback(Frame f, EntityRef mario) {
             KnockbackGetupFrames = 0;
-            DamageInvincibilityFrames = 90;
+            DamageInvincibilityFrames = 90; // Exception: knockback does 90f instead of the usual 120f
             CurrentKnockback = KnockbackStrength.None;
             IsInWeakKnockback = false;
             FacingRight = KnockbackWasOriginallyFacingRight;
+            LastAttacker = EntityRef.None;
+            f.Events.MarioPlayerKnockbackOver(mario);
         }
 
         public void EnterPipe(Frame f, EntityRef mario, EntityRef pipe) {
@@ -531,6 +564,7 @@ namespace Quantum {
             PipeDirection = pipeComponent->IsCeilingPipe ? FPVector2.Up : FPVector2.Down;
 
             var pipeTransform = f.Unsafe.GetPointer<Transform2D>(pipe);
+            var otherPipeTransform = f.Unsafe.GetPointer<Transform2D>(pipeComponent->OtherPipe);
             var marioTransform = f.Unsafe.GetPointer<Transform2D>(mario);
             marioTransform->Position.X = pipeTransform->Position.X;
 
@@ -548,7 +582,22 @@ namespace Quantum {
                 InvincibilityFrames += (ushort) (PipeFrames * 2);
             }
 
-            f.Events.MarioPlayerEnteredPipe(mario, CurrentPipe);
+            sbyte horizontalDirection;
+            if (pipeComponent->TransitionOnlyPanning) {
+                horizontalDirection = 0;
+            } else {
+                horizontalDirection = (sbyte) (otherPipeTransform->Position.X < pipeTransform->Position.X ? -1 : 1);
+            }
+
+            f.Events.MarioPlayerEnteredPipe(mario, CurrentPipe, false, horizontalDirection, FPVector2.Zero);
+        }
+
+        private static void SetValue(ref BitSet21 bitset, int index, bool value) {
+            if (value) {
+                bitset.Set(index);
+            } else {
+                bitset.Clear(index);
+            }
         }
     }
 }

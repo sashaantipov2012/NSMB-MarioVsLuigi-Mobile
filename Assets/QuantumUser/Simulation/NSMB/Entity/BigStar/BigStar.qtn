@@ -1,10 +1,10 @@
 #define _8_50 8.5
+#define MaxStarSpawns 64
 
 global {
 	ushort BigStarSpawnTimer;
 	EntityRef MainBigStar;
-	bitset[64] UsedStarSpawns;
-	int UsedStarSpawnCount;
+	bitset[MaxStarSpawns] UsedStarSpawns;
 }
 
 component BigStar {
@@ -21,8 +21,8 @@ signal OnMarioPlayerCollectedStar(EntityRef entity);
 
 synced event MarioPlayerCollectedStar {
 	EntityRef Entity;
-	MarioPlayer Mario;
 	FPVector2 Position;
+	EntityRef StarEntity;
 }
 
 synced event MarioPlayerDroppedStar {
@@ -33,4 +33,10 @@ event CollectableDespawned {
 	EntityRef Entity;
 	nothashed FPVector2 Position;
 	bool Collected;
+}
+
+synced event BigCollectableAttemptedSpawn {
+	int PositionIndex;
+	FPVector2 Position;
+	bool Success;
 }

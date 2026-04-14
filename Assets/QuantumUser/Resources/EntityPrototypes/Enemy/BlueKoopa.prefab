@@ -13,6 +13,11 @@ PrefabInstance:
       propertyPath: m_SynchronizeParameters.Array.size
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1004745928310103790, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: Prototype.StayAtHomeWhenOffscreen.Value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1172164201446178320, guid: 8cf8f49ac0882ed44953ea53ff901f11,
         type: 3}
       propertyPath: Prototype.DontWalkOfLedges.Value
@@ -38,6 +43,21 @@ PrefabInstance:
       propertyPath: floorAndRoofCutoff
       value: 0.2
       objectReference: {fileID: 0}
+    - target: {fileID: 2263134126362582639, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: respawnColor.b
+      value: 0.9725491
+      objectReference: {fileID: 0}
+    - target: {fileID: 2263134126362582639, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: respawnColor.g
+      value: 0.5647059
+      objectReference: {fileID: 0}
+    - target: {fileID: 2263134126362582639, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: respawnColor.r
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2331939488413250953, guid: 8cf8f49ac0882ed44953ea53ff901f11,
         type: 3}
       propertyPath: Flags
@@ -60,12 +80,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2331939488413250953, guid: 8cf8f49ac0882ed44953ea53ff901f11,
         type: 3}
-      propertyPath: NetworkGuid.RawGuidValue.Array.data[0]
+      propertyPath: 'NetworkGuid.RawGuidValue.Array.data[0]'
       value: -5466300104220802970
       objectReference: {fileID: 0}
     - target: {fileID: 2331939488413250953, guid: 8cf8f49ac0882ed44953ea53ff901f11,
         type: 3}
-      propertyPath: NetworkGuid.RawGuidValue.Array.data[1]
+      propertyPath: 'NetworkGuid.RawGuidValue.Array.data[1]'
       value: 1261931534101764457
       objectReference: {fileID: 0}
     - target: {fileID: 3385803388011817160, guid: 8cf8f49ac0882ed44953ea53ff901f11,
@@ -74,6 +94,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 22100000, guid: 8df73f9409b06d04190e8538ddfd3727,
         type: 2}
+    - target: {fileID: 5882114383898416491, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: respawnColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882114383898416491, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: respawnColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882114383898416491, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: respawnColor.g
+      value: 0.5647059
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882114383898416491, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: respawnColor.r
+      value: 0.1176471
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882114383898416491, guid: 8cf8f49ac0882ed44953ea53ff901f11,
+        type: 3}
+      propertyPath: respawnParticle
+      value: 
+      objectReference: {fileID: 5191653714546004373, guid: cb33e5df66c9644458081c1ddef24e6c,
+        type: 3}
     - target: {fileID: 7426856683177255952, guid: 8cf8f49ac0882ed44953ea53ff901f11,
         type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.y

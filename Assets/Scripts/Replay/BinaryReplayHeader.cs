@@ -1,8 +1,10 @@
 using Newtonsoft.Json;
 using NSMB.UI.Translation;
+using NSMB.Utilities;
 using Quantum;
 using Quantum.Prototypes;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -11,7 +13,6 @@ namespace NSMB.Replay {
     public class BinaryReplayHeader {
 
         //---Helpers
-        private static GameVersion CachedCurrentVersion;
         private static int MagicHeaderLength => Encoding.ASCII.GetByteCount(MagicHeader);
         private static readonly byte[] MagicBuffer = new byte[MagicHeaderLength];
 
@@ -22,7 +23,7 @@ namespace NSMB.Replay {
         public int InitialFrameNumber;
         public int ReplayLengthInFrames;
         public string CustomName = "";
-        public bool IsCompatible => Version.EqualsIgnoreHotfix(GetCurrentVersion()); // Major.Minor.Patch.Hotfix -> hotfix is for backwards compatible fixes.
+        public bool IsCompatible => Version.EqualsIgnoreHotfix(GameVersion.Current); // Major.Minor.Patch.Hotfix -> hotfix is for backwards compatible fixes.
 
         // Rules
         public GameRulesPrototype Rules;
@@ -31,11 +32,8 @@ namespace NSMB.Replay {
         public ReplayPlayerInformation[] PlayerInformation = Array.Empty<ReplayPlayerInformation>();
         public sbyte WinningTeam = -1;
 
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void ResetCachedVersion() {
-            CachedCurrentVersion = GameVersion.Parse(Application.version);
-        }
+        // Addons
+        public List<Guid> AddonGuids = new();
 
         internal long WriteToStream(Stream output) {
             using BinaryWriter writer = new(output, Encoding.UTF8, true);
@@ -58,11 +56,19 @@ namespace NSMB.Replay {
             }
             writer.Write(WinningTeam);
 
+            // Addons
+            if (Version >= new GameVersion(2, 1, 0)) {
+                writer.Write(AddonGuids.Count);
+                for (int i = 0; i < AddonGuids.Count; i++) {
+                    writer.Write(AddonGuids[i].ToByteArray());
+                }
+            }
+
             return writer.BaseStream.Length;
         }
 
         internal static ReplayParseResult TryLoadFromFile(Stream input, out BinaryReplayHeader result) {
-            using BinaryReader reader = new(input, Encoding.UTF8, true);
+            using BinaryReader reader = new(input, Encoding.UTF8, leaveOpen: true);
             
             result = new();
 
@@ -89,9 +95,17 @@ namespace NSMB.Replay {
                 // Players
                 result.PlayerInformation = new ReplayPlayerInformation[reader.ReadByte()];
                 for (int i = 0; i < result.PlayerInformation.Length; i++) {
-                    result.PlayerInformation[i] = ReplayPlayerInformation.Deserialize(reader);
+                    result.PlayerInformation[i] = ReplayPlayerInformation.Deserialize(reader, result.Version);
                 }
                 result.WinningTeam = reader.ReadSByte();
+
+                // Addons
+                if (result.Version >= new GameVersion(2, 1, 0)) {
+                    int guids = reader.ReadInt32();
+                    for (int i = 0; i < guids; i++) {
+                        result.AddonGuids.Add(new Guid(reader.ReadBytes(16)));
+                    }
+                }
             } catch {
                 return ReplayParseResult.ParseFailure;
             }
@@ -126,11 +140,6 @@ namespace NSMB.Replay {
             }
 
             return null;
-        }
-
-
-        public static GameVersion GetCurrentVersion() {
-            return CachedCurrentVersion;
         }
     }
 }

@@ -16,7 +16,7 @@ MonoBehaviour:
     Path: QuantumUser/Resources/AssetObjects/Palettes/12 Vinesauce
     Guid:
       Value: 504563041428027805
-  colors:
+  Colors:
   - Character:
       Id:
         Value: 532063855470386108
@@ -45,4 +45,6 @@ MonoBehaviour:
       B: 153
       A: 255
     HatUsesOverallsColor: 0
-  translationKey: skin.vinesauce
+  TranslationKey: skin.vinesauce
+  Order: 1300
+  IsLegacy: 1

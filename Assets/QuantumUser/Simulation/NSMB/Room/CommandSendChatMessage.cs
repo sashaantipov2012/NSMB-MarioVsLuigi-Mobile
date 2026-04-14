@@ -15,6 +15,11 @@ namespace Quantum {
                 return;
             }
 
+            RuntimePlayer runtimePlayer = f.GetPlayerData(sender);
+            if (runtimePlayer == null || runtimePlayer.IsGloballyMuted) {
+                return;
+            }
+
             playerData->LastChatMessage = f.Number;
             f.Events.PlayerSentChatMessage(sender, Message);
         }

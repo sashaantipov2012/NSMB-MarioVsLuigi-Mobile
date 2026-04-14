@@ -30,7 +30,6 @@ namespace NSMB.UI.Game.Replay {
         [SerializeField] private TMP_Text replayTimecode;
         [SerializeField] private TMP_Text replayPauseButton;
         [SerializeField] private CanvasGroup replayCanvasGroup;
-        [SerializeField] private InputActionReference mousePositionAction;
         [SerializeField] private GameObject defaultSelection;
 
         [SerializeField] private GameObject tabBlocker;
@@ -151,7 +150,7 @@ namespace NSMB.UI.Game.Replay {
 
             float percentage;
             if (draggingArrow) {
-                Vector2 mousePositionPixels = mousePositionAction.action.ReadValue<Vector2>();
+                Vector2 mousePositionPixels = Settings.Controls.UI.Point.ReadValue<Vector2>();
                 Vector2 mousePositionTrack = trackArrow.transform.parent.InverseTransformPoint(mousePositionPixels);
 
                 float newX = Mathf.Clamp(mousePositionTrack.x, minTrackX, maxTrackX);

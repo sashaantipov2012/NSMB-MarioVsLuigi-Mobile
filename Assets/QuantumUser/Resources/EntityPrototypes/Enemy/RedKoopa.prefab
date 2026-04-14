@@ -8,6 +8,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9017915444845116649, guid: 4f50cb5e806289d43bf820de1f1347bb,
+        type: 3}
+      propertyPath: respawnColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -9017915444845116649, guid: 4f50cb5e806289d43bf820de1f1347bb,
+        type: 3}
+      propertyPath: respawnColor.g
+      value: 0.16078432
+      objectReference: {fileID: 0}
+    - target: {fileID: -9017915444845116649, guid: 4f50cb5e806289d43bf820de1f1347bb,
+        type: 3}
+      propertyPath: respawnColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -8304985406365087950, guid: 4f50cb5e806289d43bf820de1f1347bb,
         type: 3}
       propertyPath: sceneViewId
@@ -36,14 +51,40 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4462257224907729137, guid: 4f50cb5e806289d43bf820de1f1347bb,
         type: 3}
-      propertyPath: NetworkGuid.RawGuidValue.Array.data[0]
+      propertyPath: 'NetworkGuid.RawGuidValue.Array.data[0]'
       value: -3157435927925294964
       objectReference: {fileID: 0}
     - target: {fileID: 4462257224907729137, guid: 4f50cb5e806289d43bf820de1f1347bb,
         type: 3}
-      propertyPath: NetworkGuid.RawGuidValue.Array.data[1]
+      propertyPath: 'NetworkGuid.RawGuidValue.Array.data[1]'
       value: 1233864249221731145
       objectReference: {fileID: 0}
+    - target: {fileID: 5481124906070657043, guid: 4f50cb5e806289d43bf820de1f1347bb,
+        type: 3}
+      propertyPath: respawnColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5481124906070657043, guid: 4f50cb5e806289d43bf820de1f1347bb,
+        type: 3}
+      propertyPath: respawnColor.b
+      value: 0.19339621
+      objectReference: {fileID: 0}
+    - target: {fileID: 5481124906070657043, guid: 4f50cb5e806289d43bf820de1f1347bb,
+        type: 3}
+      propertyPath: respawnColor.g
+      value: 0.19339621
+      objectReference: {fileID: 0}
+    - target: {fileID: 5481124906070657043, guid: 4f50cb5e806289d43bf820de1f1347bb,
+        type: 3}
+      propertyPath: respawnColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5481124906070657043, guid: 4f50cb5e806289d43bf820de1f1347bb,
+        type: 3}
+      propertyPath: respawnParticle
+      value: 
+      objectReference: {fileID: 5191653714546004373, guid: cb33e5df66c9644458081c1ddef24e6c,
+        type: 3}
     - target: {fileID: 5521876106847805377, guid: 4f50cb5e806289d43bf820de1f1347bb,
         type: 3}
       propertyPath: _interpolationDataSource

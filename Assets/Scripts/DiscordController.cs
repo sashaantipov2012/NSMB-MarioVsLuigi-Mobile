@@ -22,26 +22,25 @@ namespace NSMB {
 
         public void OnEnable() {
             TranslationManager.OnLanguageChanged += OnLanguageChanged;
+            Settings.OnDiscordIntegrationChanged += OnDiscordIntegrationChanged;
         }
 
         public void OnDisable() {
             TranslationManager.OnLanguageChanged -= OnLanguageChanged;
+            Settings.OnDiscordIntegrationChanged -= OnDiscordIntegrationChanged;
+
             discord?.Dispose();
+            discord = null;
         }
 
         public void Start() {
-#if UNITY_WEBGL || UNITY_WSA
-        enabled = false;
-#endif
-
             Initialize();
         }
 
-
         private bool Initialize() {
-#if UNITY_WEBGL || UNITY_WSA
-        enabled = false;
-        return false;
+#if !UNITY_STANDALONE
+            enabled = false;
+            return false;
 #endif
 
             lastInitializeTime = Time.time;
@@ -51,12 +50,11 @@ namespace NSMB {
                 return false;
             }
             activityManager = discord.GetActivityManager();
-            //activityManager.OnActivityJoinRequest += AskToJoin;
             activityManager.OnActivityJoin += TryJoinGame;
 
             try {
                 string filename = AppDomain.CurrentDomain.ToString();
-                filename = string.Join(" ", filename.Split(" ")[..^2]);
+                filename = string.Join(' ', filename.Split(' ')[..^2]);
                 string dir = AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + filename;
                 activityManager.RegisterCommand(dir);
                 Debug.Log($"[Discord] Set launch path to \"{dir}\"");
@@ -76,6 +74,11 @@ namespace NSMB {
                 return;
             }
 
+            if ((int) (Time.unscaledTime + Time.unscaledDeltaTime) > (int) Time.unscaledTime) {
+                // Update discord status every second
+                UpdateActivity();
+            }
+
             try {
                 discord.RunCallbacks();
             } catch {
@@ -92,7 +95,7 @@ namespace NSMB {
             }
 
             if (!Settings.Instance.GeneralDiscordIntegration) {
-                activityManager.ClearActivity(res => { });
+                activityManager.ClearActivity(_ => { });
                 return;
             }
 
@@ -100,13 +103,10 @@ namespace NSMB {
             QuantumRunner runner = QuantumRunner.Default;
             QuantumGame game = QuantumRunner.DefaultGame;
 
-            Room realtimeRoom = null;
-            if (runner && runner.NetworkClient != null) {
-                realtimeRoom = runner.NetworkClient.CurrentRoom;
-            }
-
             Activity activity = new();
-            if (realtimeRoom != null) {
+            if (runner && runner.NetworkClient != null) {
+                Room realtimeRoom = runner.NetworkClient.CurrentRoom;
+
                 activity.Party = new() {
                     Size = new() {
                         CurrentSize = realtimeRoom.PlayerCount,
@@ -118,6 +118,7 @@ namespace NSMB {
                 activity.Details = tm.GetTranslation("discord.online");
                 activity.Secrets = new() { Join = realtimeRoom.Name };
             }
+
             if (game != null) {
                 Frame f = game.Frames.Predicted;
 
@@ -131,7 +132,7 @@ namespace NSMB {
                         }
                     }
                     var stage = f.FindAsset<VersusStageData>(f.Map.UserAsset);
-                    var gamemode = f.FindAsset<GamemodeAsset>(f.Global->Rules.Gamemode);
+                    var gamemode = f.FindAsset(f.Global->Rules.Gamemode);
 
                     activity.Assets = new ActivityAssets {
                         LargeImage = !string.IsNullOrWhiteSpace(stage.DiscordStageImage) ? stage.DiscordStageImage : "mainmenu",
@@ -141,10 +142,10 @@ namespace NSMB {
                     };
 
                     long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                    if (f.Global->Rules.TimerMinutes > 0) {
-                        activity.Timestamps = new() { End = now + (f.Global->Timer * 1000).AsLong };
+                    if (f.Global->Rules.IsTimerEnabled) {
+                        activity.Timestamps = new() { End = now + (long) (f.Global->Timer.AsFloat * 1000) };
                     } else {
-                        activity.Timestamps = new() { Start = now - ((f.Number - f.Global->StartFrame) * f.DeltaTime * 1000).AsLong };
+                        activity.Timestamps = new() { Start = now - ((long) ((f.Number + game.InterpolationFactor) - f.Global->StartFrame) * (1000 / f.UpdateRate)) };
                     }
                 }
             } else {
@@ -153,27 +154,24 @@ namespace NSMB {
                 activity.Assets = new() { LargeImage = "mainmenu" };
             }
 
-            activityManager.UpdateActivity(activity, (res) => { });
+            activityManager.UpdateActivity(activity, _ => { });
         }
 
         private void OnLanguageChanged(TranslationManager tm) {
             UpdateActivity();
         }
 
+        private void OnDiscordIntegrationChanged() {
+            UpdateActivity();
+        }
+
         public void TryJoinGame(string secret) {
-            // TODO: test
             Debug.Log($"[Discord] Attempting to join game with secret \"{secret}\"");
             _ = NetworkHandler.JoinRoom(new EnterRoomArgs {
                 RoomName = secret,
             });
         }
 
-        //TODO this doesn't work???
-        public void AskToJoin(ref User user) {
-            //activityManager.SendRequestReply(user.Id, ActivityJoinRequestReply.Yes, (res) => {
-            //    Debug.Log($"[Discord] Ask to Join response: {res}");
-            //});
-        }
 #pragma warning restore CS0162
 #pragma warning restore IDE0079
     }

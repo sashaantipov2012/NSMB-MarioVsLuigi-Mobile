@@ -9,7 +9,6 @@ namespace Quantum {
         public override void EnableGamemode(Frame f) {
             f.SystemEnable<BigStarSystem>();
             f.Global->AutomaticStageRefreshTimer = f.Global->AutomaticStageRefreshInterval = 0;
-
         }
 
         public override void DisableGamemode(Frame f) {
@@ -68,11 +67,18 @@ namespace Quantum {
             }
         }
 
-        public override int GetObjectiveCount(Frame f, PlayerRef player) {
-            var marioFilter = f.Filter<MarioPlayer>();
-            marioFilter.UseCulling = false;
+        public override bool IsFastMusicEnabled(Frame f) {
+            // Additional check- is any one player about to win
+            GetWinningTeam(f, out int winningTeamStars);
+            if (winningTeamStars + 1 >= f.Global->Rules.StarsToWin) {
+                return true;
+            }
 
-            while (marioFilter.NextUnsafe(out _, out MarioPlayer* mario)) {
+            return base.IsFastMusicEnabled(f);
+        }
+
+        public override int GetObjectiveCount(Frame f, PlayerRef player) {
+            foreach ((_, var mario) in f.Unsafe.GetComponentBlockIterator<MarioPlayer>()) {
                 if (player != mario->PlayerRef) {
                     continue;
                 }
@@ -84,7 +90,7 @@ namespace Quantum {
         }
 
         public override int GetObjectiveCount(Frame f, MarioPlayer* mario) {
-            if (mario == null || mario->Disconnected || (mario->Lives == 0 && f.Global->Rules.IsLivesEnabled)) {
+            if (mario == null || !mario->IsValid(f)) {
                 return -1;
             }
 
@@ -94,10 +100,33 @@ namespace Quantum {
             return gamemodeDataCopy.StarChasers->Stars;
         }
 
-        public override FP GetItemSpawnWeight(Frame f, CoinItemAsset item, int leaderStars, int ourStars) {
+        public override FP GetItemSpawnWeight(Frame f, CoinItemAsset item, int ourStars) {
             int starsToWin = f.Global->Rules.StarsToWin;
-            int starDifference = leaderStars - ourStars;
-            FP bonus = item.LosingSpawnBonus * FPMath.Log(starDifference + 1, FP.E) * (FP._1 - ((FP) (starsToWin - leaderStars) / starsToWin));
+            
+            FP starsAvg = GetAverageObjectiveCount(f);
+            int starsFirstPlace = GetFirstPlaceObjectiveCount(f);
+            int starsLastPlace = GetLastPlaceObjectiveCount(f);
+
+            FP avgDiff = ourStars - starsAvg;
+            int diffLeader = starsFirstPlace - ourStars;
+
+            int starBand = starsFirstPlace - starsLastPlace;
+
+            FP normLeader = (FP)starsFirstPlace / starsToWin;
+            FP normStarAvg = starsAvg / starsToWin;
+
+            // item ranking formulas which is used for determining which items spawn
+            FP itemRank = avgDiff - diffLeader / 5 * starBand / starsToWin * (normLeader * starsToWin / 4);
+
+            // being above the average means you get different formula
+            FP bonus;
+            if (itemRank > 0) {
+                FP magni = (starBand + normStarAvg * starsToWin) / starsToWin;
+                bonus = item.AboveAverageBonus * FPMath.Log(FPMath.Abs(itemRank) + 1, FP.E) * magni;
+            } else {
+                FP magni = (starsAvg + starsFirstPlace * FP._0_50) / starsToWin;
+                bonus = item.BelowAverageBonus * FPMath.Log(FPMath.Abs(itemRank) + 1, FP.E) * magni;
+            }
             return FPMath.Max(0, item.SpawnChance + bonus);
         }
     }

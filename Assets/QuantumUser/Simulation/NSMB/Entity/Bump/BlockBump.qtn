@@ -14,8 +14,3 @@ component BlockBump {
 }
 
 signal OnEntityBumped(EntityRef entity, FPVector2 tileWorldPosition, EntityRef blockBump, bool fromBelow);
-
-event EntityBlockBumped {
-	nothashed Frame Frame;
-	EntityRef Entity;
-}

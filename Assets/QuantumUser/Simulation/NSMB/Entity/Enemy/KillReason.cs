@@ -1,8 +1,8 @@
 namespace Quantum {
     public static class KillReasonExtensions {
     
-        public static bool ShouldSpawnCoin(this KillReason reason) {
-            return reason == KillReason.Special || reason == KillReason.Groundpounded;
+        public static bool ShouldSpawnCoin(this EnemyKillReason reason) {
+            return reason == EnemyKillReason.Special || reason == EnemyKillReason.Groundpounded;
         }
     }
 }

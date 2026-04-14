@@ -24,11 +24,12 @@ namespace NSMB.Cameras {
         //---Serialized Variables
         [SerializeField] private PlayerElements playerElements;
         [SerializeField] private List<SecondaryCameraPositioner> secondaryPositioners;
-        [SerializeField] private float zoomSpeed = 3, moveSpeed = 2;
+        [SerializeField] private float zoomSpeed = 1, moveSpeed = 2;
         [SerializeField] private AudioSource zoomSfx;
 
         //---Private Variables
-        private Vector3 truePosition;
+        private Vector3 truePosition, tweenStartPosition, tweenedTargetPosition;
+        float tweenTime = 1.5f;
         private VersusStageData stage;
         private float screenshakeTimer;
         private Vector2 previousPointer;
@@ -45,7 +46,8 @@ namespace NSMB.Cameras {
         public override void Start() {
             base.Start();
             QuantumCallback.Subscribe<CallbackUpdateView>(this, OnUpdateView);
-            stage = (VersusStageData) QuantumUnityDB.GetGlobalAsset(FindFirstObjectByType<QuantumMapData>().Asset.UserAsset);
+            QuantumEvent.Subscribe<EventMarioPlayerEnteredPipe>(this, OnMarioPlayerEnteredPipe);
+            stage = (VersusStageData) QuantumUnityDB.GetGlobalAsset(FindFirstObjectByType<QuantumMapData>().GetAsset(false).UserAsset);
 
             Settings.Controls.Replay.Reset.performed += OnReset;
             OnScreenshake += OnScreenshakeCallback;
@@ -64,7 +66,11 @@ namespace NSMB.Cameras {
 
             switch (Mode) {
             case CameraMode.FollowPlayer:
-                UpdateCameraFollowPlayerMode(e);
+                if (tweenTime < 1.5f) {
+                    UpdateCameraFollowPlayerTweening(e);
+                } else {
+                    UpdateCameraFollowPlayerMode(e);
+                }
                 break;
             case CameraMode.Freecam:
                 UpdateCameraFreecamMode(e);
@@ -78,10 +84,28 @@ namespace NSMB.Cameras {
                 BackgroundLoop.Instance.Reposition(ourCamera);
             }
 
-            bool lmb = Settings.Controls.UI.Click.ReadValue<float>() >= 0.5f || Settings.Controls.UI.RightClick.ReadValue<float>() >= 0.5f;
-            bool mmb = Settings.Controls.UI.MiddleClick.ReadValue<float>() >= 0.5f;
+            bool lmb = Settings.Controls.UI.Click.IsPressed() || Settings.Controls.UI.RightClick.IsPressed();
+            bool mmb = Settings.Controls.UI.MiddleClick.IsPressed();
             if (lmb || !mmb) {
                 previousPointer = ourCamera.ScreenToViewportPoint(Settings.Controls.UI.Point.ReadValue<Vector2>());
+            }
+        }
+
+        private void UpdateCameraFollowPlayerTweening(CallbackUpdateView e) {
+            tweenTime += Time.unscaledDeltaTime;
+            if (tweenTime < 0.5f) {
+                UpdateCameraFollowPlayerMode(e);
+            } else {
+                Vector3 lerpedPos =
+                    QuantumUtils.WrappedLerp(
+                        e.Game.Frames.Predicted,
+                        tweenStartPosition.ToFPVector2(),
+                        tweenedTargetPosition.ToFPVector2(),
+                        FPMath.Clamp01((FP.FromFloat_UNSAFE(tweenTime) - FP._0_50) / 1))
+                    .ToUnityVector2();
+
+                lerpedPos.z = tweenedTargetPosition.z;
+                ourCamera.transform.position = lerpedPos;
             }
         }
 
@@ -92,12 +116,10 @@ namespace NSMB.Cameras {
 
             zoomSfx.enabled = false;
 
-            if (!Target.IsValid || !f.Exists(Target) || !fp.Exists(Target)) {
+            if (!f.Unsafe.TryGetPointer(Target, out CameraController* cameraControllerCurrent)
+                || !fp.Unsafe.TryGetPointer(Target, out CameraController* cameraControllerPrevious)) {
                 return;
             }
-
-            var cameraControllerCurrent = f.Unsafe.GetPointer<CameraController>(Target);
-            var cameraControllerPrevious = fp.Unsafe.GetPointer<CameraController>(Target);
 
             // Resize from game
             float targetOrthoSize = Mathf.Lerp(cameraControllerPrevious->OrthographicSize.AsFloat, cameraControllerCurrent->OrthographicSize.AsFloat, game.InterpolationFactor);
@@ -121,19 +143,11 @@ namespace NSMB.Cameras {
             var targetTransformPrevious = fp.Unsafe.GetPointer<Transform2D>(Target);
             var targetTransformCurrent = f.Unsafe.GetPointer<Transform2D>(Target);
             var targetMario = f.Unsafe.GetPointer<MarioPlayer>(Target);
-
-            float playerHeight = targetMario->CurrentPowerupState switch {
-                PowerupState.MegaMushroom => 3.5f,
-                > PowerupState.Mushroom => 1f,
-                _ => 0.5f,
-            };
+            float playerHeight = GetPlayerHeight(targetMario);
 
             // Offset to always put the player in the center for extremely long aspect ratios
             float screenAspect = ourCamera.aspect;
             float orthoSize = ourCamera.orthographicSize;
-            if (Mathf.Abs((16f / 9f) - screenAspect) < 0.05f) {
-                screenAspect = 16f / 9f;
-            }
 
             Vector2 cameraFocus = Vector2.Lerp(targetTransformPrevious->Position.ToUnityVector2(), targetTransformCurrent->Position.ToUnityVector2(), game.InterpolationFactor);
             cameraFocus.y += playerHeight * 0.5f;
@@ -180,8 +194,8 @@ namespace NSMB.Cameras {
             Vector2 pointerScreen = Settings.Controls.UI.Point.ReadValue<Vector2>();
             Vector2 pointer = ourCamera.ScreenToViewportPoint(pointerScreen);
 
-            bool lmb = Settings.Controls.UI.Click.ReadValue<float>() >= 0.5f || Settings.Controls.UI.RightClick.ReadValue<float>() >= 0.5f;
-            bool mmb = Settings.Controls.UI.MiddleClick.ReadValue<float>() >= 0.5f;
+            bool lmb = Settings.Controls.UI.Click.IsPressed() || Settings.Controls.UI.RightClick.IsPressed();
+            bool mmb = Settings.Controls.UI.MiddleClick.IsPressed();
             if (lmb || mmb) {
                 if (!clickHeld) {
                     // Make sure we're not over an object.
@@ -218,14 +232,14 @@ namespace NSMB.Cameras {
             Vector3? worldPosBefore = (zoomAmount != 0) ? ourCamera.ViewportToWorldPoint(pointer) : null;
 
             if (!ignoreKeyboard) {
-                int zoomIn = Settings.Controls.Replay.ZoomIn.ReadValue<float>() >= 0.5f ? 1 : 0;
-                int zoomOut = Settings.Controls.Replay.ZoomOut.ReadValue<float>() >= 0.5f ? 1 : 0;
+                int zoomIn = Settings.Controls.Replay.ZoomIn.IsPressed() ? 1 : 0;
+                int zoomOut = Settings.Controls.Replay.ZoomOut.IsPressed() ? 1 : 0;
                 zoomAmount += (zoomOut - zoomIn);
             }
 
             float maxOrthoSize = stage.TileDimensions.X * 0.25f / ourCamera.aspect;
             if (zoomAmount != 0) {
-                float newOrthoSize = ourCamera.orthographicSize + (zoomAmount * zoomSpeed * Time.unscaledDeltaTime);
+                float newOrthoSize = ourCamera.orthographicSize + (zoomAmount * zoomSpeed * Time.unscaledDeltaTime * ourCamera.orthographicSize);
                 newOrthoSize = Mathf.Clamp(newOrthoSize, 0.5f, maxOrthoSize);
                 ourCamera.orthographicSize = newOrthoSize;
 
@@ -314,6 +328,36 @@ namespace NSMB.Cameras {
                 screenshakeTimer = screenshake;
             }
             */
+        }
+
+        private void OnMarioPlayerEnteredPipe(EventMarioPlayerEnteredPipe e) {
+            if (e.Entity != Target || e.Exiting) {
+                return;
+            }
+
+            QuantumGame game = e.Game;
+            Frame f = game.Frames.Predicted;
+            var currentPipe = f.Unsafe.GetPointer<EnterablePipe>(e.Pipe);
+            if (!currentPipe->TransitionOnlyPanning) {
+                return;
+            }
+
+            float playerHeight = GetPlayerHeight(f.Unsafe.GetPointer<MarioPlayer>(Target));
+            var otherPipeTransform = f.Unsafe.GetPointer<Transform2D>(currentPipe->OtherPipe);
+            tweenStartPosition = ourCamera.transform.position;
+            tweenedTargetPosition = otherPipeTransform->Position.ToUnityVector3() + e.Offset.ToUnityVector3() + new Vector3(0, playerHeight * 0.5f, -10);
+            float cameraMinY = stage.CameraMinPosition.Y.AsFloat + ourCamera.orthographicSize;
+            float cameraMaxY = Mathf.Max(stage.CameraMinPosition.Y.AsFloat + Mathf.Max(7, ourCamera.orthographicSize * 2), stage.CameraMaxPosition.Y.AsFloat) - ourCamera.orthographicSize;
+            tweenedTargetPosition.y = Mathf.Clamp(tweenedTargetPosition.y, cameraMinY, cameraMaxY);
+            tweenTime = 0f;
+        }
+
+        private static float GetPlayerHeight(MarioPlayer* mario) {
+            return mario->CurrentPowerupState switch {
+                PowerupState.MegaMushroom => 3.5f,
+                > PowerupState.Mushroom => 1f,
+                _ => 0.5f,
+            };
         }
 
         public enum CameraMode {

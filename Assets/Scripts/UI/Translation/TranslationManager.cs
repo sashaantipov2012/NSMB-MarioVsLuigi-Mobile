@@ -1,11 +1,10 @@
-using ArabicSupport;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace NSMB.UI.Translation {
 
@@ -16,196 +15,46 @@ namespace NSMB.UI.Translation {
 
         //---Properties
         public string CurrentLocale { get; private set; }
-        public bool RightToLeft { get; private set; }
+        public bool RightToLeft => GetTranslation("rtl").Equals("true", StringComparison.InvariantCultureIgnoreCase);
 
         //---Serialized Variables
-        [SerializeField] private TextAsset defaultLocale;
+        [SerializeField] private string fallbackLocale = "en-us";
 
         //---Private Variables
-        private Dictionary<string, string> translations;
-        private Dictionary<string, string> defaultTranslations;
-        private TextAsset[] defaultLocales;
-        private bool instantiated;
+        private readonly Dictionary<string, List<ITranslationSource>> allTranslations = new();
+        private bool initialized;
 
-        public void Instantiate() {
-            // Load default (english, unmodified) translations as a fallback
-            defaultTranslations = LoadLocaleFromJson(defaultLocale.text);
-            defaultLocales = Resources.LoadAll<TextAsset>("Data/lang");
-            instantiated = true;
+        public void Start() {
+            Initialize();
         }
 
-        public void Update() {
-            if (Input.GetKeyDown(KeyCode.F5)) {
-                LoadLanguage(CurrentLocale);
-            }
-        }
-
-        public void ChangeLanguage(string newLocale) {
-            if (!instantiated) {
-                Instantiate();
-            }
-
-            if (string.IsNullOrEmpty(newLocale)) {
+        public void Initialize() {
+            if (initialized) {
                 return;
             }
 
-            newLocale = newLocale.ToLower();
-            if (CurrentLocale == newLocale) {
-                return;
-            }
-
-            LoadLanguage(newLocale);
-        }
-
-        private void LoadLanguage(string newLocale) {
-            bool foundTranslations = false;
-            if (IsDesktopPlatform()) {
-                try {
-                    // Find the language files from the streaming assets
-                    string path = Path.Combine(Application.streamingAssetsPath, "lang", newLocale + ".json");
-                    if (File.Exists(path)) {
-                        StreamReader file = File.OpenText(path);
-                        string json = file.ReadToEnd();
-                        translations = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                        foundTranslations = true;
-                    }
-                } catch { }
-
-                if (!foundTranslations) {
-                    try {
-                        // Find the language files from the appdata folder
-                        string path2 = Path.Combine(Application.persistentDataPath, "lang", newLocale + ".json");
-                        if (File.Exists(path2)) {
-                            StreamReader file = File.OpenText(path2);
-                            string json = file.ReadToEnd();
-                            translations = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                            foundTranslations = true;
-                        }
-
-                    } catch { }
-                }
-            }
-
-            if (!foundTranslations) {
-                // Load the new language file from the resources (since we can't read from the filesystem)
-                foreach (TextAsset locale in defaultLocales) {
-                    if (locale.name == newLocale) {
-                        translations = LoadLocaleFromJson(locale.text);
-                        foundTranslations = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!foundTranslations) {
-                Debug.Log($"Couldn't find language data in both Resources/Data/lang/{newLocale}");
-                return;
-            }
-
-            CurrentLocale = newLocale;
-            RightToLeft = GetTranslation("rtl") == "true";
-
-            if (/* newLocale.ToLower().StartsWith("ar") */ RightToLeft) {
-                // Hopefully this ArabicFixer handles ALL rtl text...
-                foreach (string key in translations.Keys.ToList()) {
-                    if (key == "rtl") continue;
-                    try {
-                        translations[key] = ArabicFixer.Fix(translations[key], true, false);
-                    } catch { }
-                }
-            }
-
-            // Call the change event
-            OnLanguageChanged?.Invoke(this);
-        }
-
-        public LocaleData[] GetAvailableLocales() {
-            List<LocaleData> results = new();
-
-            // Add the default languages
-            results.AddRange(
-                defaultLocales.Select(ta => new LocaleData() {
-                    Name = ta.text,
-                    Locale = ta.name,
-                })
-            );
-
-            if (IsDesktopPlatform()) {
-                try {
-                    // Any new language can be added, so we need to check the filesystem
-                    string path = Path.Combine(Application.streamingAssetsPath, "lang");
-                    string[] files = Directory.GetFiles(path, "*.json");
-                    results.AddRange(
-                        files.Select(ld => new LocaleData() {
-                            Name = File.ReadAllText(ld),
-                            Locale = Path.GetFileNameWithoutExtension(ld).ToLower(),
-                        })
-                    );
-                } catch { }
-
-                try {
-                    string path2 = Path.Combine(Application.persistentDataPath, "lang");
-                    string[] files = Directory.GetFiles(path2, "*.json");
-                    results.AddRange(
-                        files.Select(ld => new LocaleData() {
-                            Name = File.ReadAllText(ld),
-                            Locale = Path.GetFileNameWithoutExtension(ld).ToLower(),
-                        })
-                    );
-                } catch { }
-            }
-
-            // Open the files and get the locale name from the "lang" key
-            foreach (LocaleData data in results) {
-                string json = data.Name;
-                try {
-                    Dictionary<string, string> keys = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                    data.Name = keys["lang"];
-                    data.RTL = keys["rtl"] == "true";
-                } catch {
-                    Debug.LogWarning("Failed to parse language file " + data.Locale);
-                }
-            }
-
-            return results
-                .Distinct()
-                .OrderBy(ld => ld.Locale.ToLowerInvariant())
-                .ToArray();
-        }
-
-        public string[] GetLocaleCodes() {
-            return GetAvailableLocales().Select(ld => ld.Locale).ToArray();
-        }
-
-        public bool TryGetTranslation(string key, out string translated) {
-            key ??= "null";
-
-            if (translations != null && translations.TryGetValue(key.ToLower(), out string value) && !string.IsNullOrWhiteSpace(value)) {
-                translated = value;
-                return true;
-            }
-
-            if (defaultTranslations != null && defaultTranslations.TryGetValue(key.ToLower(), out string valueDef) && !string.IsNullOrWhiteSpace(valueDef)) {
-                translated = valueDef;
-                return true;
-            }
-
-            translated = default;
-            return false;
+            RegisterBuiltinLocales();
+            RegisterCustomLocales();
+            initialized = true;
         }
 
         public string GetTranslation(string key) {
-            key ??= "null";
+            _ = TryGetTranslation(key, out var result);
+            return result;
+        }
 
-            if (translations != null && translations.TryGetValue(key.ToLower(), out string value) && !string.IsNullOrWhiteSpace(value)) {
-                return value;
+        public bool TryGetTranslation(string key, out string result) {
+            Initialize();
+
+            if (TryGetTranslationForLocale(CurrentLocale, key, out result)) {
+                return true;
             }
-
-            if (defaultTranslations != null && defaultTranslations.TryGetValue(key.ToLower(), out string valueDef) && !string.IsNullOrWhiteSpace(valueDef)) {
-                return valueDef;
+            if (TryGetTranslationForLocale(fallbackLocale, key, out result)) {
+                return true;
             }
-
-            return key;
+            // Default to returning the key.
+            result = key;
+            return false;
         }
 
         public string GetTranslationWithReplacements(string key, params string[] replacements) {
@@ -217,39 +66,108 @@ namespace NSMB.UI.Translation {
         }
 
         public string GetSubTranslations(string text) {
-            return Regex.Replace(text, "{[a-zA-Z0-9.]+}", match => GetTranslation(match.Value[1..^1]));
+            return Regex.Replace(text, @"{[^{}]+}", match => GetTranslation(match.Value[1..^1]));
         }
 
-        private Dictionary<string, string> LoadLocaleFromJson(string json) {
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-        }
+        public bool ChangeLanguage(string locale) {
+            Initialize();
 
-        private bool IsDesktopPlatform() {
-#if PLATFORM_WEBGL
-            return false;
-#else
-            return !Application.isMobilePlatform && !Application.isConsolePlatform;
-#endif
-        }
+            locale = locale?.ToLowerInvariant();
 
-        public class LocaleData : IEquatable<LocaleData> {
-            public string Name, Locale;
-            public bool RTL;
-
-            public bool Equals(LocaleData other) {
-                return Locale == other.Locale;
+            if (!allTranslations.ContainsKey(locale)) {
+                Debug.LogWarning($"[Translation] Unknown locale '{locale}' selected... ignoring.");
+                return false;
             }
 
-            public override bool Equals(object obj) {
-                if (obj == null || GetType() != obj.GetType()) {
-                    return false;
+            CurrentLocale = locale;
+            Reload();
+            OnLanguageChanged?.Invoke(this);
+            return true;
+        }
+
+        public void Reload() {
+            Initialize();
+
+            foreach (var source in allTranslations[CurrentLocale]) {
+                try {
+                    source.Reload();
+                } catch {
+                    // Something happened to this source.
+                    // It's old state still should be loaded, so it's ok...
                 }
+            }
+        }
 
-                return Locale == ((LocaleData) obj).Locale;
+        public void RegisterTranslationSource(string locale, ITranslationSource source) {
+            if (!allTranslations.TryGetValue(locale, out var sourceList)) {
+                sourceList = new();
             }
 
-            public override int GetHashCode() {
-                return Locale.GetHashCode();
+            if (sourceList.Contains(source)) {
+                return;
+            }
+
+            sourceList.Add(source);
+            sourceList.Sort();
+            allTranslations[locale] = sourceList;
+        }
+
+        public bool TryGetTranslationForLocale(string locale, string key, out string result) {
+            key ??= "null";
+            key = key.ToLowerInvariant();
+
+            if (allTranslations.TryGetValue(locale, out var sources)) {
+                for (int i = sources.Count - 1; i >= 0; i--) {
+                    // No foreach, we want backwards iteration- later loaded sources have priority.
+                    var source = sources[i];
+                    if (source.TryGetTranslation(key, out result)) {
+                        return true;
+                    }
+                }
+            }
+
+            // Default to returning the key
+            result = key;
+            return false;
+        }
+
+        public ICollection<string> GetAllLocales() {
+            return allTranslations.Keys;
+        }
+
+        private void RegisterBuiltinLocales() {
+            var textAssets = Resources.LoadAll<TextAsset>("data/lang");
+
+            foreach (var textAsset in textAssets) {
+                try {
+                    string locale = textAsset.name;
+                    var source = new TextAssetJsonTranslationSource(textAsset);
+                    source.Priority = -1;
+                    RegisterTranslationSource(locale, source);
+                } catch (Exception e) {
+                    Debug.LogWarning($"[Translation] Failed to load translatoin from TextAsset {textAsset.name}. Is it malformed?");
+                    Debug.LogWarning(e);
+                }
+            }
+        }
+
+        [Conditional("UNITY_STANDALONE")]
+        private void RegisterCustomLocales() {
+            string[] paths = { $"{Application.streamingAssetsPath}/lang", $"{Application.persistentDataPath}/lang" };
+            
+            foreach (var folder in paths) {
+                if (Directory.Exists(folder)) {
+                    foreach (var filePath in Directory.EnumerateFiles(folder, "*.json")) {
+                        try {
+                            string locale = Path.GetFileNameWithoutExtension(filePath);
+                            var source = new FileJsonTranslationSource(filePath);
+                            RegisterTranslationSource(locale, source);
+                        } catch (Exception e) {
+                            Debug.LogWarning($"[Translation] Failed to load translation from file '{filePath}'. Is it malformed?");
+                            Debug.LogWarning(e);
+                        }
+                    }
+                }
             }
         }
     }

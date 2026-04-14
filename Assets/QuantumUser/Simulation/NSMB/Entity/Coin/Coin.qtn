@@ -20,7 +20,7 @@ signal OnMarioPlayerCollectedCoin(EntityRef marioEntity, EntityRef coinEntity, F
 synced event MarioPlayerCollectedCoin {
 	EntityRef Entity;
 	byte Coins;
-	bool ItemSpawned;
+	EntityRef ItemSpawned;
 
 	FPVector2 CoinLocation;
 	bool CoinFromBlock;

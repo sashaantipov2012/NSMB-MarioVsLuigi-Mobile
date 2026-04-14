@@ -16,8 +16,8 @@ MonoBehaviour:
     Path: QuantumUser/Resources/AssetObjects/Palettes/14 Chibi
     Guid:
       Value: 278130574760325123
-  colors:
-  - character:
+  Colors:
+  - Character:
       Id:
         Value: 0
     ShirtColor:
@@ -30,7 +30,7 @@ MonoBehaviour:
       G: 54
       B: 54
       A: 255
-    shirtColor: {r: 1, g: 0.83413935, b: 0, a: 1}
-    overallsColor: {r: 0.21176471, g: 0.21176471, b: 0.21176471, a: 1}
-    hatUsesOverallsColor: 0
-  translationKey: skin.chibi
+    HatUsesOverallsColor: 0
+  TranslationKey: skin.chibi
+  Order: 1500
+  IsLegacy: 1

@@ -23,7 +23,7 @@ MonoBehaviour:
   ObjectiveSymbolPrefix: S
   AllCoinItems:
   - Id:
-      Value: 271390802845879304
+      Value: 481353246829238635
   - Id:
       Value: 390055422968795145
   - Id:
@@ -37,7 +37,7 @@ MonoBehaviour:
   - Id:
       Value: 402398838204577684
   - Id:
-      Value: 269903407669338010
+      Value: 315844579913471239
   - Id:
       Value: 378514462062875007
   FallbackCoinItem:
@@ -56,7 +56,7 @@ MonoBehaviour:
     StarsToWin: 10
     CoinsForPowerup: 8
     Lives: 0
-    TimerSeconds: 0
+    TimerMinutes: 0
     TeamsEnabled:
       Value: 0
     CustomPowerupsEnabled:

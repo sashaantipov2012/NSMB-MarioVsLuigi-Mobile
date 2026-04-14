@@ -38,5 +38,13 @@ namespace Quantum {
     /// The default systems config to be used for <see cref="RuntimeConfig.SystemsConfig"/>.
     /// </summary>
     public SystemsConfig SystemsConfig;
+#if QUANTUM_ENABLE_INPUTSYSTEM
+    /// <summary>
+    /// The default input action asset to be used to bind Quantum input during input polling callbacks.
+    /// It's registered here to make it accessible by code.
+    /// Uses the default asset from SDK but can be replaced by a custom one if desired.
+    /// </summary>
+    public UnityEngine.InputSystem.InputActionAsset InputActionAsset;
+#endif
   }
 }

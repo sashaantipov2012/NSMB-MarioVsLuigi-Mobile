@@ -42,7 +42,7 @@ namespace NSMB.Entities.World {
                 return;
             }
 
-            var pipe = VerifiedFrame.Unsafe.GetPointer<BreakableObject>(e.Entity);
+            var pipe = PredictedFrame.Unsafe.GetPointer<BreakableObject>(e.Entity);
 
             SimplePhysicsMover particle = Instantiate(breakPrefab, transform.position, transform.rotation);
             //particle.transform.localScale = transform.localScale;

@@ -26,8 +26,15 @@ namespace NSMB.UI.Game.Track {
             var mario = f.Unsafe.GetPointer<MarioPlayer>(targetEntity);
             image.color = Utils.GetPlayerColor(f, mario->PlayerRef);
             if (f.Global->Rules.TeamsEnabled && mario->GetTeam(f) is byte teamIndex) {
-                var teams = f.SimulationConfig.Teams;
-                teamIcon.sprite = f.FindAsset(teams[teamIndex % teams.Length]).spriteColorblind;
+                var teams = f.Context.GetAllAssets<TeamAsset>();
+                teamIcon.sprite = teams[teamIndex % teams.Count].spriteColorblind;
+            } else {
+                var slot = Utils.GetPlayerSlotInfo(f, mario->PlayerRef);
+                if (slot) {
+                    teamIcon.sprite = slot.Sprite;
+                } else {
+                    teamIcon.sprite = null;
+                }
             }
         }
 
@@ -52,7 +59,7 @@ namespace NSMB.UI.Game.Track {
             if (flashRoutine == null) {
                 image.enabled = controllingCamera || !stage.HidePlayersOnMinimap;
             }
-            teamIcon.gameObject.SetActive(image.enabled && Settings.Instance.GraphicsColorblind && f.Global->Rules.TeamsEnabled && !controllingCamera);
+            teamIcon.gameObject.SetActive(image.enabled && Settings.Instance.GraphicsColorblind && !controllingCamera);
         }
 
         private void OnGameResynced(CallbackGameResynced e) {

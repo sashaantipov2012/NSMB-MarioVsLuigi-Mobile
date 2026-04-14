@@ -31,14 +31,15 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             Settings.OnDisableChatChanged += OnDisableChatChanged;
             TranslationManager.OnLanguageChanged += OnLanguageChanged;
             PlayerListEntry.PlayerMuteStateChanged += OnPlayerMuteStateChanged;
-            PlayerListHandler.PlayerAdded += OnPlayerListEntryAddedOrRemoved;
-            PlayerListHandler.PlayerRemoved += OnPlayerListEntryAddedOrRemoved;
+            PlayerListHandler.PlayerAdded += OnPlayerListChanged;
+            PlayerListHandler.PlayerRemoved += OnPlayerListChanged;
             OnDisableChatChanged();
             messagePrefab.gameObject.SetActive(false);
 
             QuantumCallback.Subscribe<CallbackGameDestroyed>(this, OnGameDestroyed);
             QuantumEvent.Subscribe<EventPlayerAdded>(this, OnPlayerAdded);
             QuantumEvent.Subscribe<EventPlayerRemoved>(this, OnPlayerRemoved);
+            QuantumEvent.Subscribe<EventPlayerDataChanged>(this, OnPlayerDataChanged);
         }
 
         public void OnDestroy() {
@@ -47,8 +48,8 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             Settings.OnDisableChatChanged -= OnDisableChatChanged;
             TranslationManager.OnLanguageChanged -= OnLanguageChanged;
             PlayerListEntry.PlayerMuteStateChanged -= OnPlayerMuteStateChanged;
-            PlayerListHandler.PlayerAdded -= OnPlayerListEntryAddedOrRemoved;
-            PlayerListHandler.PlayerRemoved -= OnPlayerListEntryAddedOrRemoved;
+            PlayerListHandler.PlayerAdded -= OnPlayerListChanged;
+            PlayerListHandler.PlayerRemoved -= OnPlayerListChanged;
         }
 
         public void UpdatePlayerColors() {
@@ -137,7 +138,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
                 msg.UpdateVisibleState();
             }
 
-            sendBtn.interactable = chatbox.interactable = !Settings.Instance.GeneralDisableChat;
+            sendBtn.interactable = chatbox.interactable = !Settings.Instance.GeneralDisableChat && !IsLocallyMuted();
 
             if (!chatbox.interactable) {
                 chatbox.text = "";
@@ -153,10 +154,33 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
         }
 
         private void OnLanguageChanged(TranslationManager tm) {
-            string key = Settings.Instance.GeneralDisableChat ? "ui.inroom.chat.disabled" : "ui.inroom.chat.prompt";
+            string key;
+            if (Settings.Instance.GeneralDisableChat) {
+                key = "ui.inroom.chat.disabled";
+            } else if (IsLocallyMuted()) {
+                key = "ui.inroom.chat.muted";
+            } else {
+                key = "ui.inroom.chat.prompt";
+            }
 
             chatPrompt.text = tm.GetTranslation(key);
             chatPrompt.horizontalAlignment = tm.RightToLeft ? HorizontalAlignmentOptions.Right : HorizontalAlignmentOptions.Left;
+        }
+
+        private bool IsLocallyMuted() {
+            var game = QuantumRunner.DefaultGame;
+            if (game == null) {
+                return false;
+            }
+
+            Frame f = game.Frames.Predicted;
+            foreach (var player in game.GetLocalPlayers()) {
+                RuntimePlayer runtimePlayer = f.GetPlayerData(player);
+                if (runtimePlayer != null && runtimePlayer.IsGloballyMuted) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void OnTextboxChanged() {
@@ -179,8 +203,8 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             }
 
             var startTypingCommand = new CommandStartTyping();
-            foreach (var player in game.GetLocalPlayerSlots()) {
-                game.SendCommand(player, startTypingCommand);
+            foreach (var slot in game.GetLocalPlayerSlots()) {
+                game.SendCommand(slot, startTypingCommand);
             }
         }
 
@@ -208,7 +232,11 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             ClearChat();
         }
 
-        private void OnPlayerListEntryAddedOrRemoved(int index) {
+        private void OnPlayerListChanged(int index) {
+            UpdatePlayerColors();
+        }
+
+        private void OnPlayerDataChanged(EventPlayerDataChanged e) {
             UpdatePlayerColors();
         }
     }

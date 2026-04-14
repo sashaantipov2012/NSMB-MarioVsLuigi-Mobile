@@ -3,4 +3,5 @@ component EnterablePipe {
 	bool IsEnterable;
 	bool IsCeilingPipe;
 	bool IsMiniOnly;
+	bool TransitionOnlyPanning;
 }

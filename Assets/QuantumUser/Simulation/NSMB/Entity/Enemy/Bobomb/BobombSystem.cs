@@ -109,13 +109,12 @@ namespace Quantum {
                     StageTileInstance tileInstance = stage.GetTileRelative(f, tilePos);
                     StageTile tile = f.FindAsset(tileInstance.Tile);
                     if (tile is IInteractableTile it) {
-                        it.Interact(f, filter.Entity, IInteractableTile.InteractionDirection.Up, tilePos, tileInstance, out _);
+                        it.Interact(f, filter.Entity, InteractionDirection.None, tilePos, tileInstance, out _);
                     }
                 }
             }
 
-            if (f.Exists(holdable->Holder)) {
-                var mario = f.Unsafe.GetPointer<MarioPlayer>(holdable->Holder);
+            if (f.Unsafe.TryGetPointer(holdable->Holder, out MarioPlayer* mario)) {
                 mario->HeldEntity = default;
                 holdable->PreviousHolder = default;
                 holdable->Holder = default;
@@ -123,6 +122,7 @@ namespace Quantum {
 
             enemy->IsDead = true;
             enemy->IsActive = false;
+            enemy->SetDelayedRespawn(180); // three seconds instead of the usual 6
             physicsObject->Velocity = FPVector2.Zero;
             physicsObject->IsFrozen = true;
             f.Events.BobombExploded(filter.Entity);
@@ -143,11 +143,11 @@ namespace Quantum {
 
             bool anyDamaged = false;
             if (kickedA || eitherHeld) {
-                bobombB->Kill(f, bobombBEntity, bobombAEntity, KillReason.Special);
+                bobombB->Kill(f, bobombBEntity, bobombAEntity, EnemyKillReason.Special);
                 anyDamaged = true;
             }
             if (kickedB || eitherHeld) {
-                bobombA->Kill(f, bobombAEntity, bobombBEntity, KillReason.Special);
+                bobombA->Kill(f, bobombAEntity, bobombBEntity, EnemyKillReason.Special);
                 anyDamaged = true;
             }
 
@@ -167,13 +167,14 @@ namespace Quantum {
             }
             
             var bobomb = f.Unsafe.GetPointer<Bobomb>(bobombEntity);
+            var bobombEnemy = f.Unsafe.GetPointer<Enemy>(bobombEntity);
             var bobombTransform = f.Unsafe.GetPointer<Transform2D>(bobombEntity);
             var mario = f.Unsafe.GetPointer<MarioPlayer>(marioEntity);
             var marioTransform = f.Unsafe.GetPointer<Transform2D>(marioEntity);
 
             // Special insta-kill cases
             if (mario->InstakillsEnemies(marioPhysicsObject, true)) {
-                bobomb->Kill(f, bobombEntity, marioEntity, KillReason.Special);    
+                bobomb->Kill(f, bobombEntity, marioEntity, EnemyKillReason.Special);    
                 return;
             }
 
@@ -209,15 +210,13 @@ namespace Quantum {
                     mario->IsDrilling = false;
 
                 } else if (mario->IsCrouchedInShell) {
-                    // Bounce off blue shell crouched player
-                    var bobombEnemy = f.Unsafe.GetPointer<Enemy>(bobombEntity);
-                    bobombEnemy->ChangeFacingRight(f, bobombEntity, damageDirection.X < 0);
+                    // Bounce off blue shell crouched player 
+                    bobombEnemy->ChangeFacingRight(f, bobombEntity, ourPos.X > theirPos.X);
                     marioPhysicsObject->Velocity.X = 0;
                     return;
 
-                } else if (mario->IsDamageable) {
+                } else if (mario->IsDamageable && bobombEnemy->IntangibilityFrames == 0) {
                     // Damage
-                    var bobombEnemy = f.Unsafe.GetPointer<Enemy>(bobombEntity);
                     mario->Powerdown(f, marioEntity, false, bobombEntity);
                     bobombEnemy->ChangeFacingRight(f, bobombEntity, damageDirection.X > 0);
                 }
@@ -230,7 +229,7 @@ namespace Quantum {
 
             switch (projectileAsset.Effect) {
             case ProjectileEffectType.KillEnemiesAndSoftKnockbackPlayers: {
-                f.Unsafe.GetPointer<Bobomb>(bobombEntity)->Kill(f, bobombEntity, projectileEntity, KillReason.Special);
+                f.Unsafe.GetPointer<Bobomb>(bobombEntity)->Kill(f, bobombEntity, projectileEntity, EnemyKillReason.Special);
                 break;
             }
             case ProjectileEffectType.Fire: {
@@ -247,7 +246,7 @@ namespace Quantum {
             }
             }
 
-            f.Signals.OnProjectileHitEntity(f, projectileEntity, bobombEntity);
+            f.Signals.OnProjectileHitEntity(projectileEntity, bobombEntity);
         }
 
         public static bool OnBobombIceBlockInteraction(Frame f, EntityRef bobombEntity, EntityRef iceBlockEntity, PhysicsContact contact) {
@@ -258,7 +257,7 @@ namespace Quantum {
             if (iceBlock->IsSliding
                 && upDot < Constants.PhysicsGroundMaxAngleCos) {
 
-                bobomb->Kill(f, bobombEntity, iceBlockEntity, KillReason.Special);
+                bobomb->Kill(f, bobombEntity, iceBlockEntity, EnemyKillReason.Special);
             }
             return false;
         }
@@ -285,7 +284,7 @@ namespace Quantum {
             );
             physicsObject->IsTouchingGround = false;
 
-            f.Events.EntityBlockBumped(f, entity);
+            f.Events.PlayComboSound(entity, 0);
         }
 
         public void OnEnemyRespawned(Frame f, EntityRef entity) {
@@ -307,7 +306,7 @@ namespace Quantum {
             }
 
             if (PhysicsObjectSystem.BoxInGround(f, transform->Position, collider->Shape, entity: entity)) {
-                bobomb->Kill(f, entity, marioEntity, KillReason.Special);
+                bobomb->Kill(f, entity, marioEntity, EnemyKillReason.Special);
                 return;
             }
 
@@ -326,14 +325,14 @@ namespace Quantum {
 
         public void OnBobombExplodeEntity(Frame f, EntityRef bobombEntity, EntityRef entity) {
             if (f.Unsafe.TryGetPointer(entity, out Bobomb* bobomb)) {
-                bobomb->Kill(f, entity, bobombEntity, KillReason.Special);
+                bobomb->Kill(f, entity, bobombEntity, EnemyKillReason.Special);
             }
         }
 
-        public void OnIceBlockBroken(Frame f, EntityRef brokenIceBlock, IceBlockBreakReason breakReason) {
+        public void OnIceBlockBroken(Frame f, EntityRef brokenIceBlock, IceBlockBreakReason breakReason, EntityRef attacker) {
             var iceBlock = f.Unsafe.GetPointer<IceBlock>(brokenIceBlock);
             if (f.Unsafe.TryGetPointer(iceBlock->Entity, out Bobomb* bobomb)) {
-                bobomb->Kill(f, iceBlock->Entity, brokenIceBlock, KillReason.Special);
+                bobomb->Kill(f, iceBlock->Entity, brokenIceBlock, EnemyKillReason.Special);
             }
         }
 
@@ -344,20 +343,20 @@ namespace Quantum {
                     // Don't die if being held
                     return;
                 }
-                bobomb->Kill(f, entity, EntityRef.None, KillReason.InWall);
+                bobomb->Kill(f, entity, EntityRef.None, EnemyKillReason.InWall);
             }
         }
 
         public void OnEntityCrushed(Frame f, EntityRef entity) {
             if (f.Unsafe.TryGetPointer(entity, out Bobomb* bobomb)) {
-                bobomb->Kill(f, entity, EntityRef.None, KillReason.InWall);
+                bobomb->Kill(f, entity, EntityRef.None, EnemyKillReason.InWall);
             }
         }
 
         public void OnMarioPlayerBecameInvincible(Frame f, EntityRef entity) {
             var mario = f.Unsafe.GetPointer<MarioPlayer>(entity);
             if (f.Unsafe.TryGetPointer(mario->HeldEntity, out Bobomb* bobomb)) {
-                bobomb->Kill(f, mario->HeldEntity, entity, KillReason.Special);
+                bobomb->Kill(f, mario->HeldEntity, entity, EnemyKillReason.Special);
             }
         }
         #endregion

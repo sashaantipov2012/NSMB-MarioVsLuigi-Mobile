@@ -14,11 +14,9 @@ component CameraController {
 }
 
 event StartCameraFadeOut {
-	nothashed Frame Frame;
-	entity_ref Entity;
+	EntityRef Entity;
 }
 
 event StartCameraFadeIn {
-	nothashed Frame Frame;
-	entity_ref Entity;
+	EntityRef Entity;
 }

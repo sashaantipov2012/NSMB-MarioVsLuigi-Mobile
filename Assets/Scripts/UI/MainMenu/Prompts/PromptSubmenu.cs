@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace NSMB.UI.MainMenu.Submenus.Prompts {
     public class PromptSubmenu : MainMenuSubmenu {
@@ -11,8 +10,8 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
         [SerializeField] protected GameObject backButton;
 
         public override bool TryGoBack(out bool playSound) {
-            if (BackButton && EventSystem.current.currentSelectedGameObject != BackButton) {
-                EventSystem.current.SetSelectedGameObject(BackButton);
+            if (BackButton && Canvas.EventSystem.currentSelectedGameObject != BackButton) {
+                Canvas.EventSystem.SetSelectedGameObject(BackButton);
                 playSound = false;
                 return false;
             }

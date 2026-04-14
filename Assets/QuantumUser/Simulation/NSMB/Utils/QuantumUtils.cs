@@ -3,20 +3,8 @@ using Quantum;
 using Quantum.Collections;
 using Quantum.Core;
 using System;
-using System.Collections.Generic;
 
 public static unsafe class QuantumUtils {
-
-    private static readonly SoundEffect[] ComboSounds = {
-        SoundEffect.Enemy_Shell_Kick,
-        SoundEffect.Enemy_Shell_Combo1,
-        SoundEffect.Enemy_Shell_Combo2,
-        SoundEffect.Enemy_Shell_Combo3,
-        SoundEffect.Enemy_Shell_Combo4,
-        SoundEffect.Enemy_Shell_Combo5,
-        SoundEffect.Enemy_Shell_Combo6,
-        SoundEffect.Enemy_Shell_Combo7,
-    };
 
     public static T SetFlag<T>(T value, T flag, bool set) where T : Enum {
         long longValue = (long) (object) value;
@@ -30,7 +18,6 @@ public static unsafe class QuantumUtils {
     }
 
     public static unsafe PlayerData* GetPlayerData(Frame f, PlayerRef player, QDictionary<PlayerRef, EntityRef>? dictionary = default) {
-
         QDictionary<PlayerRef, EntityRef> playerDataDictionary; 
         if (dictionary == null) {
             if (!f.TryResolveDictionary(f.Global->PlayerDatas, out playerDataDictionary)) {
@@ -50,7 +37,6 @@ public static unsafe class QuantumUtils {
     }
 
     public static PlayerData? GetPlayerDataSafe(Frame f, PlayerRef player, QDictionary<PlayerRef, EntityRef>? dictionary = default) {
-
         QDictionary<PlayerRef, EntityRef> playerDataDictionary;
         if (dictionary == null) {
             if (!f.TryResolveDictionary(f.Global->PlayerDatas, out playerDataDictionary)) {
@@ -69,10 +55,6 @@ public static unsafe class QuantumUtils {
         return data;
     }
 
-    public static SoundEffect GetComboSoundEffect(int combo) {
-        return ComboSounds[FPMath.Clamp(combo, 0, ComboSounds.Length - 1)];
-    }
-
     public static IntVector2 WorldToUnityTile(Frame f, FPVector2 worldPos) {
         return WorldToUnityTile(f.FindAsset<VersusStageData>(f.Map.UserAsset), worldPos);
     }
@@ -87,9 +69,11 @@ public static unsafe class QuantumUtils {
         return UnityTileToRelativeTile(f.FindAsset<VersusStageData>(f.Map.UserAsset), unityTile);
     }
 
-    public static IntVector2 UnityTileToRelativeTile(VersusStageData stage, IntVector2 unityTile, bool extend = true) {
+    public static IntVector2 UnityTileToRelativeTile(VersusStageData stage, IntVector2 unityTile, bool extend = true, bool wrap = true) {
         int x = unityTile.X - stage.TileOrigin.X;
-        x = (x % stage.TileDimensions.X + stage.TileDimensions.X) % stage.TileDimensions.X; // Wrapping
+        if (wrap) {
+            x = Modulo(x, stage.TileDimensions.X); // Wrapping
+        }
         int y = unityTile.Y - stage.TileOrigin.Y;
         if (extend && stage.ExtendCeilingHitboxes) {
             y = Math.Min(y, stage.TileDimensions.Y - 1);
@@ -97,12 +81,12 @@ public static unsafe class QuantumUtils {
         return new IntVector2(x, y);
     }
 
-    public static IntVector2 WorldToRelativeTile(Frame f, FPVector2 worldPos, bool extend = true) {
-        return WorldToRelativeTile(f.FindAsset<VersusStageData>(f.Map.UserAsset), worldPos, extend);
+    public static IntVector2 WorldToRelativeTile(Frame f, FPVector2 worldPos, bool extend = true, bool wrap = true) {
+        return WorldToRelativeTile(f.FindAsset<VersusStageData>(f.Map.UserAsset), worldPos, extend, wrap);
     }
 
-    public static IntVector2 WorldToRelativeTile(VersusStageData stage, FPVector2 worldPos, bool extend = true) {
-        return UnityTileToRelativeTile(stage, WorldToUnityTile(stage, worldPos), extend);
+    public static IntVector2 WorldToRelativeTile(VersusStageData stage, FPVector2 worldPos, bool extend = true, bool wrap = true) {
+        return UnityTileToRelativeTile(stage, WorldToUnityTile(stage, worldPos), extend, wrap);
     }
 
     public static FPVector2 UnityTileToWorld(Frame f, IntVector2 unityTile) {
@@ -218,8 +202,7 @@ public static unsafe class QuantumUtils {
     public static int GetValidTeams(Frame f) {
         int result = 0;
 
-        var allPlayers = f.Filter<PlayerData>();
-        while (allPlayers.NextUnsafe(out _, out PlayerData* data)) {
+        foreach ((_, var data) in f.Unsafe.GetComponentBlockIterator<PlayerData>()) {
             if (data->IsSpectator) {
                 continue;
             }
@@ -272,6 +255,14 @@ public static unsafe class QuantumUtils {
 
     public static FP EaseOut(FP x) {
         return 1 - (1 - x) * (1 - x);
+    }
+
+    public static int Modulo(int x, int m) {
+        return ((x % m) + m) % m;
+    }
+
+    public static FP Modulo(FP x, FP m) {
+        return ((x % m) + m) % m;
     }
 
     public static FP SmoothDamp(FP current, FP target, ref FP currentVelocity, FP smoothTime, FP maxSpeed, FP deltaTime) {
@@ -384,6 +375,10 @@ public static unsafe class QuantumUtils {
     }
 
     public static PowerupAsset FindPowerupAsset(Frame f, PowerupState state) {
+        if (state == PowerupState.NoPowerup) {
+            return null;
+        }
+
         var gamemode = f.FindAsset(f.Global->Rules.Gamemode);
         foreach (var coinItemAsset in gamemode.AllCoinItems) {
             if (f.TryFindAsset(coinItemAsset, out CoinItemAsset item)
@@ -403,20 +398,10 @@ public static unsafe class QuantumUtils {
         }
 
         int playerDataCount = f.ComponentCount<PlayerData>();
-        PlayerData** allPlayerDatas = stackalloc PlayerData*[playerDataCount];
         
-        int index = 0;
-        var playerDataFilter = f.Filter<PlayerData>();
-        playerDataFilter.UseCulling = false;
-
-        while (playerDataFilter.NextUnsafe(out _, out PlayerData* pd)) {
-            allPlayerDatas[index++] = pd;
-        }
-
         // Check that at least one non-spectator exists
         bool nonSpectator = false;
-        for (int i = 0; i < playerDataCount; i++) {
-            PlayerData* pd = allPlayerDatas[i];
+        foreach ((_, var pd) in f.Unsafe.GetComponentBlockIterator<PlayerData>()) {
             if (!pd->IsSpectator && !pd->ManualSpectator) {
                 nonSpectator = true;
                 break;
@@ -429,8 +414,7 @@ public static unsafe class QuantumUtils {
         // Check that at least two teams exist
         if (f.Global->Rules.TeamsEnabled && playerDataCount > 1) {
             byte? firstTeam = null;
-            for (int i = 0; i < playerDataCount; i++) {
-                PlayerData* pd = allPlayerDatas[i];
+            foreach ((_, var pd) in f.Unsafe.GetComponentBlockIterator<PlayerData>()) {
                 if (pd->IsSpectator || pd->ManualSpectator) {
                     continue;
                 }
@@ -438,7 +422,7 @@ public static unsafe class QuantumUtils {
                 byte team = pd->RequestedTeam;
                 if (firstTeam.HasValue) {
                     if (firstTeam != team) {
-                        goto skip;
+                        return true;
                     }
                 } else {
                     firstTeam = team;
@@ -447,35 +431,18 @@ public static unsafe class QuantumUtils {
             return false;
         }
 
-        skip:
         return true;
     }
 
     public static bool Decrement(ref byte timer) {
-        if (timer > 0) {
-            return --timer == 0;
-        }
-
-        return true;
+        return timer <= 0 || --timer == 0;
     }
 
     public static bool Decrement(ref ushort timer) {
-        if (timer > 0) {
-            return --timer == 0;
-        }
-
-        return true;
+        return timer <= 0 || --timer == 0;
     }
 
     public static bool Decrement(ref int timer) {
-        if (timer > 0) {
-            return --timer == 0;
-        }
-
-        return true;
+        return timer <= 0 || --timer == 0;
     }
-}
-
-public static class Extensions {
-    public static IEnumerator<T> GetEnumerator<T>(this IEnumerator<T> enumerator) => enumerator;
 }

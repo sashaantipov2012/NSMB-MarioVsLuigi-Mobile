@@ -17,7 +17,7 @@ using UnityEngine.InputSystem;
 using static NSMB.Utilities.QuantumViewUtils;
 
 namespace NSMB.UI.Game {
-    public class PlayerElements : QuantumSceneViewComponent {
+    public unsafe class PlayerElements : QuantumSceneViewComponent {
 
         //---Static Variables
         public static HashSet<PlayerElements> AllPlayerElements = new();
@@ -29,7 +29,6 @@ namespace NSMB.UI.Game {
         public Canvas Canvas => canvas;
         public Camera Camera => ourCamera;
         public Camera ScrollCamera => scrollCamera;
-        public Camera UICamera => uiCamera;
         public CameraAnimator CameraAnimator => cameraAnimator;
         public ReplayUI ReplayUi => replayUi;
         public PauseMenuManager PauseMenu => pauseMenu;
@@ -39,7 +38,7 @@ namespace NSMB.UI.Game {
         [SerializeField] private Canvas canvas;
         [SerializeField] private UIUpdater uiUpdater;
         [SerializeField] private CameraAnimator cameraAnimator;
-        [SerializeField] private Camera ourCamera, scrollCamera, uiCamera;
+        [SerializeField] private Camera ourCamera, scrollCamera;
         [SerializeField] private InputCollector inputCollector;
         [SerializeField] private ScoreboardUpdater scoreboardUpdater;
         [SerializeField] private ReplayUI replayUi;
@@ -72,7 +71,35 @@ namespace NSMB.UI.Game {
             Settings.Controls.UI.Next.performed += SpectateNextPlayer;
             Settings.Controls.UI.Previous.performed += SpectatePreviousPlayer;
             Settings.Controls.UI.Submit.performed += OnSubmit;
+            Settings.OnNametagVisibilityChanged += OnNametagVisibilityChanged;
             TranslationManager.OnLanguageChanged += OnLanguageChanged;
+
+            if (Game.Session.IsReplay) {
+                StartSpectating();
+                
+                if (PlayerPrefs.HasKey("id")) {
+                    string userId = PlayerPrefs.GetString("id");
+                    for (int i = 0; i < f.MaxPlayerCount; i++) {
+                        RuntimePlayer player = f.GetPlayerData(i);
+                        if (player == null || player.UserId != userId) {
+                            continue;
+                        }
+
+                        foreach ((var entity, var mario) in f.Unsafe.GetComponentBlockIterator<MarioPlayer>()) {
+                            if (mario->PlayerRef != i) {
+                                continue;
+                            }
+
+                            // This is our player. Default to them.
+                            Entity = entity;
+                            cameraAnimator.Mode = CameraAnimator.CameraMode.FollowPlayer;
+                            UpdateSpectateUI();
+                            break;
+                        }
+                        break;
+                    }
+                }
+            }
         }
 
         public override void OnDeactivate() {
@@ -83,6 +110,7 @@ namespace NSMB.UI.Game {
             Settings.Controls.UI.Next.performed -= SpectateNextPlayer;
             Settings.Controls.UI.Previous.performed -= SpectatePreviousPlayer;
             Settings.Controls.UI.Submit.performed -= OnSubmit;
+            Settings.OnNametagVisibilityChanged -= OnNametagVisibilityChanged;
             TranslationManager.OnLanguageChanged -= OnLanguageChanged;
         }
 
@@ -160,24 +188,23 @@ namespace NSMB.UI.Game {
             OnCameraFocusChanged?.Invoke();
 
             if (f.Global->GameState == GameState.Playing) {
-                FindFirstObjectByType<MusicManager>().HandleMusic(Game, true);
+                FindFirstObjectByType<MusicManager>().HandleMusic(true);
             }
         }
 
         public void StartSpectating() {
             spectating = true;
             spectationUI.SetActive(!IsReplay);
-            if (!IsReplay) {
-                if (GlobalController.Instance.loadingCanvas.isActiveAndEnabled) {
-                    GlobalController.Instance.loadingCanvas.EndLoading(QuantumRunner.DefaultGame);
-                }
+            if (!IsReplay && GlobalController.Instance.loadingCanvas.isActiveAndEnabled) {
+                GlobalController.Instance.loadingCanvas.EndLoading(QuantumRunner.DefaultGame);
             }
 
             SpectateNextPlayer(0);
         }
 
         public unsafe void SpectateNextPlayer(InputAction.CallbackContext context) {
-            if (!spectating || cameraAnimator.Mode != CameraAnimator.CameraMode.FollowPlayer || pauseMenu.IsPaused || Game.Frames.Predicted.Global->GameState >= GameState.Ended) {
+            if (!spectating || cameraAnimator.Mode != CameraAnimator.CameraMode.FollowPlayer
+                || pauseMenu.IsPaused || Game.Frames.Predicted.Global->GameState >= GameState.Ended) {
                 return;
             }
 
@@ -192,47 +219,49 @@ namespace NSMB.UI.Game {
                 return;
             }
 
-            List<EntityRef> marios = new();
-            var marioFilter = f.Filter<MarioPlayer>();
-            marioFilter.UseCulling = false;
-            while (marioFilter.NextUnsafe(out EntityRef entity, out MarioPlayer* mario)) {
-                marios.Add(entity);
+            List<(EntityRef, PlayerRef)> marios = new();
+            foreach ((var entity, var mario) in f.Unsafe.GetComponentBlockIterator<MarioPlayer>()) {
+                marios.Add((entity, mario->PlayerRef));
             }
             marios.Sort((a, b) => {
                 int indexA = int.MaxValue;
                 int indexB = int.MaxValue;
-                var marioA = f.Unsafe.GetPointer<MarioPlayer>(a);
-                var marioB = f.Unsafe.GetPointer<MarioPlayer>(b);
 
                 for (int i = 0; i < f.Global->RealPlayers; i++) {
                     PlayerRef player = f.Global->PlayerInfo[i].PlayerRef;
-                    if (player == marioA->PlayerRef) {
+                    if (player == a.Item2) {
                         indexA = i;
-                    } else if (player == marioB->PlayerRef) {
+                    } else if (player == b.Item2) {
                         indexB = i;
                     }
                 }
                 return indexA - indexB;
             });
             
-            int currentIndex = marios.IndexOf(Entity);
+            int currentIndex = marios.IndexOf(x => x.Item1 == Entity);
             int nextIndex = (int) Mathf.Repeat(currentIndex + increment, marioCount);
             CameraAnimator.Mode = CameraAnimator.CameraMode.FollowPlayer;
-            Entity = marios[nextIndex];
+            Entity = marios[nextIndex].Item1;
 
             UpdateSpectateUI();
         }
 
         public unsafe void SpectatePreviousPlayer(InputAction.CallbackContext context) {
-            if (!spectating || cameraAnimator.Mode != CameraAnimator.CameraMode.FollowPlayer || pauseMenu.IsPaused || Game.Frames.Predicted.Global->GameState >= GameState.Ended) {
+            if (!spectating || cameraAnimator.Mode != CameraAnimator.CameraMode.FollowPlayer
+                || pauseMenu.IsPaused || Game.Frames.Predicted.Global->GameState >= GameState.Ended) {
                 return;
             }
 
             SpectateNextPlayer(-1);
         }
 
+        public bool IsOurCamera(Camera camera) {
+            return camera == Camera || camera == ScrollCamera;
+        }
+
         private unsafe void OnNavigate(InputAction.CallbackContext context) {
-            if (!spectating || cameraAnimator.Mode != CameraAnimator.CameraMode.FollowPlayer || pauseMenu.IsPaused || Game.Frames.Predicted.Global->GameState >= GameState.Ended) {
+            if (!spectating || cameraAnimator.Mode != CameraAnimator.CameraMode.FollowPlayer
+                || pauseMenu.IsPaused || Game.Frames.Predicted.Global->GameState >= GameState.Ended) {
                 previousNavigate = Vector2.zero;
                 return;
             }
@@ -250,7 +279,8 @@ namespace NSMB.UI.Game {
         }
 
         private unsafe void OnSubmit(InputAction.CallbackContext context) {
-            if (!spectating || pauseMenu.IsPaused || Game.Session.IsReplay || Game.Frames.Predicted.Global->GameState >= GameState.Ended) {
+            if (!spectating || pauseMenu.IsPaused || Game.Session.IsReplay
+                || Game.Frames.Predicted.Global->GameState >= GameState.Ended) {
                 return;
             }
 
@@ -267,7 +297,8 @@ namespace NSMB.UI.Game {
         }
 
         private unsafe void SpectatePlayerIndex(InputAction.CallbackContext context) {
-            if (!spectating || Game.Frames.Predicted.Global->GameState >= GameState.Ended || pauseMenu.IsPaused) {
+            if (!spectating || Game.Frames.Predicted.Global->GameState >= GameState.Ended
+                || pauseMenu.IsPaused) {
                 return;
             }
 
@@ -282,6 +313,10 @@ namespace NSMB.UI.Game {
                     UpdateSpectateUI();
                 }
             }
+        }
+
+        private void OnNametagVisibilityChanged() {
+            nametagCanvas.SetActive(Settings.Instance.GraphicsPlayerNametags);
         }
 
         private void OnLanguageChanged(TranslationManager tm) {

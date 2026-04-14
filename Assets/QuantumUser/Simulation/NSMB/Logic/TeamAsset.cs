@@ -1,10 +1,13 @@
 using UnityEngine;
 using Quantum;
+using UnityEngine.Serialization;
 
-public class TeamAsset : AssetObject {
+public class TeamAsset : AssetObject, IOrderedAsset {
 
-    public byte id;
-    public string nameTranslationKey;
+    int IOrderedAsset.Order => Order;
+
+    public int Order;
+    [FormerlySerializedAs("nameTranslationKey")] public string nameTranslationKey;
     public string textSpriteNormal, textSpriteColorblind, textSpriteColorblindBig;
 
 #if QUANTUM_UNITY

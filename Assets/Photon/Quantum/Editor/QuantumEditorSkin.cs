@@ -36,8 +36,9 @@ namespace Quantum.Editor {
     public static GUIStyle RichLabelStyle               => instance.Skin.GetStyle(EditorGUIUtility.isProSkin ? "dark-rich-label" : "light-rich-label");
     public static GUIStyle InlineSelectorStyle          => instance.Skin.GetStyle("inline-selector");
     public static GUIStyle OutlineBoxStyle              => instance.Skin.GetStyle("outline-box");
-    
-    
+    public static GUIStyle ThumbnailBoxStyle            => instance.Skin.GetStyle("thumbnail-box");
+    public static GUIStyle ThumbnailImageStyle          => instance.Skin.GetStyle("thumbnail-image");
+
     public static Color    HelpInlineBoxColor          => EditorGUIUtility.isProSkin ? new Color(0.317f, 0.337f, 0.352f, 1.000f) : new Color(0.686f, 0.776f, 0.859f);
     public static Color    WarningInlineBoxColor       => EditorGUIUtility.isProSkin ? new Color(0.36f, 0.33f, 0.22f, 1.00f) : new Color(0.98f, 0.94f, 0.80f, 0.90f);
     public static Color    ErrorInlineBoxColor         => EditorGUIUtility.isProSkin ? new Color(0.40f, 0.15f, 0.10f, 1.00f) : new Color(0.9f, 0.70f, 0.70f, 1.00f);
@@ -57,7 +58,8 @@ namespace Quantum.Editor {
     });
     
     public static readonly LazyGUIStyle RawDataStyle = LazyGUIStyle.Create(_ => new GUIStyle(EditorStyles.textArea) { wordWrap = true });
-    
+    public static readonly LazyGUIStyle DropDownListStyle = LazyGUIStyle.Create(_ => FindBuiltInStyleOrThrow("DropDownButton"));
+
     private static Texture2D FindTextureOrThrow(string id) {
       var texture = EditorGUIUtility.FindTexture(id);
       if (texture) {
@@ -70,6 +72,16 @@ namespace Quantum.Editor {
       }
       
       throw new ArgumentOutOfRangeException($"Could not find texture with id {id}");
+    }
+
+    private static GUIStyle FindBuiltInStyleOrThrow(string styleName) {
+      var style = GUI.skin.FindStyle(styleName) ?? EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).FindStyle(styleName);
+
+      if (style == null) {
+        throw new ArgumentOutOfRangeException("Missing built-in guistyle " + styleName);
+      }
+
+      return style;
     }
 
     private Dictionary<ScriptHeaderBackColor, Color> _scriptHeaderStyles = new() {

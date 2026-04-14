@@ -123,9 +123,12 @@ namespace Quantum {
 
             if (mario->InstakillsEnemies(marioPhysicsObject, false)) {
                 var boo = f.Unsafe.GetPointer<Boo>(booEntity);
-                boo->Kill(f, booEntity, marioEntity, KillReason.Special);
+                boo->Kill(f, booEntity, marioEntity, EnemyKillReason.Special);
             } else {
-                mario->Powerdown(f, marioEntity, false, booEntity);
+                var booEnemy = f.Unsafe.GetPointer<Enemy>(booEntity);
+                if (!mario->IsCrouchedInShell && booEnemy->IntangibilityFrames == 0) {
+                    mario->Powerdown(f, marioEntity, false, booEntity);
+                }
             }
         }
 
@@ -145,7 +148,7 @@ namespace Quantum {
 
         public void OnBobombExplodeEntity(Frame f, EntityRef bobomb, EntityRef entity) {
             if (f.Unsafe.TryGetPointer(entity, out Boo* boo)) {
-                boo->Kill(f, entity, bobomb, KillReason.Special);
+                boo->Kill(f, entity, bobomb, EnemyKillReason.Special);
             }
         }
     }

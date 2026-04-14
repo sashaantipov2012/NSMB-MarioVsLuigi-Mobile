@@ -5,8 +5,8 @@ namespace Quantum {
 
         public Changes EnabledChanges;
 
-        public byte Character;
-        public byte Palette;
+        public AssetRef<CharacterAsset> Character;
+        public AssetRef<PaletteSet> Palette;
         public byte Team;
         public bool Spectating;
 
@@ -28,6 +28,15 @@ namespace Quantum {
             }
 
             Changes playerChanges = EnabledChanges;
+
+            if (f.Global->GameStartFrames > 0 || playerData->IsTeamLocked) {
+                // Cannot change team when game is in countdown, or when the host says so.
+                playerChanges &= ~Changes.Team;
+            }
+
+            if (playerChanges == 0) {
+                return;
+            }
 
             if (playerChanges.HasFlag(Changes.Character)) {
                 playerData->Character = Character;

@@ -102,9 +102,7 @@ namespace NSMB.UI.Game.Replay {
         }
 
         private unsafe EntityRef FindMario(Frame f, PlayerRef player) {
-            var filter = f.Filter<MarioPlayer>();
-            filter.UseCulling = false;
-            while (filter.NextUnsafe(out EntityRef entity, out MarioPlayer* mario)) {
+            foreach ((var entity, var mario) in f.Unsafe.GetComponentBlockIterator<MarioPlayer>()) { 
                 if (mario->PlayerRef == player) {
                     return entity;
                 }

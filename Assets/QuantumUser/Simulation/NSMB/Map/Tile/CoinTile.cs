@@ -1,6 +1,5 @@
 using Photon.Deterministic;
 using Quantum;
-using static IInteractableTile;
 
 public unsafe class CoinTile : BreakableBrickTile {
 

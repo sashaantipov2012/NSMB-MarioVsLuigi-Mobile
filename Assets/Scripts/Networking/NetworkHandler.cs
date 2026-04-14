@@ -1,5 +1,8 @@
 using NSMB.Networking;
 using NSMB.Replay;
+using NSMB.Utilities;
+using NSMB.Utilities.Extensions;
+using Photon.Client;
 using Photon.Deterministic;
 using Photon.Realtime;
 using Quantum;
@@ -25,9 +28,6 @@ namespace NSMB.Networking {
         //---Constants
         public static readonly string RoomIdValidChars = "BCDFGHJKLMNPRQSTVWXYZ";
         public static readonly int RoomIdLength = 4;
-        private static readonly List<DisconnectCause> NonErrorDisconnectCauses = new() {
-            DisconnectCause.None, DisconnectCause.DisconnectByClientLogic, DisconnectCause.ApplicationQuit,
-        };
 
         //---Static Variables
         public static RealtimeClient Client => Instance ? Instance.realtimeClient : null;
@@ -36,7 +36,9 @@ namespace NSMB.Networking {
         public static QuantumGame Game => Runner?.Game ?? QuantumRunner.DefaultGame;
         public static IEnumerable<Region> Regions => Client?.RegionHandler?.EnabledRegions?.OrderBy(r => r.Code);
         public static string Region => Client?.CurrentRegion ?? Instance.lastRegion;
-        public static bool WasDisconnectedViaError { get; set; }
+
+        //---Serialized Variables
+        [SerializeField] private BuildIdentifier buildIdentifierAsset;
 
         //---Private Variables
         private RealtimeClient realtimeClient;
@@ -52,21 +54,20 @@ namespace NSMB.Networking {
                 StateChanged?.Invoke(oldState, newState);
             };
             realtimeClient.AddCallbackTarget(this);
-
+            
             QuantumCallback.Subscribe<CallbackGameStarted>(this, OnGameStarted);
             QuantumCallback.Subscribe<CallbackPluginDisconnect>(this, OnPluginDisconnect);
             QuantumCallback.Subscribe<CallbackChecksumError>(this, OnChecksumError);
             QuantumEvent.Subscribe<EventHostChanged>(this, OnHostChanged);
             QuantumEvent.Subscribe<EventGameStateChanged>(this, OnGameStateChanged);
             QuantumEvent.Subscribe<EventPlayerAdded>(this, OnPlayerAdded);
+            QuantumEvent.Subscribe<EventPlayerRemoved>(this, OnPlayerRemoved);
             QuantumEvent.Subscribe<EventRulesChanged>(this, OnRulesChanged);
             QuantumEvent.Subscribe<EventPlayerKickedFromRoom>(this, OnPlayerKickedFromRoom);
         }
 
         public void Update() {
-            if (Client != null && Client.IsConnectedAndReady) {
-                Client.Service();
-            }
+            Client?.Service();
         }
 
         public void OnDestroy() {
@@ -99,11 +100,10 @@ namespace NSMB.Networking {
             WaitForSeconds seconds = new(1);
             CommandUpdatePing pingCommand = new();
             while (true) {
-                QuantumGame game;
-                if (Runner && (game = Runner.Game) != null) {
+                if (Game != null) {
                     pingCommand.PingMs = (int) Ping.Value;
-                    foreach (int slot in game.GetLocalPlayerSlots()) {
-                        game.SendCommand(slot, pingCommand);
+                    foreach (int slot in Game.GetLocalPlayerSlots()) {
+                        Game.SendCommand(slot, pingCommand);
                     }
                 }
                 yield return seconds;
@@ -147,9 +147,14 @@ namespace NSMB.Networking {
             }
 
             try {
+                string buildIdentifier = "";
+                if (Instance.buildIdentifierAsset && !string.IsNullOrWhiteSpace(Instance.buildIdentifierAsset.Identifier)) {
+                    buildIdentifier = "-" + Instance.buildIdentifierAsset.Identifier;
+                }
+
                 await Client.ConnectUsingSettingsAsync(new AppSettings {
                     AppIdQuantum = "6b4b72d0-57c3-4991-96c1-f3f36f9548e5",
-                    AppVersion = GameVersion.Parse(Application.version).ToStringIgnoreHotfix(),
+                    AppVersion = GameVersion.Current.ToStringIgnoreHotfix() + buildIdentifier,
                     EnableLobbyStatistics = true,
                     AuthMode = AuthModeOption.Auth,
                     FixedRegion = region,
@@ -228,21 +233,22 @@ namespace NSMB.Networking {
             }
 
             ref GameRules rules = ref f.Global->Rules;
-            IntegerProperties intProperties = new IntegerProperties {
+            IntegerProperties intProperties = new() {
                 StarRequirement = rules.StarsToWin,
                 CoinRequirement = rules.CoinsForPowerup,
                 Lives = rules.Lives,
                 Timer = rules.TimerMinutes,
             };
-            BooleanProperties boolProperties = new BooleanProperties {
+            BooleanProperties boolProperties = new() {
                 GameStarted = f.Global->GameState != GameState.PreGameRoom,
                 CustomPowerups = rules.CustomPowerupsEnabled,
                 Teams = rules.TeamsEnabled,
                 DrawOnTimeUp = rules.DrawOnTimeUp,
+                AddonsEnabled = GlobalController.Instance.addonManager.LoadedAddons.Count > 0
             };
 
             RuntimePlayer hostData = f.GetPlayerData(host);
-            Client.CurrentRoom.SetCustomProperties(new Photon.Client.PhotonHashtable {
+            Client.CurrentRoom.SetCustomProperties(new PhotonHashtable {
                 [Enums.NetRoomProperties.IntProperties] = (int) intProperties,
                 [Enums.NetRoomProperties.BoolProperties] = (int) boolProperties,
                 [Enums.NetRoomProperties.HostName] = hostData?.PlayerNickname ?? "noname",
@@ -251,23 +257,7 @@ namespace NSMB.Networking {
             });
         }
 
-        public void OnFriendListUpdate(List<FriendInfo> friendList) { }
-
-        public void OnCreatedRoom() {
-            if (pingUpdateCoroutine != null) {
-                StopCoroutine(pingUpdateCoroutine);
-            }
-            pingUpdateCoroutine = StartCoroutine(PingUpdateCoroutine());
-        }
-
-        public void OnCreateRoomFailed(short returnCode, string message) { }
-
-        public async void OnJoinedRoom() {
-            if (pingUpdateCoroutine != null) {
-                StopCoroutine(pingUpdateCoroutine);
-            }
-            pingUpdateCoroutine = StartCoroutine(PingUpdateCoroutine());
-
+        public async Task StartQuantum() {
             var sessionRunnerArguments = new SessionRunner.Arguments {
                 GameParameters = QuantumRunnerUnityFactory.CreateGameParameters,
                 ClientId = Client.UserId,
@@ -289,12 +279,32 @@ namespace NSMB.Networking {
                     PlayerNickname = Settings.Instance.generalNickname ?? "noname",
                     UserId = Client.UserId,
                     UseColoredNickname = Settings.Instance.generalUseNicknameColor,
-                    Character = (byte) Settings.Instance.generalCharacter,
-                    Palette = (byte) Settings.Instance.generalPalette,
+                    Character = Settings.Instance.generalCharacter,
+                    Palette = Settings.Instance.generalPalette,
                 });
-            } catch { }
+            } catch {
+                ThrowError("ui.error.corrupt", false);
+            }
+        }
 
-            GlobalController.Instance.connecting.SetActive(false);
+        public void OnFriendListUpdate(List<FriendInfo> friendList) { }
+
+        public void OnCreatedRoom() { }
+
+        public void OnCreateRoomFailed(short returnCode, string message) { }
+
+        public void OnJoinedRoom() {
+            if (pingUpdateCoroutine != null) {
+                StopCoroutine(pingUpdateCoroutine);
+            }
+            pingUpdateCoroutine = StartCoroutine(PingUpdateCoroutine());
+
+            if (Client.CurrentRoom.PlayerCount == 1 || !GlobalController.Instance.addonManager.isActiveAndEnabled) {
+                _ = StartQuantum();
+            } else {
+                // Don't start quantum immediately,
+                // Wait for the room list event instead.
+            }
         }
 
         public void OnJoinRoomFailed(short returnCode, string message) {
@@ -308,6 +318,9 @@ namespace NSMB.Networking {
         }
 
         public static void ThrowError(string key, bool network) {
+            if (Runner && Runner.IsRunning) {
+                Runner.Shutdown(ShutdownCause.NetworkError);
+            }
             OnError?.Invoke(key, network);
         }
 
@@ -350,7 +363,7 @@ namespace NSMB.Networking {
 
         private IEnumerator AutoDisconnectAfterSeconds(float seconds) {
             yield return new WaitForSecondsRealtime(seconds);
-            Runner.Shutdown(ShutdownCause.SessionError);
+            Runner.Shutdown(ShutdownCause.NetworkError);
             ThrowError("A desync was detected in the previous game. The game was automatically aborted.\nPlease send your player.log file in the #technical-support channel within the Mario vs Luigi Online Discord and ping @ipodtouch0218.", false);
         }
 
@@ -360,7 +373,7 @@ namespace NSMB.Networking {
             ThrowError(e.Reason, true);
 
             if (Runner) {
-                Runner.Shutdown(ShutdownCause.SimulationStopped);
+                Runner.Shutdown(ShutdownCause.NetworkError);
             }
         }
 
@@ -409,11 +422,11 @@ namespace NSMB.Networking {
             BooleanProperties props = (int) Client.CurrentRoom.CustomProperties[Enums.NetRoomProperties.BoolProperties];
             props.GameStarted = e.NewState != GameState.PreGameRoom;
 
-            Client.CurrentRoom.SetCustomProperties(new Photon.Client.PhotonHashtable {
+            Client.CurrentRoom.SetCustomProperties(new PhotonHashtable {
                 { Enums.NetRoomProperties.BoolProperties, (int) props }
             });
 
-            QuantumRunner.Default.Session.MaxVerifiedTicksPerUpdate = e.NewState == GameState.Playing ? 3 : int.MaxValue;
+            QuantumRunner.Default.Session.MaxVerifiedTicksPerUpdate = e.NewState == GameState.Playing ? 8 : int.MaxValue;
         }
 
         private unsafe void OnGameStarted(CallbackGameStarted e) {
@@ -421,7 +434,7 @@ namespace NSMB.Networking {
             var bans = f.ResolveList(f.Global->BannedPlayerIds);
             foreach (var ban in bans) {
                 if (ban.UserId == Client.UserId) {
-                    QuantumRunner.Default.Shutdown(ShutdownCause.SessionError);
+                    QuantumRunner.Default.Shutdown(ShutdownCause.NetworkError);
                     ThrowError("ui.error.join.banned", true);
                     return;
                 }
@@ -436,7 +449,7 @@ namespace NSMB.Networking {
             Debug.Log($"[Network] Disconnected. Reason: {cause}");
 
             if (Runner) {
-                Runner.Shutdown(ShutdownCause.SimulationStopped);
+                Runner.Shutdown(ShutdownCause.NetworkError);
             }
         }
 

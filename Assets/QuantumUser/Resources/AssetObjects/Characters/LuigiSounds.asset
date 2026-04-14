@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ef72dd466a4a304fa1d61bcde88ab92, type: 3}
+  m_Name: LuigiSounds
+  m_EditorClassIdentifier: 
+  SfxOverrides:
+  - SoundEffect: 33
+    AudioClips:
+    - {fileID: 8300000, guid: d5651dfa0a2904a488fa9fe3a5ff7bec, type: 3}
+    - {fileID: 8300000, guid: 94dc1317a244df545b8664d1118d71e5, type: 3}
+  - SoundEffect: 34
+    AudioClips:
+    - {fileID: 8300000, guid: 7dd87d4b9a3b14548b4afee5bad7ba78, type: 3}
+  - SoundEffect: 35
+    AudioClips:
+    - {fileID: 8300000, guid: 471d207f721e70c42a07a52371207281, type: 3}
+  - SoundEffect: 36
+    AudioClips:
+    - {fileID: 8300000, guid: 1fd9d692ccd225e42ab213168a248d93, type: 3}
+  - SoundEffect: 37
+    AudioClips:
+    - {fileID: 8300000, guid: 0bef19abc8179dc44a532eaee00744c7, type: 3}
+  - SoundEffect: 38
+    AudioClips:
+    - {fileID: 8300000, guid: c7af3dbde011d0743a08cf4facc46538, type: 3}
+  - SoundEffect: 39
+    AudioClips:
+    - {fileID: 8300000, guid: 86a3647415217b743bdcfd45834a9762, type: 3}
+    - {fileID: 8300000, guid: 7ee560e475c08294689e5e364ddb843c, type: 3}
+  - SoundEffect: 40
+    AudioClips:
+    - {fileID: 8300000, guid: 1d705279e3416b54b948f2dc25bc1b4d, type: 3}

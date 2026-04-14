@@ -20,18 +20,24 @@ MonoBehaviour:
     Id:
       Value: 1524544283524633813
   SpawnChance:
-    RawValue: 32768
-  LosingSpawnBonus:
-    RawValue: 98304
-  BigPowerup: 0
-  VerticalPowerup: 0
-  CustomPowerup: 1
-  LivesOnlyPowerup: 0
-  Type: 0
+    RawValue: 65536
+  AboveAverageBonus:
+    RawValue: -65536
+  BelowAverageBonus:
+    RawValue: 65536
+  BlockSpawnSoundEffect: 69
+  Flags: 23
+  MaxNumberOfItems: 0
+  CameraSpawnOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 110100
+  MaxMatchingPowerStates: 0
+  MaxMatchingReserveState: 0
   State: 4
   SoundPlaysEverywhere: 0
   SoundEffect: 16
-  BlockSpawnSoundEffect: 69
   ReserveSprite: {fileID: 697740482, guid: a87d3b028baa82640b06b88398a8c4f0, type: 3}
   AvoidPlayers: 0
   Speed:
@@ -40,6 +46,8 @@ MonoBehaviour:
     RawValue: 0
   TerminalVelocity:
     RawValue: -524288
+  BumpedFromBelowVelocity:
+    RawValue: 360448
   FollowAnimationCurve: 0
   AnimationCurveX:
     Samples: []
@@ -67,3 +75,5 @@ MonoBehaviour:
     Keys: []
   StatePriority: 2
   ItemPriority: 2
+  EnterReserveIfOverridden: 1
+  SfxOverrides: []

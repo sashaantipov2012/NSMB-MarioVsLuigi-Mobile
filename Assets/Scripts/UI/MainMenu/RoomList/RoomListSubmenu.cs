@@ -3,6 +3,7 @@ using NSMB.UI.Elements;
 using NSMB.UI.MainMenu.Submenus.Prompts;
 using NSMB.UI.Translation;
 using NSMB.Utilities;
+using NSMB.Utilities.Extensions;
 using Photon.Realtime;
 using Quantum;
 using System;
@@ -20,9 +21,9 @@ namespace NSMB.UI.MainMenu.Submenus.RoomList {
         //---Serailized Variables
         [SerializeField] private TMP_Dropdown regionDropdown;
         [SerializeField] private RoomListManager roomManager;
-        [SerializeField] private GameObject reconnectBtn, createRoomBtn, joinPrivateRoomBtn;
+        [SerializeField] private GameObject reconnectBtn, createRoomBtn, joinPrivateRoomBtn, filterAddonsParent;
         [SerializeField] private TMP_InputField usernameField;
-        [SerializeField] private SpriteChangingToggle filterInProgressRooms, filterFullRooms;
+        [SerializeField] private SpriteChangingToggle filterInProgressRooms, filterFullRooms, filterAddons;
         [SerializeField] private MainMenuSubmenu inRoomSubmenu;
         [SerializeField] private ErrorPromptSubmenu errorSubmenu;
         [SerializeField] private RectTransform sideMenu;
@@ -46,6 +47,7 @@ namespace NSMB.UI.MainMenu.Submenus.RoomList {
             // This is needed for some bullshit where the "username" box
             // has zero height in builds. But not in the editor.
             // Because fuck you.
+            filterAddonsParent.SetActive(GlobalController.Instance.addonManager.isActiveAndEnabled);
             LayoutRebuilder.ForceRebuildLayoutImmediate(sideMenu);
         }
 
@@ -59,16 +61,22 @@ namespace NSMB.UI.MainMenu.Submenus.RoomList {
             if (!overlayed) {
                 Reconnect();
             }
+            overlayed = false;
             
             filterInProgressRooms.SetIsOnWithoutNotify(Settings.Instance.miscFilterInProgressRooms);
             roomManager.FilterInProgressRooms = Settings.Instance.miscFilterInProgressRooms;
+            
             filterFullRooms.SetIsOnWithoutNotify(Settings.Instance.miscFilterFullRooms);
             roomManager.FilterFullRooms = Settings.Instance.miscFilterFullRooms;
+
+            filterAddons.SetIsOnWithoutNotify(Settings.Instance.miscFilterAddons);
+            roomManager.FilterAddons = Settings.Instance.miscFilterAddons;
+
             if (string.IsNullOrWhiteSpace(Settings.Instance.generalNickname)) {
                 UnityEngine.Random.InitState((int) DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
                 Settings.Instance.generalNickname = "Player" + UnityEngine.Random.Range(1000, 10000);
             }
-            usernameField.text = Settings.Instance.generalNickname;
+            usernameField.SetTextWithoutNotify(Settings.Instance.generalNickname);
 
             if (kickedFromPreviousGame) {
                 errorSubmenu.OpenWithString("ui.error.kicked", false);
@@ -83,7 +91,7 @@ namespace NSMB.UI.MainMenu.Submenus.RoomList {
         public override void Hide(SubmenuHideReason hideReason) {
             base.Hide(hideReason);
 
-            overlayed = hideReason == SubmenuHideReason.Overlayed;
+            overlayed = (hideReason == SubmenuHideReason.Overlayed);
             if (hideReason == SubmenuHideReason.Closed) {
                 // Disconnect
                 _ = NetworkHandler.Disconnect();
@@ -128,6 +136,13 @@ namespace NSMB.UI.MainMenu.Submenus.RoomList {
             Settings.Instance.SaveSettings();
 
             roomManager.FilterFullRooms = filterFullRooms.isOn;
+        }
+
+        public void ChangeFilterAddons() {
+            Settings.Instance.miscFilterAddons = filterAddons.isOn;
+            Settings.Instance.SaveSettings();
+
+            roomManager.FilterAddons = filterAddons.isOn;
         }
 
         public void OpenMenuIfUsernameIsValid(MainMenuSubmenu submenu) {

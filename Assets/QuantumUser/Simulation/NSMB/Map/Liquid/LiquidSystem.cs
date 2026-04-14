@@ -124,7 +124,7 @@ namespace Quantum {
 
         public unsafe void OnRemoved(Frame f, EntityRef entity, Transform2D* component) {
             // Do your part to prevent waste! (fixes an out of memory error...)
-            foreach ((var _, var liquidPtr) in f.Unsafe.GetComponentBlockIterator<Liquid>()) {
+            foreach ((_, var liquidPtr) in f.Unsafe.GetComponentBlockIterator<Liquid>()) {
                 f.ResolveHashSet(liquidPtr->SplashedEntities).Remove(entity);
                 f.ResolveHashSet(liquidPtr->UnderwaterEntities).Remove(entity);
             }

@@ -3,7 +3,15 @@ guid: a89a4a7ca4e4d6e4698ba1a26ca4eae5
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - SimulationConfig: {instanceID: 0}
+  - PhysicsMaterial: {instanceID: 0}
+  - CharacterController2DConfig: {instanceID: 0}
+  - CharacterController3DConfig: {instanceID: 0}
+  - NavMeshAgentConfig: {instanceID: 0}
+  - SystemsConfig: {instanceID: 0}
+  - InputActions: {fileID: -944628639613478452, guid: 8a2679cf1c581ca41a337897e3dc5a06,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

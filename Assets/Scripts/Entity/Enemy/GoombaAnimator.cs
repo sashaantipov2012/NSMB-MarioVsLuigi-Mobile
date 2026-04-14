@@ -1,3 +1,5 @@
+using NSMB.Sound;
+using NSMB.Utilities;
 using NSMB.Utilities.Components;
 using NSMB.Utilities.Extensions;
 using Quantum;
@@ -11,8 +13,9 @@ namespace NSMB.Entities.Enemies {
         [SerializeField] private SpriteRenderer sRenderer;
         [SerializeField] private Sprite deadSprite;
         [SerializeField] private GameObject specialKillParticle;
+        [SerializeField] private GameObject respawnParticle;
         [SerializeField] private LegacyAnimateSpriteRenderer legacyAnimation;
-        [SerializeField] private AudioSource sfx;
+        [SerializeField] private SoundEffectPlayer sfx;
 
         public void OnValidate() {
             this.SetIfNull(ref sRenderer, UnityExtensions.GetComponentType.Children);
@@ -63,7 +66,7 @@ namespace NSMB.Entities.Enemies {
                 return;
             }
 
-            sfx.PlayOneShot(QuantumUtils.GetComboSoundEffect(e.Combo));
+            sfx.PlayOneShot(QuantumViewUtils.GetComboSoundEffect(e.Combo));
         }
 
         private void OnEnemyKilled(EventEnemyKilled e) {
@@ -71,7 +74,7 @@ namespace NSMB.Entities.Enemies {
                 return;
             }
 
-            if (e.KillReason == KillReason.Groundpounded) {
+            if (e.KillReason == EnemyKillReason.Groundpounded) {
                 Instantiate(specialKillParticle, transform.position + Vector3.up * 0.2f, Quaternion.identity);
             }
         }

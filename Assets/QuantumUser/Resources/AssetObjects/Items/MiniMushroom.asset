@@ -11,27 +11,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a77651c98eb177748a49241e377f4457, type: 3}
   m_Name: MiniMushroom
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Quantum.Simulation::PowerupAsset
   Identifier:
     Path: QuantumUser/Resources/AssetObjects/Items/MiniMushroom
     Guid:
-      Value: 271390802845879304
+      Value: 315844579913471239
   Prefab:
     Id:
       Value: 1414434856952255942
   SpawnChance:
-    RawValue: 131072
-  LosingSpawnBonus:
-    RawValue: -655360
-  BigPowerup: 0
-  VerticalPowerup: 0
-  CustomPowerup: 0
-  LivesOnlyPowerup: 0
-  Type: 0
+    RawValue: 32768
+  AboveAverageBonus:
+    RawValue: 65536
+  BelowAverageBonus:
+    RawValue: -147456
+  BlockSpawnSoundEffect: 69
+  Flags: 19
+  MaxNumberOfItems: 0
+  CameraSpawnOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 110100
+  MaxMatchingPowerStates: 0
+  MaxMatchingReserveState: 0
   State: 1
   SoundPlaysEverywhere: 0
   SoundEffect: 45
-  BlockSpawnSoundEffect: 69
   ReserveSprite: {fileID: -1858463510, guid: a87d3b028baa82640b06b88398a8c4f0, type: 3}
   AvoidPlayers: 0
   Speed:
@@ -40,6 +46,8 @@ MonoBehaviour:
     RawValue: 0
   TerminalVelocity:
     RawValue: -524288
+  BumpedFromBelowVelocity:
+    RawValue: 360448
   FollowAnimationCurve: 0
   AnimationCurveX:
     Samples: []
@@ -67,3 +75,5 @@ MonoBehaviour:
     Keys: []
   StatePriority: 0
   ItemPriority: 2
+  EnterReserveIfOverridden: 1
+  SfxOverrides: []

@@ -270,6 +270,7 @@ MonoBehaviour:
   frames:
   - {fileID: -4108787663010400821, guid: 794bc215dd02bf34ab2cfae7702bfdfd, type: 3}
   - {fileID: -1073110140, guid: 794bc215dd02bf34ab2cfae7702bfdfd, type: 3}
+  colorblindModeFrames: []
   useUnscaledDelta: 0
   sRenderer: {fileID: 5406078764588261642}
   image: {fileID: 0}

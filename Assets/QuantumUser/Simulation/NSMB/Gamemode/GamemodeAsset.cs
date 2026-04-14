@@ -3,13 +3,16 @@ using Quantum.Prototypes;
 using System;
 
 namespace Quantum {
-    public abstract unsafe class GamemodeAsset : AssetObject {
+    public abstract unsafe class GamemodeAsset : AssetObject, IOrderedAsset {
+
+        int IOrderedAsset.Order => Order;
 
         public string NamePrefix, TranslationKey, DescriptionTranslationKey, DiscordRpcKey;
         public string ObjectiveSymbolPrefix;
         public AssetRef<CoinItemAsset>[] AllCoinItems;
         public AssetRef<CoinItemAsset> FallbackCoinItem;
         public AssetRef<EntityPrototype> LooseCoinPrototype;
+        public int Order;
 
         public GameRulesPrototype DefaultRules;
 
@@ -23,78 +26,70 @@ namespace Quantum {
 
         public abstract int GetObjectiveCount(Frame f, MarioPlayer* mario);
 
+        public virtual bool IsFastMusicEnabled(Frame f) {
+            ref var rules = ref f.Global->Rules;
+
+            if (rules.IsTimerEnabled && f.Global->Timer <= 60) {
+                // Timer expiring, panic music
+                return true;
+            }
+
+            if (rules.IsLivesEnabled) {
+                // Low on lives. Two cases:
+                // A: two players left, at least one has one life
+                // B: three+ players left, all have one life
+
+                int playersWithOneLife = 0;
+                foreach ((_, var mario) in f.Unsafe.GetComponentBlockIterator<MarioPlayer>()) {
+                    if (mario->IsValid(f)) {
+                        if (mario->Lives == 1) {
+                            playersWithOneLife++;
+                        }
+                    }
+                }
+
+                if ((f.Global->RealPlayers <= 2 && playersWithOneLife > 0) || (playersWithOneLife >= f.Global->RealPlayers)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool CanItemSpawn(Frame f, CoinItemAsset coinItem, bool fromRouletteBlock) {
+            var stage = f.FindAsset<VersusStageData>(f.Map.UserAsset);
+            if (stage.BannedCoinItems.Contains(coinItem)) {
+                return false;
+            }
+
+            return coinItem.CanSpawn(f, fromRouletteBlock);
+        }
+
         public virtual CoinItemAsset GetRandomItem(Frame f, MarioPlayer* mario, bool fromBlock) {
             var stage = f.FindAsset<VersusStageData>(f.Map.UserAsset);
 
             // "Losing" variable based on ln(x+1)
 
             int ourObjectiveCount = GetTeamObjectiveCount(f, mario->GetTeam(f)) ?? 0;
-            int leaderObjectiveCount = GetFirstPlaceObjectiveCount(f);
-
-            var rules = f.Global->Rules;
-            bool custom = rules.CustomPowerupsEnabled;
-            bool lives = rules.IsLivesEnabled;
-            bool big = stage.SpawnBigPowerups;
-            bool vertical = stage.SpawnVerticalPowerups;
-
-            bool canSpawnMega = true;
-
-            var allPlayers = f.Filter<MarioPlayer>();
-            allPlayers.UseCulling = false;
-            while (allPlayers.NextUnsafe(out _, out MarioPlayer* otherPlayer)) {
-                // Check if another player is actively mega (not growing or shrinking)
-                if (otherPlayer->CurrentPowerupState == PowerupState.MegaMushroom
-                    && otherPlayer->MegaMushroomStartFrames == 0) {
-                    canSpawnMega = false;
-                    break;
-                }
-            }
-
-            bool onlyOneAlreadyExists = false;
-            var allCoinItems = f.Filter<CoinItem>();
-            while (allCoinItems.NextUnsafe(out _, out var coinItem)) {
-                if (f.FindAsset(coinItem->Scriptable).OnlyOneCanExist) {
-                    onlyOneAlreadyExists = true;
-                    break;
-                }
-            }
 
             FP totalChance = 0;
             foreach (AssetRef<CoinItemAsset> coinItemAsset in AllCoinItems) {
                 CoinItemAsset coinItem = f.FindAsset(coinItemAsset);
-                if ((coinItem is PowerupAsset powerup) && powerup.State == PowerupState.MegaMushroom && !canSpawnMega) {
+                if (!CanItemSpawn(f, coinItem, fromBlock)) {
                     continue;
                 }
 
-                if ((coinItem.BigPowerup && !big)
-                    || (coinItem.VerticalPowerup && !vertical)
-                    || (coinItem.CustomPowerup && !custom)
-                    || (coinItem.LivesOnlyPowerup && !lives)
-                    || (!coinItem.CanSpawnFromBlock && fromBlock)
-                    || (coinItem.OnlyOneCanExist && onlyOneAlreadyExists)) {
-                    continue;
-                }
-
-                totalChance += GetItemSpawnWeight(f, coinItem, leaderObjectiveCount, ourObjectiveCount);
+                totalChance += GetItemSpawnWeight(f, coinItem, ourObjectiveCount);
             }
 
             FP rand = mario->RNG.Next(0, totalChance);
             foreach (AssetRef<CoinItemAsset> coinItemAsset in AllCoinItems) {
                 CoinItemAsset coinItem = f.FindAsset(coinItemAsset);
-                if ((coinItem is PowerupAsset powerup) && powerup.State == PowerupState.MegaMushroom && !canSpawnMega) {
+                if (!CanItemSpawn(f, coinItem, fromBlock)) {
                     continue;
                 }
 
-                if ((coinItem.BigPowerup && !big)
-                    || (coinItem.VerticalPowerup && !vertical)
-                    || (coinItem.CustomPowerup && !custom)
-                    || (coinItem.LivesOnlyPowerup && !lives)
-                    || (!coinItem.CanSpawnFromBlock && fromBlock)
-                    || (coinItem.OnlyOneCanExist && onlyOneAlreadyExists)) {
-                    continue;
-                }
-
-                FP chance = GetItemSpawnWeight(f, coinItem, leaderObjectiveCount, ourObjectiveCount);
+                FP chance = GetItemSpawnWeight(f, coinItem, ourObjectiveCount);
 
                 if (rand < chance) {
                     return coinItem;
@@ -106,7 +101,7 @@ namespace Quantum {
             return f.FindAsset(FallbackCoinItem);
         }
 
-        public abstract FP GetItemSpawnWeight(Frame f, CoinItemAsset item, int leaderObjectiveCount, int ourObjectiveCount);
+        public abstract FP GetItemSpawnWeight(Frame f, CoinItemAsset item, int ourObjectiveCount);
 
         public virtual int? GetWinningTeam(Frame f, out int winningObjectiveCount) {
             winningObjectiveCount = 0;
@@ -137,18 +132,12 @@ namespace Quantum {
         }
 
         public virtual void GetAllTeamsObjectiveCounts(Frame f, Span<int> teamObjectiveCounts) {
-            var allPlayers = f.Filter<MarioPlayer>();
-            allPlayers.UseCulling = false;
-
             for (int i = 0; i < teamObjectiveCounts.Length; i++) {
                 teamObjectiveCounts[i] = -1;
             }
 
-            while (allPlayers.NextUnsafe(out _, out MarioPlayer* mario)) {
-                if (mario->Disconnected || (mario->Lives <= 0 && f.Global->Rules.IsLivesEnabled)) {
-                    continue;
-                }
-                if (mario->GetTeam(f) is not byte team) {
+            foreach ((_, var mario) in f.Unsafe.GetComponentBlockIterator<MarioPlayer>()) {
+                if (!mario->IsValid(f) || mario->GetTeam(f) is not byte team) {
                     continue;
                 }
 
@@ -169,14 +158,15 @@ namespace Quantum {
             return GetTeamObjectiveCount(f, team);
         }
 
+        public readonly struct ObjectiveStatistics {
+            public readonly FP Average;
+            public readonly int Min, Max;
+        }
+
         public virtual int GetTeamObjectiveCount(Frame f, byte team) {
             int sum = 0;
-            var allPlayers = f.Filter<MarioPlayer>();
-            allPlayers.UseCulling = false;
-            while (allPlayers.NextUnsafe(out _, out MarioPlayer* mario)) {
-                if (mario->GetTeam(f) != team
-                    || (mario->Lives <= 0 && f.Global->Rules.IsLivesEnabled)
-                    || mario->Disconnected) {
+            foreach ((_, var mario) in f.Unsafe.GetComponentBlockIterator<MarioPlayer>()) {
+                if (mario->GetTeam(f) != team || !mario->IsValid(f)) {
                     continue;
                 }
 
@@ -198,6 +188,40 @@ namespace Quantum {
             }
 
             return max;
+        }
+
+        public virtual int GetLastPlaceObjectiveCount(Frame f) {
+            Span<int> teamObjectives = stackalloc int[Constants.MaxPlayers];
+            GetAllTeamsObjectiveCounts(f, teamObjectives);
+
+            int min = int.MaxValue;
+            foreach (int objectiveCount in teamObjectives) {
+                if (objectiveCount < min && objectiveCount != -1) {
+                    min = objectiveCount;
+                }
+            }
+
+            return min;
+        }
+
+        public virtual FP GetAverageObjectiveCount(Frame f) {
+            Span<int> teamObjectives = stackalloc int[Constants.MaxPlayers];
+            GetAllTeamsObjectiveCounts(f, teamObjectives);
+
+            int aliveTeamCount = 0;
+            int aliveTeam = -1;
+            for (int i = 0; i < teamObjectives.Length; i++) {
+                if (teamObjectives[i] > -1) {
+                    aliveTeamCount++;
+                    aliveTeam = i;
+                }
+            }
+
+            int sum = 0;
+            foreach (int objectiveCount in teamObjectives) {
+                if (objectiveCount > 0) sum += objectiveCount;
+            }
+            return (FP) sum / aliveTeamCount;
         }
 
         public virtual EntityRef SpawnLooseCoin(Frame f, FPVector2 position) {

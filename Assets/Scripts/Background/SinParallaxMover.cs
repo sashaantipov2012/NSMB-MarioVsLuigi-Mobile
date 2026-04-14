@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace NSMB.Background {
-    public class SinParallaxMover : ParallaxMover {
+    public class SinParallaxMover : HorizontalMover {
 
         //---Serialized Variables
         [SerializeField] private float frequency = 0.2f;

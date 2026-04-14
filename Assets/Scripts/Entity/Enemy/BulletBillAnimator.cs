@@ -1,3 +1,5 @@
+using NSMB.Sound;
+using NSMB.Utilities;
 using NSMB.Utilities.Components;
 using NSMB.Utilities.Extensions;
 using Quantum;
@@ -11,7 +13,7 @@ namespace NSMB.Entities.Enemies {
         //---Serialized Variables
         [SerializeField] private SpriteRenderer sRenderer;
         [SerializeField] private ParticleSystem trailParticles;
-        [SerializeField] private AudioSource sfx;
+        [SerializeField] private SoundEffectPlayer sfx;
         [SerializeField] private LegacyAnimateSpriteRenderer legacyAnimation;
         [SerializeField] private GameObject specialKillParticles;
 
@@ -21,9 +23,9 @@ namespace NSMB.Entities.Enemies {
         private float fireballScaleTimer;
 
         public void OnValidate() {
-            this.SetIfNull(ref sfx);
             this.SetIfNull(ref sRenderer, UnityExtensions.GetComponentType.Children);
             this.SetIfNull(ref legacyAnimation, UnityExtensions.GetComponentType.Children);
+            this.SetIfNull(ref sfx);
         }
 
         public void Start() {
@@ -34,7 +36,7 @@ namespace NSMB.Entities.Enemies {
 
         public override void OnActivate(Frame f) {
             if (!IsReplayFastForwarding) {
-                sfx.Play();
+                sfx.PlayOneShot(SoundEffect.Enemy_BulletBill_Shoot);
             }
             legacyAnimation.enabled = true;
             StartCoroutine(ChangeSpriteSortingOrder());
@@ -95,7 +97,7 @@ namespace NSMB.Entities.Enemies {
                 return;
             }
 
-            if (e.KillReason == KillReason.Special || e.KillReason == KillReason.Groundpounded) {
+            if (e.KillReason is EnemyKillReason.Special or EnemyKillReason.Groundpounded) {
                 Instantiate(specialKillParticles, transform.position, Quaternion.identity);
             } else {
                 // sfx.PlayOneShot(SoundEffect.Enemy_Generic_Stomp);
@@ -107,7 +109,7 @@ namespace NSMB.Entities.Enemies {
                 return;
             }
 
-            sfx.PlayOneShot(QuantumUtils.GetComboSoundEffect(e.Combo));
+            sfx.PlayOneShot(QuantumViewUtils.GetComboSoundEffect(e.Combo));
         }
     }
 }

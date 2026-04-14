@@ -1,6 +1,5 @@
 using NSMB.Utilities.Extensions;
 using Quantum;
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -19,27 +18,15 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
 
         //---Prviate Variables
         private readonly List<BanEntry> entries = new();
-        private IDisposable eventSubscription;
+
+        public override void Initialize() {
+            base.Initialize();
+            QuantumEvent.Subscribe<EventPlayerUnbanned>(this, OnPlayerUnbanned, onlyIfActiveAndEnabled: true);
+        }
 
         public override void Show(bool first) {
             base.Show(first);
-
             PopulateBanList();
-            eventSubscription = QuantumEvent.SubscribeManual<EventPlayerUnbanned>(this, OnPlayerUnbanned);
-        }
-
-        public override void OnDestroy() {
-            base.OnDestroy();
-            eventSubscription?.Dispose();
-            eventSubscription = null;
-        }
-
-        public override void Hide(SubmenuHideReason hideReason) {
-            if (hideReason == SubmenuHideReason.Closed) {
-                eventSubscription?.Dispose();
-                eventSubscription = null;
-            }
-            base.Hide(hideReason);
         }
 
         public unsafe void PopulateBanList() {
@@ -117,7 +104,8 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
                 GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_Error);
                 return;
             }
-            int slot = game.GetLocalPlayerSlots().IndexOf(host);
+
+            int slot = game.GetLocalPlayerSlots()[game.GetLocalPlayers().IndexOf(host)];
             game.SendCommand(slot, new CommandUnbanPlayer() {
                 TargetUserId = entry.UserId,
             });

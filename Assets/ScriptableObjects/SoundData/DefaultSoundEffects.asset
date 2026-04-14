@@ -1,0 +1,747 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ef72dd466a4a304fa1d61bcde88ab92, type: 3}
+  m_Name: DefaultSoundEffects
+  m_EditorClassIdentifier: 
+  SfxOverrides:
+  - SoundEffect: 0
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 7fefc6afc49575d4ab698897e5f67453, type: 3}
+  - SoundEffect: 1
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 45a7c70f6c419324aa0785be7c903199, type: 3}
+  - SoundEffect: 105
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 667426e3ebc912a4abd6956fcd74a9cf, type: 3}
+  - SoundEffect: 2
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 61bd8e5c8f67c6c419692402a386c3f9, type: 3}
+  - SoundEffect: 101
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: ebd12256ae1885b4c93cc97aa9cefe59, type: 3}
+  - SoundEffect: 3
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: a5d39844d6736b740a68ceb1d7d12a01, type: 3}
+  - SoundEffect: 4
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: fe5186a20e2b2434fa244b6fda0fda0a, type: 3}
+  - SoundEffect: 5
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: eb19a8df530de3544a1363521b6393a1, type: 3}
+  - SoundEffect: 7
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 42e43991bc9f4f24884f4482c7c7253b, type: 3}
+  - SoundEffect: 6
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 2b8bcbf3130d5bc4e96a54e040d47db0, type: 3}
+  - SoundEffect: 8
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: bf2bcf0bb7843f547bea126c7dda1569, type: 3}
+  - SoundEffect: 9
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: c080c3168214a644a8fa63a498d7ead8, type: 3}
+  - SoundEffect: 10
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 87ab0f8bbdb77154cbb89ab1577e12af, type: 3}
+  - SoundEffect: 11
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 165c70159c1113840b57428d01444628, type: 3}
+  - SoundEffect: 12
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 3552e6a3b6055344da0de6a7aafe00a4, type: 3}
+  - SoundEffect: 13
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 32ae2bbf5456dff4281d99cf14850e19, type: 3}
+  - SoundEffect: 14
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: e73dd5258e5613048b0195e518b7f46c, type: 3}
+  - SoundEffect: 15
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: fea991d213afaf94cac1d4e0c443d4a2, type: 3}
+  - SoundEffect: 17
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 002650feffc04cf499aa0726fc3f8199, type: 3}
+  - SoundEffect: 18
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 8d55f9dfe9efd3e498c3e9d96fc5ed84, type: 3}
+  - SoundEffect: 19
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 1affa5cff46ac144c967a6fe081a353b, type: 3}
+  - SoundEffect: 20
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 7dceacc6bf7d041448a0ce51a114b8b2, type: 3}
+  - SoundEffect: 94
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: d467996fde2070347bd414de49d28f03, type: 3}
+  - SoundEffect: 21
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 80e6fe6f66166f04e8beccc08fe56422, type: 3}
+  - SoundEffect: 22
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: e39b2a233b62fe045863c99bb161f7a0, type: 3}
+  - SoundEffect: 23
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 643193d6fccf965438ad083e8ec4c8fd, type: 3}
+  - SoundEffect: 24
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 47698946f957b5b468683761f0da2557, type: 3}
+  - SoundEffect: 90
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: ce72184500b995a48a64dee564f3d9d1, type: 3}
+  - SoundEffect: 16
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 1a8e33a020366c847bd1668a0cb05787, type: 3}
+  - SoundEffect: 25
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 26d5227d8212fa1479ea017723bac8bc, type: 3}
+  - SoundEffect: 26
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: afda1edf8438461449dde40180945d52, type: 3}
+  - SoundEffect: 27
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 046fc639d13da7b45a0b3db2e2450298, type: 3}
+  - SoundEffect: 28
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 952540ec58b4fac4497d126d96f92dd2, type: 3}
+  - SoundEffect: 92
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: bf90cd5378503274dab00e841a398fea, type: 3}
+  - SoundEffect: 96
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: c0ec4bd82098fda4cb49a0b6c1d5453d, type: 3}
+  - SoundEffect: 29
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: e442cbf97e252e94b97dfea46f15eb07, type: 3}
+  - SoundEffect: 30
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 95360a672a4824d4fb69690ee7c591ff, type: 3}
+  - SoundEffect: 31
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 66eb71d12ceb35f448ea37718ec1586a, type: 3}
+    - {fileID: 8300000, guid: f9cec7e5e236074498bd03272e875340, type: 3}
+  - SoundEffect: 32
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 76bbc331adf6aec4484f6daa23993e93, type: 3}
+    - {fileID: 8300000, guid: 8472799ca0df5a043bc657b8749f463f, type: 3}
+  - SoundEffect: 93
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 473e52405d0f31449bc86f173e6113b0, type: 3}
+    - {fileID: 8300000, guid: d0f4aa31c6339064fa2fd36ec36aa559, type: 3}
+  - SoundEffect: 95
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: c45dce31b0d098e428b53de1b2a8b520, type: 3}
+    - {fileID: 8300000, guid: 137078e61c525c04ea1c77d2c6436f70, type: 3}
+  - SoundEffect: 33
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: f75457ef8d1c176448e12f08de5ddd0a, type: 3}
+    - {fileID: 8300000, guid: d5850903cb52e8c4387e6bca373c01ed, type: 3}
+  - SoundEffect: 34
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: bd36f66a74ff2fc48a27d8412c903f42, type: 3}
+  - SoundEffect: 35
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: aeecbe4b1ec3c7f4fafb08d47b188a1b, type: 3}
+  - SoundEffect: 36
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: f77beb1451bb0af43a2fa30d14c88f1f, type: 3}
+  - SoundEffect: 37
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 1fecef353d7ce784c8259618d8271e5b, type: 3}
+  - SoundEffect: 38
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 746caec8555640848b12f0d490b88dbd, type: 3}
+  - SoundEffect: 39
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 9eff279d61ad3f743b1f9bb7c83b0d0c, type: 3}
+    - {fileID: 8300000, guid: bbc023a35480a534f8cb5d652516249e, type: 3}
+  - SoundEffect: 115
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips: []
+  - SoundEffect: 116
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: d5850903cb52e8c4387e6bca373c01ed, type: 3}
+  - SoundEffect: 117
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: bbc023a35480a534f8cb5d652516249e, type: 3}
+  - SoundEffect: 118
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: bbc023a35480a534f8cb5d652516249e, type: 3}
+  - SoundEffect: 40
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 59fc53d2fef2b12489d1f4583c7dade7, type: 3}
+  - SoundEffect: 78
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 84e9088d7e4ac7c4ca2280514ff715ce, type: 3}
+  - SoundEffect: 41
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 6653c42385d1b1f429295cb37e8aa131, type: 3}
+  - SoundEffect: 42
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: e9e8673a6dce3524c9ec16c0d228ac69, type: 3}
+  - SoundEffect: 43
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: c87047283175c624e938362999767df0, type: 3}
+  - SoundEffect: 44
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 3c3e5f14c9959ec4f9487f176a05b686, type: 3}
+  - SoundEffect: 46
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: fbce4c85d40a7e348a6605aa6e738eea, type: 3}
+  - SoundEffect: 47
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: ce2ff6d5591cd924a8564a00a48cb6fd, type: 3}
+  - SoundEffect: 48
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 3c42758c53070604d8221d0b41e4c3b3, type: 3}
+  - SoundEffect: 49
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: cc76ebd60b562a44ca887fe96def4818, type: 3}
+  - SoundEffect: 50
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 721c0c1da44208a458235149a3411439, type: 3}
+  - SoundEffect: 51
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: eb569758dcb6acc4183d64fffa344bd6, type: 3}
+  - SoundEffect: 52
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: fcaadbcb1dc3383479939d7c1b43e398, type: 3}
+  - SoundEffect: 53
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: d9eeb90e4c57674439d5678f95fa2a64, type: 3}
+    - {fileID: 8300000, guid: d9a2609e9d8477a4ba407761943f901b, type: 3}
+  - SoundEffect: 45
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 400b4a32b4d42664aa2a29acd87a5558, type: 3}
+  - SoundEffect: 54
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 0f286ff76ddecc44e963c2f5a293fbfb, type: 3}
+  - SoundEffect: 55
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: e8d235cd052dbc84da28fe6cdb02926d, type: 3}
+  - SoundEffect: 97
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 5b4370aa9bbacc0459891ed9e8e7bd61, type: 3}
+  - SoundEffect: 56
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: c8ae9349c885145468011889cafc470b, type: 3}
+  - SoundEffect: 57
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: fce256982fd7e6f4c855d4457f161b52, type: 3}
+  - SoundEffect: 58
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: ae52cd0f68fb4c1428992b44adc89673, type: 3}
+  - SoundEffect: 59
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: d32ae975386c1bc42b03d3560ddeaa7a, type: 3}
+  - SoundEffect: 106
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: c6422fe3d63efb9458206549e7b792b1, type: 3}
+  - SoundEffect: 109
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 7a9b5f14f647b334e9b252dd43423550, type: 3}
+  - SoundEffect: 60
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: ab36b4c644b864849879dd7e8a663ae6, type: 3}
+  - SoundEffect: 61
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: f583ccdb73861b54c8a181544311f216, type: 3}
+  - SoundEffect: 62
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 8d583ed33766ec44097ffd0b460a9d1a, type: 3}
+  - SoundEffect: 63
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 6f241c5108239c941aa2bd5d8d3f8f78, type: 3}
+  - SoundEffect: 87
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 1f700f1d8441e2f4aa6b717125e96a8c, type: 3}
+  - SoundEffect: 107
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 7a49fc38a5fdf4a42a3e2a0bb6f9e7e7, type: 3}
+  - SoundEffect: 64
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 3e531865d5e96ca42b05dde711568582, type: 3}
+  - SoundEffect: 65
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 7f5237a4fbcc530439c35d49d4914ecf, type: 3}
+  - SoundEffect: 66
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: aa0a2b1e04ee548428c40fdc9dc2439a, type: 3}
+  - SoundEffect: 79
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: f34b75ab181da53449437e053fbcf7f1, type: 3}
+  - SoundEffect: 80
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: a987e902d78b0974886c1c55ac3b714d, type: 3}
+  - SoundEffect: 81
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 1398a3ec9db57f04880097f04697eb20, type: 3}
+  - SoundEffect: 82
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 810dc7ace0582aa43bd1d4cdb9c33a00, type: 3}
+  - SoundEffect: 83
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 76009f4d3d9b1764ab79a5657e65b15f, type: 3}
+  - SoundEffect: 84
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: ebdb1e5e3a6a86040aa5e88c1867c74b, type: 3}
+  - SoundEffect: 85
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: c08e482d7384c1643b9acbf4d972f6cc, type: 3}
+  - SoundEffect: 86
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 036eb27f75701db44bb1057fcf392b48, type: 3}
+  - SoundEffect: 88
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 8efc84dbeb499b044bdd641804f4bf9a, type: 3}
+  - SoundEffect: 89
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 0d79de6a820246b4b99bc55397c8f838, type: 3}
+  - SoundEffect: 98
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 3671ea5c993f3dc448b0d801cdab09ba, type: 3}
+  - SoundEffect: 102
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: d812d1a0f6247794194a1b679bc51627, type: 3}
+  - SoundEffect: 103
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 1814a0bc6df02c744842316928e98b4f, type: 3}
+  - SoundEffect: 108
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: c51ad43219e9f634b9c45d4294ce4ce5, type: 3}
+  - SoundEffect: 104
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 9255bbf429c309a40b369dd6e463d8c9, type: 3}
+  - SoundEffect: 67
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 5b37bd296278e534a9d438cbf66937ca, type: 3}
+  - SoundEffect: 68
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 0700c8f2ea54bb9498d33bf839da0512, type: 3}
+  - SoundEffect: 69
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 05bcfa43e40404d49875bb295afab15b, type: 3}
+  - SoundEffect: 99
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 612cfc8b53f7bf946a3d53dd3854a5bc, type: 3}
+  - SoundEffect: 70
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 08141aacc2b968a419a9c775bdcbdf8d, type: 3}
+  - SoundEffect: 91
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: a5787318f62276f4195fc8ec6cf273d5, type: 3}
+  - SoundEffect: 100
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 8ae6449b61d063846a5eb00b82c687f9, type: 3}
+  - SoundEffect: 71
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: fe198d590d2b0fe4587160fb5ce91e7b, type: 3}
+  - SoundEffect: 112
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 05fa37e2bb9ce36488d77af985d5f384, type: 3}
+  - SoundEffect: 113
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: adf1d5f8c71da1f40bac2eb04bb75c11, type: 3}
+  - SoundEffect: 114
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: f6328669eba71f24594381c1d03874c1, type: 3}
+  - SoundEffect: 119
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 046fc639d13da7b45a0b3db2e2450298, type: 3}
+  - SoundEffect: 72
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 6ffecb17336c09e4a8f84f424ea96152, type: 3}
+  - SoundEffect: 110
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: cc044c312ecab184f82ef25d693fdcdb, type: 3}
+  - SoundEffect: 111
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: f6d5b7f18719d2e4ebf07a89bbc6f819, type: 3}
+  - SoundEffect: 73
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 1
+    AudioClips:
+    - {fileID: 8300000, guid: 75c99e7ebfa2c21499325c257323c40a, type: 3}
+  - SoundEffect: 74
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 1
+    AudioClips:
+    - {fileID: 8300000, guid: fbc5aae362793d5498b96656d36cff94, type: 3}
+  - SoundEffect: 75
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: a6a625e3bb2c8ee41be41a59e4f81fe4, type: 3}
+  - SoundEffect: 76
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: bffc574cddef94e4f9baf06947436f0c, type: 3}
+  - SoundEffect: 77
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 7fc9a814923a54d49af74669b64dd2f3, type: 3}
+  - SoundEffect: 77
+    Mode: 0
+    Priority: 0
+    PlayGlobally: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 7fc9a814923a54d49af74669b64dd2f3, type: 3}

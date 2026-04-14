@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.54901963, g: 0.5882353, b: 0.627451, a: 1}
+  m_AmbientSkyColor: {r: 0.5176471, g: 0.45882353, b: 0.45882353, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
@@ -3783,8 +3783,7 @@ PrefabInstance:
         type: 3}
       propertyPath: Asset
       value: 
-      objectReference: {fileID: 11400000, guid: 16a25243d0bc6ca4aa2e9f6bdce2863f,
-        type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 7682502346014357760, guid: dcdc633a29f212843ae9cbdf4be58fb2,
         type: 3}
       propertyPath: AssetRef.Id.Value
@@ -4160,11 +4159,6 @@ PrefabInstance:
       propertyPath: 'MapEntityReferences.Array.data[72]'
       value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 8642252342915534796, guid: dcdc633a29f212843ae9cbdf4be58fb2,
-        type: 3}
-      propertyPath: LocalPlayers.Array.size
-      value: 2
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4346,6 +4340,12 @@ PrefabInstance:
       propertyPath: Prototype.OtherPipe
       value: 
       objectReference: {fileID: 19909823}
+    - target: {fileID: 2934724678605374043, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1152861156, guid: 88ec78ac4484c29459651e7992891bea,
+        type: 3}
     - target: {fileID: 2939613095395977903, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6111,6 +6111,7 @@ GameObject:
   m_IsActive: 1
 --- !u!212 &1277131672
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -6129,6 +6130,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -6150,9 +6153,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1013106893
   m_SortingLayer: -1
   m_SortingOrder: -1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -217905571, guid: b84e328ee40c6e444adf3976ab53abd8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -6162,7 +6167,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1277131673
 Transform:
@@ -7162,6 +7166,17 @@ PrefabInstance:
       propertyPath: Prototype.OtherPipe
       value: 
       objectReference: {fileID: 1755887393}
+    - target: {fileID: 758687465262641939, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
+        type: 3}
+      propertyPath: Prototype.TransitionOnlyPanning.Value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2934724678605374043, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 222288201, guid: 88ec78ac4484c29459651e7992891bea,
+        type: 3}
     - target: {fileID: 2939613095395977903, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -7422,6 +7437,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1500230912
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -7440,6 +7456,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -7461,9 +7479,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1013106893
   m_SortingLayer: -1
   m_SortingOrder: -2
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -1403104231, guid: b84e328ee40c6e444adf3976ab53abd8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -7473,7 +7493,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1001 &1604470251
 PrefabInstance:
@@ -8779,6 +8798,17 @@ PrefabInstance:
       propertyPath: Prototype.IsCeilingPipe.Value
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 758687465262641939, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
+        type: 3}
+      propertyPath: Prototype.TransitionOnlyPanning.Value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2934724678605374043, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 222288201, guid: 88ec78ac4484c29459651e7992891bea,
+        type: 3}
     - target: {fileID: 2939613095395977903, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9305,6 +9335,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!483693784 &1890770090
 TilemapRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -9323,6 +9354,8 @@ TilemapRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -9344,9 +9377,11 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -1000
+  m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -9354,7 +9389,6 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
-  m_MaskInteraction: 0
 --- !u!1839735485 &1890770091
 Tilemap:
   m_ObjectHideFlags: 0
@@ -12918,6 +12952,22 @@ PrefabInstance:
       propertyPath: Prototype.OtherPipe
       value: 
       objectReference: {fileID: 1027131002}
+    - target: {fileID: 964303446233613965, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 964303446233613965, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2934724678605374043, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1152861156, guid: 88ec78ac4484c29459651e7992891bea,
+        type: 3}
     - target: {fileID: 2939613095395977903, guid: 8c9fafa7cc25b9b479f9305a40464a7d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -12990,17 +13040,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 3
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
   m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 2
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!108 &6865071945349034112
 Light:
   m_ObjectHideFlags: 0
@@ -13009,14 +13065,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4290463620482482720}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1.1
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 0
     m_Resolution: -1

@@ -18,17 +18,15 @@ namespace Quantum {
     partial void CreatePrototypeUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.GoldBlockPrototype prototype);
     [DrawInline()]
     [ReadOnly(InEditMode = false)]
-    public Quantum.Prototypes.Unity.GoldBlockPrototype Prototype;
+    public Quantum.Prototypes.GoldBlockPrototype Prototype;
     public override System.Type ComponentType {
       get {
         return typeof(Quantum.GoldBlock);
       }
     }
     public override ComponentPrototype CreatePrototype(Quantum.QuantumEntityPrototypeConverter converter) {
-      Quantum.Prototypes.GoldBlockPrototype result;
-      converter.Convert(Prototype, out result);
-      CreatePrototypeUser(converter, ref result);
-      return result;
+      CreatePrototypeUser(converter, ref Prototype);
+      return Prototype;
     }
   }
 }

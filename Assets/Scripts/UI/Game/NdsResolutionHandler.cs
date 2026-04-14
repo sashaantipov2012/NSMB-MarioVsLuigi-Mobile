@@ -107,6 +107,7 @@ namespace NSMB.UI.Game {
             texture = RenderTexture.GetTemporary(width, height);
             texture.useMipMap = false;
             texture.filterMode = FilterMode.Point;
+            texture.depth = 32; // Needed for Unity 6.3, otherwise it will fill your log with errors
 
             playerElements.Camera.targetTexture = texture;
             if (playerElements.ScrollCamera) {

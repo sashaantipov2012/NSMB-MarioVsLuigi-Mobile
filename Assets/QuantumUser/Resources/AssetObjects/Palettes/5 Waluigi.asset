@@ -16,8 +16,8 @@ MonoBehaviour:
     Path: QuantumUser/Resources/AssetObjects/Palettes/5 Waluigi
     Guid:
       Value: 382817490487173616
-  colors:
-  - character:
+  Colors:
+  - Character:
       Id:
         Value: 0
     ShirtColor:
@@ -30,7 +30,7 @@ MonoBehaviour:
       G: 40
       B: 51
       A: 255
-    shirtColor: {r: 0.4062106, g: 0.09251513, b: 0.7264151, a: 1}
-    overallsColor: {r: 0.18039216, g: 0.15686275, b: 0.2, a: 1}
-    hatUsesOverallsColor: 0
-  translationKey: skin.waluigi
+    HatUsesOverallsColor: 0
+  TranslationKey: skin.waluigi
+  Order: 600
+  IsLegacy: 1

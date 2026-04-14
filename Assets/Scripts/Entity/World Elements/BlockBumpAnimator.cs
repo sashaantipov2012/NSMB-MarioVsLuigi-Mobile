@@ -48,7 +48,8 @@ namespace NSMB.Entities.World {
             float bumpScale = 0.35f;
             float bumpDuration = 0.25f;
 
-            float remainingTime = (blockBump->Lifetime - Game.InterpolationFactor) / 60f;
+            float interp = f.Global->GameState == GameState.Ended ? 0 : Game.InterpolationFactor;
+            float remainingTime = (blockBump->Lifetime - interp) / 60f;
             float size = Mathf.Sin((remainingTime / bumpDuration) * Mathf.PI) * bumpScale * 0.5f;
 
             transform.localScale = new(0.5f + size, 0.5f + size, 1);

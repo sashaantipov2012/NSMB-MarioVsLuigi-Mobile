@@ -3,8 +3,6 @@ using Photon.Deterministic;
 namespace Quantum {
     public unsafe class CoinItemSystem : SystemMainThreadEntityFilter<CoinItem, CoinItemSystem.Filter>, ISignalOnStageReset {
 
-        public static readonly FP CameraYOffset = FP.FromString("1.68");
-
         public struct Filter {
             public EntityRef Entity;
             public CoinItem* CoinItem;
@@ -17,23 +15,25 @@ namespace Quantum {
             var transform = filter.Transform;
             var collider = filter.Collider;
             var entity = filter.Entity;
-            f.Unsafe.TryGetPointer(filter.Entity, out Interactable* interactable);
+
+            QuantumUtils.Decrement(ref coinItem->IgnorePlayerFrames);
+
             f.Unsafe.TryGetPointer(filter.Entity, out PhysicsObject* physicsObject);
 
             if (coinItem->SpawnAnimationFrames > 0) {
+                var asset = f.FindAsset(coinItem->Scriptable);
+
                 if (f.Exists(coinItem->ParentMarioPlayer)) {
                     // Attached to a player. Don't interact, and follow the player.
                     var marioTransform = f.Unsafe.GetPointer<Transform2D>(coinItem->ParentMarioPlayer);
                     var marioCamera = f.Unsafe.GetPointer<CameraController>(coinItem->ParentMarioPlayer);
 
-                    // TODO magic value
-                    transform->Position = new FPVector2(marioTransform->Position.X, marioCamera->CurrentPosition.Y + CameraYOffset);
+                    transform->Position = 
+                        new FPVector2(marioTransform->Position.X, marioCamera->CurrentPosition.Y)
+                            + asset.CameraSpawnOffset;
 
                     if (QuantumUtils.Decrement(ref coinItem->SpawnAnimationFrames)) {
                         coinItem->ParentMarioPlayer = EntityRef.None;
-                        if (interactable != null) {
-                            interactable->ColliderDisabled = false;
-                        }
                         if (physicsObject != null) {
                             physicsObject->IsFrozen = false;
                         }
@@ -46,20 +46,13 @@ namespace Quantum {
                     FP t = 1 - ((FP) coinItem->SpawnAnimationFrames / (FP) coinItem->BlockSpawnAnimationLength);
                     transform->Position = FPVector2.Lerp(coinItem->BlockSpawnOrigin, coinItem->BlockSpawnDestination, t);
 
-                    if (interactable != null && coinItem->SpawnAnimationFrames == 7) {
-                        interactable->ColliderDisabled = false;
-                    }
-
                     if (QuantumUtils.Decrement(ref coinItem->SpawnAnimationFrames)) {
                         if (PhysicsObjectSystem.BoxInGround(f, transform->Position, collider->Shape, false, stage, entity)) {
-                            f.Events.CollectableDespawned(entity, f.Unsafe.GetPointer<Transform2D>(entity)->Position, false);
+                            f.Events.CollectableDespawned(entity, transform->Position, false);
                             f.Destroy(entity);
                             return;
                         }
                         coinItem->BlockSpawn = false;
-                        if (interactable != null) {
-                            interactable->ColliderDisabled = false;
-                        }
                         if (physicsObject != null) {
                             physicsObject->IsFrozen = false;
                         }
@@ -72,19 +65,12 @@ namespace Quantum {
                     // Back to normal layers
                     if (QuantumUtils.Decrement(ref coinItem->SpawnAnimationFrames)) {
                         coinItem->LaunchSpawn = false;
-                        if (interactable != null) {
-                            interactable->ColliderDisabled = false;
-                        }
                         if (physicsObject != null) {
                             physicsObject->IsFrozen = false;
                         }
                     }
                 } else {
-                    if (QuantumUtils.Decrement(ref coinItem->SpawnAnimationFrames)) {
-                        if (interactable != null) {
-                            interactable->ColliderDisabled = false;
-                        }
-                    }
+                    QuantumUtils.Decrement(ref coinItem->SpawnAnimationFrames);
                 }
             }
 
@@ -105,7 +91,8 @@ namespace Quantum {
             VersusStageData stage = f.FindAsset<VersusStageData>(f.Map.UserAsset);
             var filter = f.Filter<CoinItem, Transform2D, PhysicsCollider2D>();
             while (filter.NextUnsafe(out EntityRef entity, out var coinItem, out var transform, out var collider)) {
-                if (coinItem->SpawnAnimationFrames > 0 || !collider->Enabled
+                if (coinItem->SpawnAnimationFrames > 0
+                    || !collider->Enabled
                     || (f.Unsafe.TryGetPointer(entity, out PhysicsObject* physicsObject) && physicsObject->DisableCollision)) {
                     continue;
                 }

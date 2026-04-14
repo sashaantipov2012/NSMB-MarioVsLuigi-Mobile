@@ -1,3 +1,5 @@
+using NSMB.Networking;
+using NSMB.Utilities;
 using NSMB.Utilities.Extensions;
 using Quantum;
 using System;
@@ -11,6 +13,7 @@ using static NSMB.Utilities.QuantumViewUtils;
 namespace NSMB.UI.Loading {
     public unsafe class LoadingCanvas : MonoBehaviour {
 
+        //---Static Variables
         public static event Action<bool> OnLoadingEnded;
 
         //---Public Variables
@@ -23,8 +26,6 @@ namespace NSMB.UI.Loading {
         [SerializeField] private Animator animator;
         [SerializeField] private CanvasGroup loadingGroup, readyGroup;
         [SerializeField] private Image readyBackground, readyImage;
-
-        [SerializeField] private CharacterAsset defaultCharacterAsset;
 
         //---Private Variables
         private Coroutine fadeVolumeCoroutine, endCoroutine;
@@ -40,6 +41,8 @@ namespace NSMB.UI.Loading {
             QuantumCallback.Subscribe<CallbackGameStarted>(this, OnGameStarted);
             QuantumCallback.Subscribe<CallbackGameDestroyed>(this, OnGameDestroyed);
             QuantumEvent.Subscribe<EventGameStateChanged>(this, OnGameStateChanged);
+
+            NetworkHandler.OnError += OnError;
         }
 
         public void Initialize(QuantumGame game) {
@@ -47,8 +50,7 @@ namespace NSMB.UI.Loading {
                 return;
             }
 
-            int characterIndex = 0;
-            CharacterAsset character = defaultCharacterAsset;
+            AssetRef<CharacterAsset> characterRef = default;
             if (game != null) {
                 Frame f = game.Frames.Predicted;
                 List<PlayerRef> localPlayers = game.GetLocalPlayers();
@@ -57,18 +59,20 @@ namespace NSMB.UI.Loading {
                     var playerData = QuantumUtils.GetPlayerData(f, player);
 
                     if (playerData != null) {
-                        characterIndex = playerData->Character;
-                    } else {
-                        characterIndex = Settings.Instance.generalCharacter;
+                        characterRef = playerData->Character;
                     }
                 }
-
-                var characters = f.SimulationConfig.CharacterDatas;
-                character = f.FindAsset(characters[characterIndex % characters.Length]);
             }
+            if (characterRef == default) {
+                characterRef = Settings.Instance.generalCharacter;
+            }
+
+            CharacterAsset character = QuantumViewUtils.FindAssetOrDefault(characterRef);
 
             mario.Initialize(character);
             readyImage.sprite = character.ReadySprite;
+
+            GlobalController.Instance.fader.SetRespawnStyleSilhouetteSprite(character.SilhouetteSprite);
 
             readyGroup.gameObject.SetActive(false);
             gameObject.SetActive(true);
@@ -88,6 +92,10 @@ namespace NSMB.UI.Loading {
 
             fadeVolumeCoroutine = StartCoroutine(FadeVolume(0.1f, true));
             running = true;
+        }
+
+        public void OnDestroy() {
+            NetworkHandler.OnError -= OnError;
         }
 
         private void OnUnitySceneLoadBegin(CallbackUnitySceneLoadBegin e) {
@@ -176,6 +184,17 @@ namespace NSMB.UI.Loading {
 
         public void EndAnimation() {
             gameObject.SetActive(false);
+        }
+
+        public void AfterReadyFadeTakeover() {
+            GlobalController.Instance.fader.Fade(AnimatedFader.FadeStyle.Dissolve, AnimatedFader.FadeStyle.Respawn, EndAnimation);
+        }
+
+        private void OnError(string key, bool network) {
+            if (!this) {
+                return;
+            }
+            EndAnimation();
         }
 
         private IEnumerator FadeVolume(float fadeTime, bool fadeIn) {

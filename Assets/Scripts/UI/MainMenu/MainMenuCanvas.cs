@@ -20,6 +20,7 @@ namespace NSMB.UI.MainMenu {
 
         //---Properties
         public static MainMenuCanvas Instance { get; private set; }
+        public List<ISoundOverrideProvider> SfxProviders => sfxProviders;
         public List<MainMenuSubmenu> SubmenuStack => submenuStack;
         public Color HeaderColor => headerImage.color;
         public EventSystem EventSystem => eventSystem;
@@ -40,6 +41,7 @@ namespace NSMB.UI.MainMenu {
         //---Private Variables
         private readonly List<MainMenuSubmenu> allSubmenus = new();
         private readonly List<MainMenuSubmenu> submenuStack = new();
+        private readonly List<ISoundOverrideProvider> sfxProviders = new();
         private Color defaultHeaderColor;
 
         public void OnValidate() {
@@ -48,6 +50,7 @@ namespace NSMB.UI.MainMenu {
 
         public void OnEnable() {
             Settings.Controls.UI.Enable();
+            GlobalController.Instance.fader.FadeBehindUi = false;
         }
 
         public void OnDisable() {
@@ -230,8 +233,12 @@ namespace NSMB.UI.MainMenu {
             ShowHideMainPanel();
         }
 
-        public void PlaySound(SoundEffect sound, CharacterAsset character = null) {
-            sfx.PlayOneShot(sound, character);
+        public IList<AudioClip> PlaySound(SoundEffect sound) {
+            return sfx.PlayOneShot(sound);
+        }
+
+        public IList<AudioClip> PlaySound(SoundEffect sound, IList<ISoundOverrideProvider> extraProviders, int? variant = null, float volume = 1) {
+            return sfx.PlayOneShot(sound, extraProviders, variant, volume);
         }
 
         public void PlayConfirmSound() {

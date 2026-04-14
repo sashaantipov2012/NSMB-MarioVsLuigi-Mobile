@@ -8,7 +8,6 @@ namespace NSMB.Quantum {
     public class VersusStageGizmos : MonoBehaviour {
 
 #if UNITY_EDITOR
-
         private static readonly Vector3[] UnityVertexBuffer = new Vector3[128];
         private static readonly FPVector2[] VertexBuffer = new FPVector2[128];
         private static readonly int[] ShapeVertexCountBuffer = new int[16];
@@ -25,7 +24,12 @@ namespace NSMB.Quantum {
                 return;
             }
 
-            var stage = QuantumUnityDB.GetGlobalAsset<VersusStageData>(mapData.Asset.UserAsset.Id);
+            var mapAsset = mapData.GetAsset(true);
+            if (!mapAsset) {
+                return;
+            }
+
+            var stage = QuantumUnityDB.GetGlobalAsset<VersusStageData>(mapAsset.UserAsset.Id);
 
             if (!stage) {
                 return;
@@ -105,15 +109,16 @@ namespace NSMB.Quantum {
             }
 
             var game = QuantumRunner.DefaultGame;
-            Frame f;
             foreach (GameObject starSpawn in GameObject.FindGameObjectsWithTag("StarSpawn")) {
                 Gizmos.color = new Color(0, 1, 0, 0.4f);
                 if (game != null) {
-                    f = game.Frames.Predicted;
-                    int index = Array.IndexOf(stage.BigStarSpawnpoints, starSpawn.transform.position.ToRoundedFPVector2());
-                    if (index != -1) {
-                        if (f.Global->UsedStarSpawns.IsSet(index)) {
-                            Gizmos.color = new Color(1, 0, 0, 0.4f);
+                    Frame f = game.Frames.Predicted;
+                    if (f != null) {
+                        int index = Array.IndexOf(stage.BigStarSpawnpoints, starSpawn.transform.position.ToRoundedFPVector2());
+                        if (index != -1) {
+                            if (f.Global->UsedStarSpawns.IsSet(index)) {
+                                Gizmos.color = new Color(1, 0, 0, 0.4f);
+                            }
                         }
                     }
                 }
@@ -122,7 +127,6 @@ namespace NSMB.Quantum {
                 Gizmos.DrawIcon(starSpawn.transform.position, "star", true);
             }
         }
-
 #endif
     }
 }

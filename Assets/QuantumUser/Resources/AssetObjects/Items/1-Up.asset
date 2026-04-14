@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a77651c98eb177748a49241e377f4457, type: 3}
+  m_Script: {fileID: 11500000, guid: 3e603eeabd17b0d4694ac32ed6f20ecc, type: 3}
   m_Name: 1-Up
   m_EditorClassIdentifier: 
   Identifier:
@@ -18,20 +18,26 @@ MonoBehaviour:
       Value: 421291512996345105
   Prefab:
     Id:
-      Value: 0
+      Value: 1365421339623582075
   SpawnChance:
     RawValue: 0
-  LosingSpawnBonus:
+  AboveAverageBonus:
     RawValue: 0
-  BigPowerup: 0
-  VerticalPowerup: 0
-  CustomPowerup: 1
-  LivesOnlyPowerup: 1
-  Type: 0
+  BelowAverageBonus:
+    RawValue: 0
+  BlockSpawnSoundEffect: 69
+  Flags: 27
+  MaxNumberOfItems: 0
+  CameraSpawnOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 110100
+  MaxMatchingPowerStates: 0
+  MaxMatchingReserveState: 0
   State: 0
   SoundPlaysEverywhere: 0
   SoundEffect: 78
-  BlockSpawnSoundEffect: 69
   ReserveSprite: {fileID: 0}
   AvoidPlayers: 0
   Speed:
@@ -40,6 +46,8 @@ MonoBehaviour:
     RawValue: 0
   TerminalVelocity:
     RawValue: -524288
+  BumpedFromBelowVelocity:
+    RawValue: 360448
   FollowAnimationCurve: 0
   AnimationCurveX:
     Samples: []
@@ -67,3 +75,5 @@ MonoBehaviour:
     Keys: []
   StatePriority: -1
   ItemPriority: -1
+  EnterReserveIfOverridden: 0
+  SfxOverrides: []

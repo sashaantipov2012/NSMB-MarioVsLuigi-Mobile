@@ -9,29 +9,35 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a77651c98eb177748a49241e377f4457, type: 3}
+  m_Script: {fileID: 11500000, guid: 09abfd75f8de0ab47b15cc437e916a34, type: 3}
   m_Name: MegaMushroom
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Quantum.Simulation::MegaMushroomPowerupAsset
   Identifier:
     Path: QuantumUser/Resources/AssetObjects/Items/MegaMushroom
     Guid:
-      Value: 269903407669338010
+      Value: 481353246829238635
   Prefab:
     Id:
       Value: 1300211052819551813
   SpawnChance:
-    RawValue: -65536
-  LosingSpawnBonus:
-    RawValue: 196608
-  BigPowerup: 1
-  VerticalPowerup: 0
-  CustomPowerup: 0
-  LivesOnlyPowerup: 0
-  Type: 0
+    RawValue: -131072
+  AboveAverageBonus:
+    RawValue: 0
+  BelowAverageBonus:
+    RawValue: 311296
+  BlockSpawnSoundEffect: 99
+  Flags: 3
+  MaxNumberOfItems: 0
+  CameraSpawnOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 110100
+  MaxMatchingPowerStates: 1
+  MaxMatchingReserveState: 0
   State: 8
   SoundPlaysEverywhere: 0
   SoundEffect: 40
-  BlockSpawnSoundEffect: 99
   ReserveSprite: {fileID: -1604689058, guid: a87d3b028baa82640b06b88398a8c4f0, type: 3}
   AvoidPlayers: 1
   Speed:
@@ -40,6 +46,8 @@ MonoBehaviour:
     RawValue: 229376
   TerminalVelocity:
     RawValue: -524288
+  BumpedFromBelowVelocity:
+    RawValue: 360448
   FollowAnimationCurve: 0
   AnimationCurveX:
     Samples: []
@@ -67,3 +75,7 @@ MonoBehaviour:
     Keys: []
   StatePriority: 4
   ItemPriority: 4
+  EnterReserveIfOverridden: 1
+  SfxOverrides: []
+  GrowAnimationDuration:
+    RawValue: 98304

@@ -13,7 +13,7 @@ namespace NSMB.UI.Game.Scoreboard {
         public int Index { get; set; }
 
         //---Serialized Variables
-        [SerializeField] private Image background, pingIndicator;
+        [SerializeField] private Image background, pingIndicator, teamSprite;
         [SerializeField] private TMP_Text nicknameText, scoreText;
 
         //---Private Variables
@@ -54,6 +54,14 @@ namespace NSMB.UI.Game.Scoreboard {
             gameObject.SetActive(true);
         }
 
+        public void OnEnable() {
+            Settings.OnColorblindModeChanged += OnColorblindModeChanged;
+        }
+
+        public void OnDisable() {
+            Settings.OnColorblindModeChanged -= OnColorblindModeChanged;
+        }
+
         public void Update() {
             if (!nicknameColor.Constant) {
                 nicknameText.color = nicknameColor.Sample();
@@ -70,7 +78,6 @@ namespace NSMB.UI.Game.Scoreboard {
         public void UpdateEntry(Frame f) {
             var gamemode = f.FindAsset(f.Global->Rules.Gamemode);
             ref PlayerInformation info = ref f.Global->PlayerInfo[Index];
-            var playerData = QuantumUtils.GetPlayerData(f, info.PlayerRef);
             
             UpdatePing(f);
 
@@ -80,10 +87,32 @@ namespace NSMB.UI.Game.Scoreboard {
             }
 
             Color backgroundColor = Utils.GetPlayerColor(f, info.PlayerRef, considerDisqualifications: true);
-            backgroundColor.a = 0.5f;
+            backgroundColor.a = 0.6f;
             background.color = backgroundColor;
 
-            CharacterAsset character = f.FindAsset(f.SimulationConfig.CharacterDatas[info.Character]);
+            if (Settings.Instance.GraphicsColorblind) {
+                if (f.Global->Rules.TeamsEnabled) {
+                    var teams = f.Context.GetAllAssets<TeamAsset>();
+                    if (info.Team < teams.Count) {
+                        var team = teams[info.Team];
+                        teamSprite.sprite = team.spriteColorblind;
+                    } else {
+                        teamSprite.sprite = null;
+                    }
+                } else {
+                    var slot = Utils.GetPlayerSlotInfo(f, info.PlayerRef);
+                    if (slot) {
+                        teamSprite.sprite = slot.Sprite;
+                    } else {
+                        teamSprite.sprite = null;
+                    }
+                }
+                teamSprite.gameObject.SetActive(true);
+            } else {
+                teamSprite.gameObject.SetActive(false);
+            }
+
+            var character = QuantumViewUtils.FindAssetOrDefault(info.Character);
             int objective = 0;
             int lives = 0;
             if (f.Unsafe.TryGetPointer(Target, out MarioPlayer* mario)) {
@@ -169,6 +198,10 @@ namespace NSMB.UI.Game.Scoreboard {
             nicknameMayHaveChanged = true;
 
             UpdateEntry(f);
+        }
+
+        private void OnColorblindModeChanged() {
+            UpdateEntry(QuantumRunner.DefaultGame.Frames.Predicted);
         }
     }
 }

@@ -72,6 +72,8 @@ namespace NSMB.Networking {
                             "expiration", ban.Expiration.HasValue ? DateTimeOffset.FromUnixTimeSeconds(ban.Expiration.Value).LocalDateTime.ToString() : "",
                             "discord", DiscordServerURL);
                         NetworkHandler.ThrowError(msg, true);
+                    } else {
+                        NetworkHandler.ThrowError(result, true);
                     }
                 } catch {
                     NetworkHandler.ThrowError(result, true);

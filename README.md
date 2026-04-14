@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://ipodtouch0218.itch.io/nsmb-mariovsluigi">
-    <img src="https://raw.githubusercontent.com/ipodtouch0218/NSMB-MarioVsLuigi/refs/heads/nightly/Assets/Sprites/UI/Menu/title-vector.svg?raw=true" alt="Mario vs Luigi Online Logo" width="650px">
+    <img src="https://raw.githubusercontent.com/ipodtouch0218/NSMB-MarioVsLuigi/refs/heads/nightly/Assets/Sprites/UI/Menu/.title-vector.svg?raw=true" alt="Mario vs Luigi Online Logo" width="650px">
   </a>
 </p>
 <p align="center"><sub><sup><i>Mario vs Luigi Online Logo by zomblebobble, BluCorDev. INFENEK GAMES Logo by TheBluePixeling</i></sup></sub></p>
@@ -36,7 +36,7 @@ Windows, Linux, and Mac Builds: https://github.com/ipodtouch0218/NSMB-MarioVsLui
 <details>
   <summary><h2>Opening in Unity Editor</h2></summary>
 
-1. Install Unity 6000.0.48f1 (or newer) via Unity Hub (Installs > Install Editor > Scroll to bottom, if you do not see the version of your choice here, switch to the "Archive" tab and open the "download archive" link)
+1. Install Unity 6000.3.10f1 (or newer) via Unity Hub (Installs > Install Editor > Scroll to bottom, if you do not see the version of your choice here, switch to the "Archive" tab and open the "download archive" link)
 2. Download and install [git](https://git-scm.com/downloads). Do NOT use the .zip download, as it will cause errors within Unity.
 3. Open Command Prompt (Windows) or Terminal (MacOS / Linux)
 4. Navigate to the folder you want the source code to be in using `cd <path>`. For example, `cd %USERPROFILE%\Documents` will save it in My Documents.
@@ -57,11 +57,13 @@ Windows, Linux, and Mac Builds: https://github.com/ipodtouch0218/NSMB-MarioVsLui
 * [Atwer](https://github.com/AtwerJ)
 * [Ave](https://github.com/AutumnLeafDev)
 * [BluCorDev](https://github.com/BluCorDev)
+* Cleeaf
 * [Cubby Crazes](https://github.com/CubbyCrazes)
 * [davart154](https://github.com/davart154)
 * [DonKaiStorm](https://github.com/DonKaiStorm)
 * [dotjp](https://github.com/windows10isnotavailable)
 * [GithubSPerez](https://github.com/GithubSPerez)
+* [GoldyFredy9](https://github.com/GoldyFredy9)
 * GradedWarrior
 * [HyperC@T](https://github.com/SuperSonic392)
 * [Jeffjewett27](https://github.com/Jeffjewett27)
@@ -99,7 +101,8 @@ Windows, Linux, and Mac Builds: https://github.com/ipodtouch0218/NSMB-MarioVsLui
 * ArianLust *(de-de)*
 * Atwer *(fr-FR)*
 * Bilhal *(el-gr)*
-* Cecilia *(es-es)*
+* Cecilia <3 *(es-es)*
+* Cleeaf *(sv-SE)*
 * Davodio *(de-de)*
 * Filipianosol *(pl-pl)*
 * Floofdoge *(ar-eg)*
@@ -116,6 +119,7 @@ Windows, Linux, and Mac Builds: https://github.com/ipodtouch0218/NSMB-MarioVsLui
 * Laxan3000 *(it-it)*
 * LyroyTheToad *(it-it)*
 * Maestrike *(it-it)*
+* MagMah *(pt-pt)*
 * Maksymilian Król *(pl-pl)*
 * marbo *(pt-br)*
 * Mark19 *(es-es)*
@@ -123,6 +127,7 @@ Windows, Linux, and Mac Builds: https://github.com/ipodtouch0218/NSMB-MarioVsLui
 * Med Animations *(ar-eg)*
 * Meddourk95 *(ar-eg)*
 * Moddimation *(de-de)*
+* MODSTER_TAFFY *(af-za)*
 * miyavmeow *(tr-tr)*
 * Mr-STF *(es-la)*
 * MUI_Noam *(he-il)*
@@ -130,14 +135,19 @@ Windows, Linux, and Mac Builds: https://github.com/ipodtouch0218/NSMB-MarioVsLui
 * ossdekasaihassei *(ja-jp)*
 * Pedro Lunar *(es-la)*
 * pixelated *(he-il)*
+* RmgeodashFR *(cy-gb)*
+* rm1300 *(cs-cz)*
 * SadeceZinzap *(tr-tr)*
 * SlavaWOW *(ru-ru)*
 * SLG64 *(es-la)*
 * Snayp *(fr-fr)*
+* SwordCatMeow *(es-es)*
 * Thebababois369 *(id-id)*
 * Tombuntu *(ja-jp)*
 * Windows10V *(pt-br)*
 * vlco_o *(es-es, ro-ro)*
+* ZilverLining *(fi-fi)*
+* Zoey Green *(af-za)*
 
 ### QA Testing:
 * AprilShade

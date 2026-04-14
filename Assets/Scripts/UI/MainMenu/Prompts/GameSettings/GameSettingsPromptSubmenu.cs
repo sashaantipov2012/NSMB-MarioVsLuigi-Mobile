@@ -1,6 +1,8 @@
 using NSMB.Networking;
 using NSMB.UI.MainMenu.Submenus.InRoom;
 using NSMB.UI.Translation;
+using NSMB.Utilities;
+using NSMB.Utilities.Extensions;
 using Photon.Client;
 using Photon.Realtime;
 using Quantum;
@@ -50,6 +52,8 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
         private CommandChangeRules.Rules currentRule;
         private bool _roomIdVisible;
 
+        private List<GameObject> allMapListGameObjects = new();
+
         public override void Initialize() {
             base.Initialize();
 
@@ -64,12 +68,24 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
             headerTemplate.gameObject.SetActive(false);
             horizontalTemplate.SetActive(false);
             stageSelectionButtonTemplate.gameObject.SetActive(false);
+        }
 
-            var stages = GlobalController.Instance.config.AllStages;
-            var stageGroups = stages.Select(QuantumUnityDB.GetGlobalAsset)
+        public void PopulateMaps() {
+            foreach (var go in allMapListGameObjects) {
+                Destroy(go);
+            }
+            allMapListGameObjects.Clear();
+
+            var stages = AssetRepository<Map>.AllAssets;
+            var stageGroups = stages
                 .Select(m => (m, m ? (VersusStageData) QuantumUnityDB.GetGlobalAsset(m.UserAsset) : null))
                 .Where(vsd => vsd.Item2)
-                .GroupBy(vsd => vsd.Item2.GroupingTranslationKey).OrderBy(g => IndexOfNullIsMax(headerOrder, g.Key));
+                .GroupBy(vsd => vsd.Item2.GroupingTranslationKey)
+                .OrderBy(g => IndexOfNullIsMax(headerOrder, g.Key))
+                .Select(g => new {
+                    Key = g.Key,
+                    Items = g.OrderBy(vsd => vsd.Item2.SortOrder)
+                });
 
             TranslationManager tm = GlobalController.Instance.translationManager;
             List<StageSelectionButton> previousButtonRow = null;
@@ -77,21 +93,23 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
             foreach (var grouping in stageGroups) {
                 TMP_Text newHeader = Instantiate(headerTemplate, headerTemplate.transform.parent);
                 TMP_Translatable translatable = newHeader.GetComponent<TMP_Translatable>();
-                translatable.key = grouping.Key;
+                translatable.key = grouping.Key ?? "level.header.none";
                 translatable.Run();
                 newHeader.gameObject.SetActive(true);
+                allMapListGameObjects.Add(newHeader.gameObject);
 
                 GameObject row = null;
                 StageSelectionButton previousButton = null;
                 int i = 0;
-                foreach ((Map map, VersusStageData stage) in grouping) {
+                foreach ((Map map, VersusStageData stage) in grouping.Items) {
                     if ((i++) % 5 == 0) {
                         LinkButtonsAcrossRows(previousButtonRow, currentButtonRow);
                         previousButtonRow = currentButtonRow;
                         currentButtonRow = new();
 
                         row = Instantiate(horizontalTemplate, horizontalTemplate.transform.parent);
-                        row.gameObject.SetActive(true);
+                        row.SetActive(true);
+                        allMapListGameObjects.Add(row);
                         previousButton = null;
                     }
 
@@ -165,6 +183,8 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
 
         public override void Show(bool first) {
             base.Show(first);
+
+            PopulateMaps();
 
             Room currentRoom = NetworkHandler.Client.CurrentRoom;
             maxPlayerSlider.value = currentRoom.MaxPlayers;

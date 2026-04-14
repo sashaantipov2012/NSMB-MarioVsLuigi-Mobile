@@ -13,8 +13,9 @@ namespace NSMB.Quantum {
         public Map CurrentLoadedMap => currentMap;
 
         //---Private Variables
-        private Map currentMap;
         private Coroutine loadingCoroutine;
+        private Map currentMap;
+        private Scene currentScene;
 
         public void Start() {
             Instance = this;
@@ -29,12 +30,9 @@ namespace NSMB.Quantum {
 
             QuantumGame game = e.Game;
             Frame f = game.Frames.Predicted;
-
-            if (game.Session.GameMode == Photon.Deterministic.DeterministicGameMode.Replay || game.GetLocalPlayers().Count > 0 && f.Map != currentMap) {
-                Map newMap = f.Map;
-                Map oldMap = currentMap;
-
-                loadingCoroutine = StartCoroutine(SceneChangeCoroutine(game, oldMap, newMap));
+            if ((game.Session.GameMode == Photon.Deterministic.DeterministicGameMode.Replay || game.GetLocalPlayers().Count > 0)
+                && f.Map != currentMap) {
+                loadingCoroutine = StartCoroutine(SceneChangeCoroutine(game, currentMap, f.Map));
             }
         }
 
@@ -51,60 +49,58 @@ namespace NSMB.Quantum {
                 yield break;
             }
 
+            Scene oldScene = currentScene;
+
             // Load new map
-            AsyncOperation loadingOp;
-            QuantumCallback.Dispatcher.Publish(new CallbackUnitySceneLoadBegin(game) {
-                SceneName = newMap ? newMap.Scene : null
-            });
-            if (newMap == null) {
-                if (SceneManager.GetSceneByBuildIndex(1).isLoaded) {
-                    goto alreadyLoaded;
-                }
-                loadingOp = SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
-            } else {
-                if (SceneManager.GetSceneByName(newMap.Scene).isLoaded) {
-                    goto alreadyLoaded;
-                }
-                loadingOp = SceneManager.LoadSceneAsync(newMap.Scene, LoadSceneMode.Additive);
-            }
-
-            loadingOp.allowSceneActivation = true;
-            while (!loadingOp.isDone) {
-                yield return null;
-            }
-
-        alreadyLoaded:
+            string newSceneName = newMap ? newMap.Scene : null;
+            QuantumCallback.Dispatcher.Publish(new CallbackUnitySceneLoadBegin(game) { SceneName = newSceneName });
+            yield return LoadMap(newMap);
+            QuantumCallback.Dispatcher.Publish(new CallbackUnitySceneLoadDone(game) { SceneName = newSceneName });
             currentMap = newMap;
-            if (newMap == null) {
-                SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(1));
-            } else {
-                SceneManager.SetActiveScene(SceneManager.GetSceneByName(newMap.Scene));
-            }
-            QuantumCallback.Dispatcher.Publish(new CallbackUnitySceneLoadDone(game) {
-                SceneName = newMap ? newMap.Scene : null
-            });
 
-            // Unload old map
-            if (oldMap != null) {
-                QuantumCallback.Dispatcher.Publish(new CallbackUnitySceneUnloadBegin(game) {
-                    SceneName = oldMap.Scene
-                });
-                loadingOp = SceneManager.UnloadSceneAsync(oldMap.Scene);
-#if UNITY_EDITOR
-                if (loadingOp == null) {
-                    // Prevent a unity-editor error.
-                    yield break;
-                }
-#endif
-                while (!loadingOp.isDone) {
-                    yield return null;
-                }
-                QuantumCallback.Dispatcher.Publish(new CallbackUnitySceneUnloadDone(game) {
-                    SceneName = oldMap.Scene
-                });
+            // Unload previous map (if available)
+            if (oldScene.IsValid()) {
+                string oldSceneName = oldMap ? oldMap.Scene : null;
+                QuantumCallback.Dispatcher.Publish(new CallbackUnitySceneUnloadBegin(game) { SceneName = oldSceneName });
+                yield return SceneManager.UnloadSceneAsync(oldScene);
+                QuantumCallback.Dispatcher.Publish(new CallbackUnitySceneUnloadDone(game) { SceneName = oldSceneName });
             }
 
             loadingCoroutine = null;
+        }
+
+        private IEnumerator LoadMap(Map map) {
+            // Handle special MainMenu case.
+            if (map == null) {
+                Scene loadedMainMenuScene = SceneManager.GetSceneByName("MainMenu");
+                if (loadedMainMenuScene.IsValid()) {
+                    SceneManager.SetActiveScene(loadedMainMenuScene);
+                } else {
+                    AsyncOperation mainMenuOp = SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Single);
+                    mainMenuOp.allowSceneActivation = true;
+                    while (!mainMenuOp.isDone) {
+                        yield return null;
+                    }
+                }
+                currentScene = default;
+                yield break;
+            }
+            
+            // Check if the scene already is loaded
+            Scene loadedScene = SceneManager.GetSceneByPath(map.ScenePath);
+            if (!loadedScene.IsValid()) {
+#if UNITY_EDITOR
+                var loadOp = UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(map.ScenePath, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive });
+#else
+                var loadOp = SceneManager.LoadSceneAsync(map.ScenePath, LoadSceneMode.Additive);
+#endif
+                loadOp.allowSceneActivation = true;
+                yield return loadOp;
+                loadedScene = SceneManager.GetSceneByPath(map.ScenePath);
+            }
+
+            currentScene = loadedScene;
+            SceneManager.SetActiveScene(currentScene);
         }
     }
 }

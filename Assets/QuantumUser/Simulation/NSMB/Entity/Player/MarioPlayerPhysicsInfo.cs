@@ -9,7 +9,9 @@ public class MarioPlayerPhysicsInfo : AssetObject {
     public int WalkSpeedStage = 1, RunSpeedStage = 3, StarSpeedStage = 4;
     public FP[] WalkMaxVelocity = FF(new[] { 0.9375f, 2.8125f, 4.21875f, 5.625f, 8.4375f });
     public FP[] WalkAcceleration = FF(new[] { 7.91015625f, 3.955081725f, 3.515625f, 2.63671875f, 84.375f });
-    public FP WalkBlueShellMultiplier = FF(0.9f);
+    // Blue Shell multipliers
+    public byte ShellNormalStage = 0, ShellSlopeStage = 1, ShellFastSlopeStage = 2, ShellStarStage = 3;
+    public FP[] WalkBlueShellMultiplier = FF(new[] { 0.9f, 1f, 1.1f, 0.75f });
     public FP WalkButtonReleaseDeceleration = FF(3.9550781196f);
 
     // Turnaround

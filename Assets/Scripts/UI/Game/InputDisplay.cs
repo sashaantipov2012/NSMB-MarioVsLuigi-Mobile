@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using Input = Quantum.Input;
 
 namespace NSMB.UI.Game {
-    public class InputDisplay : MonoBehaviour {
+    public class InputDisplay : QuantumSceneViewComponent {
 
         //---Serialized Variables
         [SerializeField] private PlayerElements playerElements;
@@ -20,20 +20,24 @@ namespace NSMB.UI.Game {
             this.SetIfNull(ref playerElements, UnityExtensions.GetComponentType.Parent);
             this.SetIfNull(ref display);
         }
-
+        
         public void Start() {
-            QuantumCallback.Subscribe<CallbackUpdateView>(this, OnUpdateView, onlyIfActiveAndEnabled: true);
             QuantumCallback.Subscribe<CallbackSimulateFinished>(this, OnSimulateFinished, onlyIfActiveAndEnabled: true);
         }
 
-        private unsafe void OnUpdateView(CallbackUpdateView e) {
-            Frame f = e.Game.Frames.Predicted;
+        public override unsafe void OnUpdateView() {
+            Frame f = VerifiedFrame;
             if (!f.Unsafe.TryGetPointer(playerElements.Entity, out MarioPlayer* mario)) {
                 return;
             }
 
-            bool isPressed;
             PlayerRef player = mario->PlayerRef;
+            if (Game.PlayerIsLocal(player)) {
+                // Use predicted inputs instead.
+                f = PredictedFrame;
+            }
+
+            bool isPressed;
             if (inputType != InputType.ReserveItem) {
                 Input input;
                 if (player.IsValid) {
@@ -57,11 +61,6 @@ namespace NSMB.UI.Game {
             }
 
             PlayerRef player = mario->PlayerRef;
-            /*
-            if (e.Game.PlayerIsLocal(player)) {
-                f = e.Game.Frames.Predicted;
-            }
-            */
 
             if (f.GetPlayerCommand(player) is CommandSpawnReserveItem) {
                 commandFrame = f.Number;

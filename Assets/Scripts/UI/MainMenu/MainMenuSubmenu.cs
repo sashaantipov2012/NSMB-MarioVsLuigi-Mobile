@@ -1,3 +1,4 @@
+using NaughtyAttributes;
 using NSMB.Utilities.Extensions;
 using UnityEngine;
 using UnityEngine.Events;
@@ -46,6 +47,12 @@ namespace NSMB.UI.MainMenu {
         internal void InternalShow(bool first) {
             Show(first);
             Canvas.EventSystem.SetSelectedGameObject(first ? DefaultSelection : savedSelection);
+        }
+
+
+        [Button]
+        public void Show() {
+            canvas.OpenMenu(this);
         }
 
         public virtual void Show(bool first) {

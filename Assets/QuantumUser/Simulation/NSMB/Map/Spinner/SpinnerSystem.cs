@@ -76,6 +76,10 @@ namespace Quantum {
                 return false;
             }
 
+            if (f.Unsafe.TryGetPointer(marioEntity, out PhysicsObject* marioPhysics) && marioPhysics->IsUnderwater) {
+                return false;
+            }
+
             var spinner = f.Unsafe.GetPointer<Spinner>(spinnerEntity);
             QHashSet<EntityRef> mariosSet = f.ResolveHashSet(spinner->MariosOnPlatform);
 

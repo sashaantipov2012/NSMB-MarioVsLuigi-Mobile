@@ -5,7 +5,7 @@ using UnityEngine;
 namespace NSMB.UI.Game {
     public class MasterCanvas : QuantumSceneViewComponent {
 
-        //---Serialize Variables
+        //---Serialized Variables
         [SerializeField] public PlayerElements playerElementsPrefab;
 
         //---Private Variables
@@ -19,22 +19,20 @@ namespace NSMB.UI.Game {
         }
 
         public void Update() {
-            Frame f;
-            if (QuantumRunner.DefaultGame == null
-                || (f = QuantumRunner.DefaultGame.Frames.Predicted) == null) {
+            if (Game == null || PredictedFrame == null) {
                 return;
             }
-            var context = f.Context;
+            var context = PredictedFrame.Context;
             context.CullingCameraPositions.Clear();
             context.CullingIgnoredEntities.Clear();
             context.MaxCameraOrthoSize = 0;
 
-            foreach (PlayerElements pe in PlayerElements.AllPlayerElements) {
-                Camera camera = pe.Camera;
+            foreach (var playerElement in PlayerElements.AllPlayerElements) {
+                Camera camera = playerElement.Camera;
                 FPVector2 position = camera.transform.position.ToFPVector2();
                 FP size = camera.orthographicSize.ToFP();
 
-                context.CullingIgnoredEntities.Add(pe.Entity);
+                context.CullingIgnoredEntities.Add(playerElement.Entity);
                 context.CullingCameraPositions.Add(position);
                 context.MaxCameraOrthoSize = FPMath.Max(context.MaxCameraOrthoSize, size);
             }

@@ -10,6 +10,10 @@ namespace Quantum {
             public PhysicsCollider2D* PhysicsCollider;
         }
 
+        public override void OnInit(Frame f) {
+            f.Context.Interactions.Register<Projectile, Projectile>(f, OnProjectileProjectileInteraction);
+        }
+
         public override void Update(Frame f, ref Filter filter, VersusStageData stage) {
             var collider = filter.PhysicsCollider;
             var transform = filter.Transform;
@@ -20,8 +24,14 @@ namespace Quantum {
             }
 
             var projectile = filter.Projectile;
-            var physicsObject = filter.PhysicsObject;
             var asset = f.FindAsset(projectile->Asset);
+
+            if (projectile->Lifetime > 0 && QuantumUtils.Decrement(ref projectile->Lifetime)) {
+                // Despawn via timer
+                Destroy(f, filter.Entity, asset.DestroyParticleEffect);
+            }
+
+            var physicsObject = filter.PhysicsObject;
 
             // Check to instant-despawn if spawned inside a wall
             if (!physicsObject->DisableCollision && !projectile->CheckedCollision) {
@@ -46,14 +56,16 @@ namespace Quantum {
             var physicsObject = filter.PhysicsObject;
 
             // Despawn
-            if ((physicsObject->IsTouchingLeftWall
-                || physicsObject->IsTouchingRightWall
-                || physicsObject->IsTouchingCeiling
-                || (physicsObject->IsTouchingGround && (!asset.Bounce || (projectile->HasBounced && asset.DestroyOnSecondBounce)))
-                || PhysicsObjectSystem.BoxInGround(f, filter.Transform->Position, filter.PhysicsCollider->Shape)) && !physicsObject->DisableCollision) {
+            if (!physicsObject->DisableCollision) {
+                if (physicsObject->IsTouchingLeftWall
+                    || physicsObject->IsTouchingRightWall
+                    || physicsObject->IsTouchingCeiling
+                    || (physicsObject->IsTouchingGround && (!asset.Bounce || (projectile->HasBounced && asset.DestroyOnSecondBounce)))
+                    || PhysicsObjectSystem.BoxInGround(f, filter.Transform->Position, filter.PhysicsCollider->Shape)) {
 
-                Destroy(f, filter.Entity, asset.DestroyParticleEffect);
-                return;
+                    Destroy(f, filter.Entity, asset.DestroyParticleEffect);
+                    return;
+                }
             }
 
             // Bounce
@@ -69,13 +81,32 @@ namespace Quantum {
             }
         }
 
+        private void OnProjectileProjectileInteraction(Frame f, EntityRef projectileEntityA, EntityRef projectileEntityB) {
+            var projectileA = f.Unsafe.GetPointer<Projectile>(projectileEntityA);
+            var projectileB = f.Unsafe.GetPointer<Projectile>(projectileEntityB);
+
+            if (projectileA->Owner == projectileB->Owner) {
+                return;
+            }
+
+            var projectileAssetA = f.FindAsset(projectileA->Asset);
+            var projectileAssetB = f.FindAsset(projectileB->Asset);
+
+            if ((projectileAssetA.Effect == ProjectileEffectType.Fire && projectileAssetB.Effect == ProjectileEffectType.Freeze)
+                || (projectileAssetB.Effect == ProjectileEffectType.Fire && projectileAssetA.Effect == ProjectileEffectType.Freeze)) {
+                // Fireball collided with Iceball. Destroy both.
+                Destroy(f, projectileEntityA, projectileAssetA.DestroyParticleEffect);
+                Destroy(f, projectileEntityB, projectileAssetB.DestroyParticleEffect);
+            }
+        }
+
         public static void Destroy(Frame f, EntityRef entity, ParticleEffect particle) {
             var transform = f.Unsafe.GetPointer<Transform2D>(entity);
             f.Events.ProjectileDestroyed(entity, particle, transform->Position);
             f.Destroy(entity);
         }
 
-        public void OnProjectileHitEntity(Frame f, Frame frame, EntityRef projectileEntity, EntityRef hitEntity) {
+        public void OnProjectileHitEntity(Frame f, EntityRef projectileEntity, EntityRef hitEntity) {
             var projectile = f.Unsafe.GetPointer<Projectile>(projectileEntity);
             var projectileAsset = f.FindAsset(projectile->Asset);
 

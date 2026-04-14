@@ -1,13 +1,21 @@
-namespace Quantum {
-    public unsafe class PrePhysicsObjectSystem : SystemMainThreadEntityFilter<PhysicsObject, PrePhysicsObjectSystem.Filter> {
-        public struct Filter {
-            public EntityRef Entity;
-            public PhysicsObject* PhysicsObject;
-        }
+//#define MULTITHREADED
 
-        public override void Update(Frame f, ref Filter filter, VersusStageData stage) {
-            filter.PhysicsObject->WasBeingCrushed = filter.PhysicsObject->IsBeingCrushed;
-            filter.PhysicsObject->IsBeingCrushed = false;
+namespace Quantum {
+#if MULTITHREADED
+    public unsafe class PrePhysicsObjectSystem : SystemArrayComponent<PhysicsObject> {
+        public override unsafe void Update(FrameThreadSafe f, EntityRef entity, PhysicsObject* component) {
+            component->WasBeingCrushed = component->IsBeingCrushed;
+            component->IsBeingCrushed = false;
         }
     }
+#else
+    public unsafe class PrePhysicsObjectSystem : SystemMainThreadEntity<PhysicsObject> {
+        public override void Update(Frame f) {
+            foreach ((_, var component) in f.Unsafe.GetComponentBlockIterator<PhysicsObject>()) {
+                component->WasBeingCrushed = component->IsBeingCrushed;
+                component->IsBeingCrushed = false;
+            }
+        }
+    }
+#endif
 }

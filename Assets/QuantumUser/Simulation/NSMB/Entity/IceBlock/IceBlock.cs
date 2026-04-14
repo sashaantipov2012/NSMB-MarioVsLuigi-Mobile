@@ -29,6 +29,9 @@ namespace Quantum {
             if (f.Unsafe.TryGetPointer(childEntity, out Interactable* childInteractable)) {
                 childInteractable->ColliderDisabled = true;
             }
+            if (f.Unsafe.TryGetPointer(childEntity, out PhysicsObject* childPhysicsObject)) {
+                childPhysicsObject->IsFrozen = true;
+            }
 
             // Set location
             ChildOffset = new FPVector2(0, childPhysicsCollider->Shape.Centroid.Y - childPhysicsCollider->Shape.Box.Extents.Y - FP._0_05) + child->Offset;
@@ -44,7 +47,7 @@ namespace Quantum {
             AutoBreakFrames = child->AutoBreakFrames;
             
             // Try to not spawn inside blocks/walls
-            if (IsFlying || !child->IsCarryable) {
+            if (child->IsCarryable) {
                 PhysicsObjectSystem.TryEject(f, iceBlockEntity);
             }
 

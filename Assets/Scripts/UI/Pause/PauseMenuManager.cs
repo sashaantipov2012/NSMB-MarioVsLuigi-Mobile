@@ -1,6 +1,5 @@
 using NSMB.Quantum;
 using NSMB.UI.Game;
-using NSMB.UI.Options;
 using NSMB.UI.Translation;
 using NSMB.Utilities.Extensions;
 using Quantum;
@@ -104,7 +103,6 @@ namespace NSMB.UI.Pause {
             confirmationPrompt.SetActive(false);
 
             main.SetActive(true);
-            inputCollector.IsPaused = true;
             isPaused = true;
 
             if (playSound) {
@@ -121,7 +119,6 @@ namespace NSMB.UI.Pause {
             TranslationManager.OnLanguageChanged -= OnLanguageChanged;
 
             main.SetActive(false);
-            inputCollector.IsPaused = false;
             isPaused = false;
 
             if (playSound) {
@@ -214,7 +211,7 @@ namespace NSMB.UI.Pause {
             }
 
             isInConfirmationYesSelected = true;
-            yesConfirmText.text = "» " + originalYesText + " «";
+            yesConfirmText.text = "Â» " + originalYesText + " Â«";
             noConfirmText.text = originalNoText;
         }
 
@@ -225,21 +222,21 @@ namespace NSMB.UI.Pause {
 
             isInConfirmationYesSelected = false;
             yesConfirmText.text = originalYesText;
-            noConfirmText.text = "» " + originalNoText + " «";
+            noConfirmText.text = "Â» " + originalNoText + " Â«";
         }
 
         public unsafe void ClickConfirmYes() {
-            if (isInConfirmationForQuitting) {
+            if (isInConfirmationForQuitting)
+            {
+                GlobalController.Instance.fader.FadeBehindUi = false;
                 QuantumRunner.Default.Shutdown();
             } else {
                 var game = QuantumRunner.DefaultGame;
                 Frame f = game.Frames.Predicted;
-                PlayerRef hostPlayer = f.Global->Host;
+                PlayerRef host = f.Global->Host;
 
-                int index = game.GetLocalPlayers().IndexOf(hostPlayer);
-                if (index != -1) {
-                    int slot = game.GetLocalPlayerSlots()[index];
-                    game.SendCommand(slot, new CommandHostEndGame());
+                if (game.PlayerIsLocal(host)) {
+                    game.SendCommand(game.GetLocalPlayerSlots()[game.GetLocalPlayers().IndexOf(host)], new CommandHostEndGame());
                 }
             }
             Unpause(false);
@@ -333,7 +330,7 @@ namespace NSMB.UI.Pause {
 
             for (int i = 0; i < options.Length; i++) {
                 PauseMenuOptionWrapper option = options[i];
-                option.text.text = (selected == i) ? ("» " + option.originalText + " «") : option.originalText;
+                option.text.text = (selected == i) ? ("Â» " + option.originalText + " Â«") : option.originalText;
                 //option.text.isRightToLeftText = GlobalController.Instance.translationManager.RightToLeft;
             }
         }

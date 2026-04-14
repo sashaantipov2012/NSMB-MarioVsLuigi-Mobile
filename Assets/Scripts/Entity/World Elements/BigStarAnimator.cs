@@ -1,3 +1,4 @@
+using NSMB.Sound;
 using NSMB.Utilities.Extensions;
 using Quantum;
 using System;
@@ -20,9 +21,8 @@ namespace NSMB.Entities.World {
 
         //---Components
         [SerializeField] private SpriteRenderer sRenderer;
-        [SerializeField] private BoxCollider2D worldCollider;
         [SerializeField] private Animation legacyAnimation;
-        [SerializeField] private AudioSource sfx, sfx2;
+        [SerializeField] private SoundEffectPlayer sfx;
         [SerializeField] private Color uncollectableColor = new Color(1, 1, 1, 0.5f);
 
         //--Private Variables
@@ -30,7 +30,6 @@ namespace NSMB.Entities.World {
 
         public void OnValidate() {
             this.SetIfNull(ref sRenderer, UnityExtensions.GetComponentType.Children);
-            this.SetIfNull(ref worldCollider);
             this.SetIfNull(ref legacyAnimation);
             this.SetIfNull(ref sfx);
         }
@@ -41,7 +40,7 @@ namespace NSMB.Entities.World {
             graphicTransform.rotation = Quaternion.identity;
             sRenderer.enabled = true;
             if (f.Global->GameState == GameState.Playing && !IsReplayFastForwarding) {
-                sfx2.PlayOneShot(SoundEffect.World_Star_Spawn);
+                sfx.PlayOneShot(SoundEffect.World_Star_Spawn);
             }
             if (star->IsStationary) {
                 legacyAnimation.Play();

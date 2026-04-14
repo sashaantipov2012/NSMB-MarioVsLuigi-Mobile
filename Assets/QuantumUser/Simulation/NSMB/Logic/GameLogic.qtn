@@ -13,7 +13,7 @@ global {
 
 	array<PlayerInformation>[MaxPlayers] PlayerInfo;
 	byte RealPlayers;
-	byte TotalMarios;
+	byte TotalMarios; // Different from RealPlayers- count of all Marios at game start, including ones baked into the scene.
 
 	int WinningTeam;
 	bool HasWinner;
@@ -24,7 +24,7 @@ struct PlayerInformation {
 	QString<48> Nickname;
 	QStringUtf8<48> NicknameColor;
 	byte Team;
-	byte Character;
+	AssetRef<CharacterAsset> Character;
 	bool Disconnected;
 	bool Disqualified;
 }
@@ -71,7 +71,7 @@ event PlayerDataChanged {
 	PlayerRef Player;
 }
 
-event StartingCountdownChanged {
+synced event StartingCountdownChanged {
 	bool IsGameStarting;
 }
 

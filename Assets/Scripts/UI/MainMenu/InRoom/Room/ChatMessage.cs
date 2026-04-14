@@ -53,6 +53,9 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             }
 
             image.color = Utils.GetPlayerColor(QuantumRunner.DefaultGame.Frames.Predicted, data.player, 0.2f);
+
+            Color.RGBToHSV(image.color, out _, out _, out float v);
+            chatText.color = (v <= 0.5f) ? Color.lightGray : Color.black;
         }
 
         private void OnLanguageChanged(TranslationManager tm) {

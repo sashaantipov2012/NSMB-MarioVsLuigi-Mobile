@@ -1,3 +1,4 @@
+using NSMB.Sound;
 using NSMB.Utilities.Extensions;
 using Quantum;
 using UnityEngine;
@@ -11,14 +12,14 @@ namespace NSMB.Entities.Enemies {
         private static readonly int ParamChomping = Animator.StringToHash("chomping");
 
         //---Serialized Variables
-        [SerializeField] private AudioSource sfx;
+        [SerializeField] private SoundEffectPlayer sfx;
         [SerializeField] private SpriteRenderer sRenderer;
         [SerializeField] private Animator animator;
 
         public void OnValidate() {
-            this.SetIfNull(ref sfx);
             this.SetIfNull(ref sRenderer, UnityExtensions.GetComponentType.Children);
             this.SetIfNull(ref animator, UnityExtensions.GetComponentType.Children);
+            this.SetIfNull(ref sfx);
         }
 
         public void Start() {

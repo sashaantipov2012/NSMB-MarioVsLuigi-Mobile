@@ -1,13 +1,18 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using static Quantum.CommandMvLDebugCmd;
 
 namespace Quantum {
     public unsafe class MvLDebugSystem : SystemMainThread {
         public override void Update(Frame f) {
-            for (int i = 0; i < f.PlayerCount; i++) {
-                if (f.GetPlayerCommand(i) is CommandMvLDebugCmd cmd) {
-                    ExecuteCommand(f, i, cmd);
+            for (PlayerRef player = 0; player < f.MaxPlayerCount; player++) {
+#if QUANTUM_3_1
+                foreach (var cmd in f.GetPlayerCommands<CommandMvLDebugCmd>(player)) {
+                    ExecuteCommand(f, player, cmd);
                 }
+#else
+                if (f.GetPlayerCommand(player) is CommandMvLDebugCmd cmd) {
+                    ExecuteCommand(f, player, cmd);
+                }
+#endif
             }
         }
 
@@ -35,7 +40,7 @@ namespace Quantum {
                     newEntityTransform->Position.X += mario->FacingRight ? 1 : -1;
                 }
                 if (f.Unsafe.TryGetPointer(newEntity, out CoinItem* coinItem)) {
-                    coinItem->ParentToPlayer(f, newEntity, marioEntity);
+                    coinItem->InitializePlayerSpawn(f, newEntity, marioEntity);
                 }
                 if (f.Unsafe.TryGetPointer(newEntity, out Enemy* enemy)) {
                     enemy->DisableRespawning = true;
@@ -54,4 +59,3 @@ namespace Quantum {
         }
     }
 }
-#endif

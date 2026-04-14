@@ -1,4 +1,3 @@
-using static IInteractableTile;
 using Photon.Deterministic;
 using Quantum;
 using System;
@@ -66,7 +65,7 @@ public unsafe class BreakableBrickTile : StageTile, IInteractableTile {
             if (direction is not InteractionDirection.Left or InteractionDirection.Right) {
                 BlockBumpSystem.Bump(f, QuantumUtils.RelativeTileToWorldRounded(stage, tilePosition), bumpOwner, allowSelfDamage, direction != InteractionDirection.Down);
             }
-            f.Events.TileBroken(entity, tilePosition, tileInstance, brokenByMega);
+            f.Events.TileBroken(entity, tilePosition, tileInstance, brokenByMega, direction);
             stage.SetTileRelative(f, tilePosition, default);
 
         } else if (BumpIfNotBroken && doBump) {

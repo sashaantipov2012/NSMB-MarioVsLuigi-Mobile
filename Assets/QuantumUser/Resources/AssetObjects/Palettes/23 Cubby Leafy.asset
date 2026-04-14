@@ -16,8 +16,8 @@ MonoBehaviour:
     Path: QuantumUser/Resources/AssetObjects/Palettes/23 Cubby Leafy
     Guid:
       Value: 484478936524730291
-  colors:
-  - character:
+  Colors:
+  - Character:
       Id:
         Value: 532063855470386108
     ShirtColor:
@@ -30,10 +30,8 @@ MonoBehaviour:
       G: 53
       B: 53
       A: 255
-    shirtColor: {r: 0.4198113, g: 0.562814, b: 1, a: 1}
-    overallsColor: {r: 0.57254905, g: 0.20784314, b: 0.20784314, a: 1}
-    hatUsesOverallsColor: 0
-  - character:
+    HatUsesOverallsColor: 0
+  - Character:
       Id:
         Value: 485289843648077326
     ShirtColor:
@@ -46,7 +44,7 @@ MonoBehaviour:
       G: 102
       B: 85
       A: 255
-    shirtColor: {r: 0.6666667, g: 0.20000002, b: 1, a: 1}
-    overallsColor: {r: 1, g: 0.40000004, b: 0.33333334, a: 1}
-    hatUsesOverallsColor: 0
-  translationKey: skin.cubbyleafy
+    HatUsesOverallsColor: 0
+  TranslationKey: skin.cubbyleafy
+  Order: 2400
+  IsLegacy: 1

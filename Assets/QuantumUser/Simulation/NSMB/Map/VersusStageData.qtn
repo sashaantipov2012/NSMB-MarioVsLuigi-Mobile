@@ -1,3 +1,7 @@
+global {
+    FP Timer;
+}
+
 struct StageTileInstance {
     AssetRef<StageTile> Tile;
     ushort Rotation;
@@ -9,8 +13,13 @@ enum StageTileFlags : Byte {
     MirrorY = 2
 }
 
-global {
-    FP Timer;
+[Flags]
+enum InteractionDirection : Byte {
+    None = 0,
+    Up = 1,
+    Down = 2,
+    Left = 4,
+    Right = 8
 }
 
 signal OnStageReset(bool full);
@@ -26,8 +35,9 @@ event TileBroken {
     IntVector2 Position;
     StageTileInstance Tile;
     bool BrokenByMega;
+    InteractionDirection Direction;
 }
 
 event TimerExpired {
-    Frame Frame;
+
 }

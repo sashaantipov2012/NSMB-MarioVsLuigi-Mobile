@@ -48,6 +48,12 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
 
         protected override void OnDisable() {
             base.OnDisable();
+#if UNITY_EDITOR
+            // Fix random error message in the editor.
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode && Application.isPlaying) {
+                return;
+            }
+#endif
             OnDeselect(null);
         }
 
@@ -173,13 +179,13 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
 
         public void UpdateState() {
 #if UNITY_EDITOR
-            if (!this) {
+            if (!this || !Application.isPlaying) {
                 return;
             }
 #endif
 
-            UpdateLabel();
             try {
+                UpdateLabel();
                 leftArrow.enabled = Editing && CanDecreaseValue;
                 rightArrow.enabled = Editing && CanIncreaseValue;
             } catch { /* bodge */ }
@@ -189,7 +195,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             label.text = labelPrefix + value.ToString();
         }
 
-        private void FindValue(in GameRules rules) {
+        private void FindValue(ref GameRules rules) {
             value = ruleType switch {
                 CommandChangeRules.Rules.Stage => rules.Stage,
                 CommandChangeRules.Rules.Gamemode => rules.Gamemode,
@@ -207,11 +213,11 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
         }
 
         private unsafe void OnRulesChanged(EventRulesChanged e) {
-            FindValue(e.Game.Frames.Predicted.Global->Rules);
+            FindValue(ref e.Game.Frames.Predicted.Global->Rules);
         }
 
         private unsafe void OnGameStarted(CallbackGameStarted e) {
-            FindValue(e.Game.Frames.Predicted.Global->Rules);
+            FindValue(ref e.Game.Frames.Predicted.Global->Rules);
         }
 
         private void OnLanguageChanged(TranslationManager tm) {

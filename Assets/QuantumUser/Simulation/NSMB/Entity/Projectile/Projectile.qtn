@@ -3,6 +3,7 @@ import enum ParticleEffect(byte);
 component Projectile {
 	AssetRef<ProjectileAsset> Asset;
 	FP Speed;
+	byte Lifetime;
 
 	[ExcludeFromPrototype] EntityRef Owner;
 	[ExcludeFromPrototype] bool FacingRight;
@@ -11,7 +12,7 @@ component Projectile {
 	[ExcludeFromPrototype] byte Combo;
 }
 
-signal OnProjectileHitEntity(Frame frame, EntityRef projectile, EntityRef hitEntity);
+signal OnProjectileHitEntity(EntityRef projectile, EntityRef hitEntity);
 
 event ProjectileDestroyed {
 	EntityRef Entity;

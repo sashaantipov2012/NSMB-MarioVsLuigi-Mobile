@@ -6,16 +6,13 @@ namespace Quantum {
         private TaskDelegateHandle updateTaskHandle;
 
         protected override TaskHandle Schedule(Frame f, TaskHandle taskHandle) {
+            if (f.ComponentCount<E>() <= 0) {
+                return taskHandle;
+            }
             if (!updateTaskHandle.IsValid) {
                 f.Context.TaskContext.RegisterDelegate(UpdateTask, $"{GetType().Name}.UpdateTask", ref updateTaskHandle);
             }
-
-            int count = f.ComponentCount<E>();
-            if (count > 0) {
-                return f.Context.TaskContext.AddMainThreadTask(updateTaskHandle, null, taskHandle);
-            }
-
-            return taskHandle;
+            return f.Context.TaskContext.AddMainThreadTask(updateTaskHandle, null, taskHandle);
         }
 
         public void UpdateTask(FrameThreadSafe f, int start, int count, void* arg) {

@@ -8,7 +8,14 @@ namespace Quantum.Editor {
   using UnityEngine.Profiling;
   using UnityEngine.Serialization;
   using Debug = UnityEngine.Debug;
+  using Object = UnityEngine.Object;
 
+#if UNITY_6000_3_OR_NEWER
+  using InstanceIdType = UnityEngine.EntityId;
+#else 
+  using InstanceIdType = System.Int32;
+#endif
+  
   [ScriptedImporter(6, Extension, importQueueOffset: 200000)]
   internal unsafe partial class QuantumUnityDBImporter : ScriptedImporter {
     public const  string Extension              = "qunitydb";
@@ -17,12 +24,6 @@ namespace Quantum.Editor {
     private const string LogPrefix              = "[QuantumUnityDBImporter] ";
     private const string AddressablesDependency = "QuantumUnityDBImporterAddressablesDependency";
     private const string AssetObjectsDependency = "QuantumUnityDBImporterAssetObjectsDependency";
-
-    /// <summary>
-    /// If enabled, performs an additional step during import to verify the imported assets have correct GUIDs and paths.
-    /// </summary>
-    [InlineHelp]
-    public bool Verify = false;
     
     /// <summary>
     /// If enabled, logs the time it took to import assets. 
@@ -47,6 +48,8 @@ namespace Quantum.Editor {
         return;
       }
 
+      var rootFolder = editorSettings.GetAssetLookupRoot();
+      
       var db = ScriptableObject.CreateInstance<QuantumUnityDB>();
       
       var sources = new List<(IQuantumAssetObjectSource, AssetGuid, string)>();
@@ -59,9 +62,9 @@ namespace Quantum.Editor {
 
       {
         Profiler.BeginSample("Iterating Assets");
-        foreach (HierarchyProperty it in QuantumUnityDBUtilities.IterateAssets()) {
+        foreach (var it in QuantumUnityDBUtilities.IterateAssets(rootFolder)) {
           try {
-            var source = CreateAssetSource(factory, it.instanceID, it.name, it.isMainRepresentation);
+            var source = CreateAssetSource(factory, it.GetObjectId(), it.name, it.isMainRepresentation);
             if (source != default) {
               sources.Add(source);
             }
@@ -120,7 +123,7 @@ namespace Quantum.Editor {
       ctx.SetMainObject(db);
     }
 
-    private (IQuantumAssetObjectSource, AssetGuid, string) CreateAssetSource(QuantumAssetSourceFactory factory, int instanceID, string unityAssetName, bool isMain) {
+    private (IQuantumAssetObjectSource, AssetGuid, string) CreateAssetSource(QuantumAssetSourceFactory factory, InstanceIdType instanceID, string unityAssetName, bool isMain) {
       
       var (unityAssetGuid, fileId) = AssetDatabaseUtils.GetGUIDAndLocalFileIdentifierOrThrow(instanceID);
       
@@ -136,37 +139,8 @@ namespace Quantum.Editor {
       source = factory.TryCreateAssetObjectSource(context);
 
       if (source == null) {
-        QuantumEditorLog.ErrorImport($"No source found for asset {unityAssetName} ({unityAssetGuid})", EditorUtility.InstanceIDToObject(instanceID));
+        QuantumEditorLog.ErrorImport($"No source found for asset {unityAssetName} ({unityAssetGuid})", new LazyLoadReference<Object>(instanceID).asset);
         return default;
-      }
-
-      if (Verify) {
-        var asset = EditorUtility.InstanceIDToObject(instanceID);
-        if (asset == null) {
-          QuantumEditorLog.WarnImport($"Asset {unityAssetName} ({unityAssetGuid}) is null");
-        } else {
-
-          if (asset.name != unityAssetName) {
-            QuantumEditorLog.WarnImport($"Asset name mismatch for {AssetDatabase.GetAssetPath(asset)}. Expected {unityAssetName}, got {asset.name}", asset);
-          }
-
-          var assetObject = asset as Quantum.AssetObject;
-          if (!assetObject) {
-            QuantumEditorLog.WarnImport($"Asset {AssetDatabase.GetAssetPath(asset)} is not an instance of {nameof(Quantum.AssetObject)}");
-          } else {
-            if (assetObject.Guid != quantumAssetGuid) {
-              //QuantumEditorLog.WarnImport($"Asset GUID mismatch for {AssetDatabase.GetAssetPath(asset)}. Expected {quantumAssetGuid}, got {assetObject.Guid}", asset);
-            }
-
-            if (assetObject.Path != quantumAssetPath) {
-              QuantumEditorLog.WarnImport($"Asset path mismatch for {AssetDatabase.GetAssetPath(asset)}. Expected {quantumAssetPath}, got {assetObject.Path}", asset);
-            }
-
-            if (source.AssetType != (Type)null && source.AssetType != asset.GetType()) {
-              QuantumEditorLog.WarnImport($"Asset type mismatch for {AssetDatabase.GetAssetPath(asset)}. Expected {source.AssetType}, got {asset.GetType()}", asset);
-            }
-          }
-        }
       }
 
       return (source, quantumAssetGuid, quantumAssetPath);
@@ -186,7 +160,7 @@ namespace Quantum.Editor {
           hash.Append(it.name);
         }
         // any changes to asset's guid affects the hash
-        var assetGuid = QuantumUnityDBUtilities.GetExpectedAssetGuid(it.instanceID, out _);
+        var assetGuid = QuantumUnityDBUtilities.GetExpectedAssetGuid(it.GetObjectId(), out _);
         hash.Append(assetGuid);
       }
       

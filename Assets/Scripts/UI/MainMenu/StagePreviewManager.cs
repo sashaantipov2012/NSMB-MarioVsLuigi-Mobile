@@ -1,3 +1,4 @@
+using NSMB.Utilities;
 using Quantum;
 using System;
 using UnityEngine;
@@ -7,7 +8,11 @@ namespace NSMB.UI.MainMenu {
 
         //---Serialized Variables
         [SerializeField] private Camera targetCamera;
-        [SerializeField] private StagePreviewData[] stages;
+        [SerializeField] private GameObject noPreviewPrefab;
+
+        //---Private Variables
+        private AssetRef<VersusStageData> currentActiveStageData;
+        private GameObject currentActivePrefab;
 
         public void Start() {
             PreviewRandomStage();
@@ -17,24 +22,38 @@ namespace NSMB.UI.MainMenu {
 
         public void PreviewRandomStage() {
             UnityEngine.Random.InitState((int) DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-            PreviewStage(stages[UnityEngine.Random.Range(0, stages.Length)]);
+            var maps = AssetRepository<Map>.AllAssetRefs;
+            PreviewStage(maps[UnityEngine.Random.Range(0, maps.Count)]);
         }
 
-        public void PreviewStage(StagePreviewData stage) {
-            targetCamera.transform.position = stage.CameraPosition.position;
+        public void PreviewStage(VersusStageData stage) {
+            if (currentActiveStageData == stage) {
+                return;
+            }
+            currentActiveStageData = stage;
+
+            if (currentActivePrefab) {
+                Destroy(currentActivePrefab);
+            }
+
+            GameObject prefabToSpawn;
+            if (stage && stage.MainMenuPreviewPrefab) {
+                prefabToSpawn = stage.MainMenuPreviewPrefab;
+            } else {
+                prefabToSpawn = noPreviewPrefab;
+            }
+            
+            currentActivePrefab = Instantiate(prefabToSpawn, transform);
+            var origin = currentActivePrefab.GetComponentInChildren<MainMenuCameraOrigin>();
+            if (origin) {
+                targetCamera.transform.position = origin.transform.position;
+            } else {
+                targetCamera.transform.position = Vector3.zero;
+            }
         }
 
         public void PreviewStage(AssetRef<Map> map) {
-            PreviewStage(GetPreviewDataFromMap(map));
-        }
-
-        private StagePreviewData GetPreviewDataFromMap(AssetRef<Map> map) {
-            foreach (var stage in stages) {
-                if (stage.Map == map) {
-                    return stage;
-                }
-            }
-            return stages[0];
+            PreviewStage(QuantumUnityDB.GetGlobalAsset<VersusStageData>(QuantumUnityDB.GetGlobalAsset(map).UserAsset.Id));
         }
 
         private unsafe void OnPlayerAdded(EventPlayerAdded e) {
@@ -45,20 +64,6 @@ namespace NSMB.UI.MainMenu {
 
         private unsafe void OnRulesChanged(EventRulesChanged e) {
             PreviewStage(e.Game.Frames.Predicted.Global->Rules.Stage);
-        }
-
-
-        public void OnDrawGizmos() {
-            Gizmos.color = Color.gray;
-            foreach (var preview in stages) {
-                Gizmos.DrawWireCube(preview.CameraPosition.position, new Vector3(7f * (16f/9f), 7f));
-            }
-        }
-
-        [Serializable]
-        public class StagePreviewData {
-            public AssetRef<Map> Map;
-            public Transform CameraPosition;
         }
     }
 }

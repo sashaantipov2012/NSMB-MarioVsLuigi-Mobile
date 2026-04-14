@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace NSMB.UI.MainMenu.Submenus {
@@ -27,9 +29,13 @@ namespace NSMB.UI.MainMenu.Submenus {
         }
 
         private IEnumerator QuitCorotuine() {
-            AudioClip clip = SoundEffect.UI_Quit.GetClip();
-            Canvas.PlaySound(SoundEffect.UI_Quit);
-            yield return new WaitForSeconds(clip.length);
+            var playedSounds = Canvas.PlaySound(SoundEffect.UI_Quit);
+            if (playedSounds.Count <= 0) {
+                yield break;
+            }
+
+            float duration = playedSounds.Max(ac => ac.length);
+            yield return new WaitForSecondsRealtime(duration);
 
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;

@@ -229,11 +229,11 @@ Tilemap:
   - m_RefCount: 8
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   - m_RefCount: 1
-    m_Data: {r: 0.7294713, g: 0.3267362, b: 0.39651746, a: 1}
+    m_Data: {r: 0.786986, g: 0.36353716, b: 0.43281198, a: 1}
   - m_RefCount: 1
-    m_Data: {r: 0.79794776, g: 0.44407797, b: 0.5020013, a: 1}
+    m_Data: {r: 0.9204735, g: 0.5855386, b: 0.599682, a: 1}
   - m_RefCount: 1
-    m_Data: {r: 0.81224173, g: 0.49594787, b: 0.54349864, a: 1}
+    m_Data: {r: 0.86349326, g: 0.5734, b: 0.59766084, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -260,6 +260,7 @@ Tilemap:
     e33: 1
 --- !u!483693784 &9033513102504163771
 TilemapRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -278,6 +279,8 @@ TilemapRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -299,9 +302,11 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -309,7 +314,6 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
-  m_MaskInteraction: 0
 --- !u!1 &5520271897637186259
 GameObject:
   m_ObjectHideFlags: 0

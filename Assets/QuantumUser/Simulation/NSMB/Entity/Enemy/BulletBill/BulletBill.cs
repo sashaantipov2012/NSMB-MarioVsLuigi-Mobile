@@ -11,12 +11,12 @@ namespace Quantum {
             Owner = owner;
         }
 
-        public readonly void Kill(Frame f, EntityRef bulletBillEntity, EntityRef killerEntity, KillReason reason) {
+        public readonly void Kill(Frame f, EntityRef bulletBillEntity, EntityRef killerEntity, EnemyKillReason reason) {
             var enemy = f.Unsafe.GetPointer<Enemy>(bulletBillEntity);
             var physicsObject = f.Unsafe.GetPointer<PhysicsObject>(bulletBillEntity);
 
             bool playSound;
-            if (reason != KillReason.Normal) {
+            if (reason != EnemyKillReason.Normal) {
                 // Spawn 
                 enemy->IsActive = false;
                 physicsObject->IsFrozen = true;

@@ -5,7 +5,7 @@ using Quantum;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace NSMB.Entities.Player {
+namespace NSMB.Entities.CoinItems {
     public class ProjectileAnimator : QuantumEntityViewComponent {
 
         //---Serialized Variables
@@ -40,6 +40,11 @@ namespace NSMB.Entities.Player {
         }
 
         public override unsafe void OnUpdateView() {
+            if (PredictedFrame.Unsafe.TryGetPointer(EntityRef, out Projectile* projectile)) {
+                // Fixes EntityRef hijacking. Hopefully.
+                owner = projectile->Owner;
+            }
+
             if (animator) {
                 animator.enabled = PredictedFrame.Global->GameState == GameState.Playing;
             }
@@ -81,7 +86,7 @@ namespace NSMB.Entities.Player {
             }
 
             foreach (var playerElement in PlayerElements.AllPlayerElements) {
-                if (camera == playerElement.Camera || camera == playerElement.ScrollCamera || camera == playerElement.UICamera) {
+                if (playerElement.IsOurCamera(camera)) {
                     // This camera.
                     if (!PredictedFrame.Unsafe.TryGetPointer(playerElement.Entity, out MarioPlayer* cameraMario)) {
                         return false;

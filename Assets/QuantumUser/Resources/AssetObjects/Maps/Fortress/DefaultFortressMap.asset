@@ -466,6 +466,8 @@ MonoBehaviour:
           Value: 0
         DisableRespawning:
           Value: 0
+        StayAtHomeWhenOffscreen:
+          Value: 1
     - rid: 1724038351226404870
       type: {class: FreezablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -903,6 +905,8 @@ MonoBehaviour:
           Value: 0
         DisableRespawning:
           Value: 0
+        StayAtHomeWhenOffscreen:
+          Value: 1
     - rid: 5216121241349390342
       type: {class: FreezablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1416,12 +1420,93 @@ MonoBehaviour:
               RawValue: 0
             BoxExtents:
               X:
-                RawValue: 1048576
+                RawValue: 262144
               Y:
                 RawValue: 163840
             PositionOffset:
               X:
-                RawValue: -196608
+                RawValue: -983040
+              Y:
+                RawValue: 327680
+            RotationOffset:
+              RawValue: 0
+            UserTag: 1
+            IsSetFromSourceCollider: 0
+          - ShapeType: 4
+            PolygonCollider:
+              Id:
+                Value: 0
+            CircleRadius:
+              RawValue: 0
+            CapsuleSize:
+              X:
+                RawValue: 0
+              Y:
+                RawValue: 0
+            EdgeExtent:
+              RawValue: 0
+            BoxExtents:
+              X:
+                RawValue: 262144
+              Y:
+                RawValue: 163840
+            PositionOffset:
+              X:
+                RawValue: -458752
+              Y:
+                RawValue: 327680
+            RotationOffset:
+              RawValue: 0
+            UserTag: 1
+            IsSetFromSourceCollider: 0
+          - ShapeType: 4
+            PolygonCollider:
+              Id:
+                Value: 0
+            CircleRadius:
+              RawValue: 0
+            CapsuleSize:
+              X:
+                RawValue: 0
+              Y:
+                RawValue: 0
+            EdgeExtent:
+              RawValue: 0
+            BoxExtents:
+              X:
+                RawValue: 262144
+              Y:
+                RawValue: 163840
+            PositionOffset:
+              X:
+                RawValue: 65536
+              Y:
+                RawValue: 327680
+            RotationOffset:
+              RawValue: 0
+            UserTag: 1
+            IsSetFromSourceCollider: 0
+          - ShapeType: 4
+            PolygonCollider:
+              Id:
+                Value: 0
+            CircleRadius:
+              RawValue: 0
+            CapsuleSize:
+              X:
+                RawValue: 0
+              Y:
+                RawValue: 0
+            EdgeExtent:
+              RawValue: 0
+            BoxExtents:
+              X:
+                RawValue: 262144
+              Y:
+                RawValue: 163840
+            PositionOffset:
+              X:
+                RawValue: 589824
               Y:
                 RawValue: 327680
             RotationOffset:

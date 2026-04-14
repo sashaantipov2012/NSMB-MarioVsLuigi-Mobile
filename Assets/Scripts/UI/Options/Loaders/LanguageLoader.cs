@@ -1,26 +1,36 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
-using static NSMB.UI.Translation.TranslationManager;
 
 namespace NSMB.UI.Options.Loaders {
     public class LanguageLoader : PauseOptionLoader {
 
         //---Private Variables
-        private LocaleData[] locales;
+        private List<string> locales;
 
         public override void LoadOptions(PauseOption option) {
             if (option is not ScrollablePauseOption spo) {
                 return;
             }
 
+            var tm = GlobalController.Instance.translationManager;
+
             spo.options.Clear();
-            locales = GlobalController.Instance.translationManager.GetAvailableLocales();
-            spo.options.AddRange(locales.Select(ld => {
-                return ld.RTL ? ArabicSupport.ArabicFixer.Fix(ld.Name, false) : ld.Name;
+            locales = tm.GetAllLocales().ToList();
+            locales.Sort();
+
+            spo.options.AddRange(locales.Select(locale => {
+                tm.TryGetTranslationForLocale(locale, "lang", out string name);
+                if (tm.TryGetTranslationForLocale(locale, "rtl", out string result) && result != null && result.Equals("true", System.StringComparison.InvariantCultureIgnoreCase)) {
+                    // LTR
+                    return name;
+                } else {
+                    // RTL
+                    return ArabicSupport.ArabicFixer.Fix(name, false);
+                }
             }));
 
-            string current = GlobalController.Instance.translationManager.CurrentLocale;
-            int currentIndex = Array.IndexOf(locales.Select(ld => ld.Locale).ToArray(), current);
+            string current = tm.CurrentLocale;
+            int currentIndex = locales.IndexOf(current);
             spo.SetValue(currentIndex);
         }
 
@@ -29,7 +39,7 @@ namespace NSMB.UI.Options.Loaders {
                 return;
             }
             
-            GlobalController.Instance.translationManager.ChangeLanguage(locales[spo.value].Locale);
+            GlobalController.Instance.translationManager.ChangeLanguage(locales[spo.value]);
             option.manager.RequireReconnect |= option.requireReconnect;
         }
     }

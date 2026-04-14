@@ -62,10 +62,7 @@ namespace Quantum {
         }
 
         public override int GetObjectiveCount(Frame f, PlayerRef player) {
-            var marioFilter = f.Filter<MarioPlayer>();
-            marioFilter.UseCulling = false;
-
-            while (marioFilter.NextUnsafe(out _, out MarioPlayer* mario)) {
+            foreach ((_, var mario) in f.Unsafe.GetComponentBlockIterator<MarioPlayer>()) {
                 if (player != mario->PlayerRef) {
                     continue;
                 }
@@ -77,7 +74,7 @@ namespace Quantum {
         }
 
         public override int GetObjectiveCount(Frame f, MarioPlayer* mario) {
-            if (mario == null || mario->Disconnected || (mario->Lives == 0 && f.Global->Rules.IsLivesEnabled)) {
+            if (mario == null || !mario->IsValid(f)) {
                 return -1;
             }
 
@@ -87,11 +84,13 @@ namespace Quantum {
             return gamemodeDataCopy.CoinRunners->ObjectiveCoins;
         }
 
-        public override FP GetItemSpawnWeight(Frame f, CoinItemAsset coinItem, int leaderCoins, int ourCoins) {
-            FP coinDifference = leaderCoins - ourCoins;
+        public override FP GetItemSpawnWeight(Frame f, CoinItemAsset item, int ourCoins) {
+            FP averageCoins = GetAverageObjectiveCount(f);
+            FP avgDiff = ourCoins - averageCoins;
             FP percentageTimeRemaining = f.Global->Timer / (f.Global->Rules.TimerMinutes * 60);
-            FP bonus = coinItem.LosingSpawnBonus * FPMath.Log((coinDifference / 40) + 1, FP.E) * 1 - (percentageTimeRemaining * percentageTimeRemaining);
-            return FPMath.Max(0, coinItem.SpawnChance + bonus);
+            FP whichBonus = avgDiff > 0 ? item.AboveAverageBonus : item.BelowAverageBonus;
+            FP bonus = whichBonus * FPMath.Log((FPMath.Abs(avgDiff) / 40) + 1, FP.E) * 1 - (percentageTimeRemaining * percentageTimeRemaining);
+            return FPMath.Max(0, item.SpawnChance + bonus);
         }
     }
 }

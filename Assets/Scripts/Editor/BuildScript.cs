@@ -28,7 +28,7 @@ public class BuildScript : EditorWindow {
 
     public Vector2 mainScroll;
 
-    [MenuItem("Build/Mog Build Menu")]
+    [MenuItem("Tools/MvLO/Mog Build Menu")]
     public static void ShowWindow() {
         GetWindow<BuildScript>();
     }

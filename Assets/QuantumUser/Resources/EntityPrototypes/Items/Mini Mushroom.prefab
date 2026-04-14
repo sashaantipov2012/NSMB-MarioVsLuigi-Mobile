@@ -16,7 +16,7 @@ PrefabInstance:
     - target: {fileID: 517697212848946230, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
         type: 3}
       propertyPath: Prototype.Scriptable.Id.Value
-      value: 271390802845879304
+      value: 315844579913471239
       objectReference: {fileID: 0}
     - target: {fileID: 1017215213198693184, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
         type: 3}

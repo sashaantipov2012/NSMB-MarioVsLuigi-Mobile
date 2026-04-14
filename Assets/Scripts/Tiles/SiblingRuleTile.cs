@@ -21,9 +21,7 @@ namespace NSMB.Tiles {
         //---Static Variables
         private static QuantumMapData mapData;
         private static VersusStageData cachedStage;
-#if UNITY_EDITOR
         private static float lastMapCheckTime;
-#endif
 
         //---Serialized Variables
         [SerializeField] public List<TileBase> siblings;
@@ -41,18 +39,14 @@ namespace NSMB.Tiles {
         public override Vector3Int GetOffsetPosition(Vector3Int position, Vector3Int offset) {
             Vector3Int result = position + offset;
             if (!cachedStage || !mapData) {
-#if UNITY_EDITOR
-                if (!Application.isPlaying) {
-                    if (lastMapCheckTime == Time.time) {
-                        return result;
-                    }
-                    lastMapCheckTime = Time.time;
+                if (lastMapCheckTime == Time.time) {
+                    return result;
                 }
-#endif
+                lastMapCheckTime = Time.time;
                 if (!(mapData = FindFirstObjectByType<QuantumMapData>(FindObjectsInactive.Include))) {
                     return result;
                 }
-                cachedStage = (VersusStageData) QuantumUnityDB.GetGlobalAsset(mapData.Asset.UserAsset);
+                cachedStage = (VersusStageData) QuantumUnityDB.GetGlobalAsset(mapData.GetAsset(false).UserAsset);
                 if (!cachedStage) {
                     return result;
                 }
@@ -65,18 +59,14 @@ namespace NSMB.Tiles {
         public override Vector3Int GetOffsetPositionReverse(Vector3Int position, Vector3Int offset) {
             Vector3Int result = position - offset;
             if (!cachedStage || !mapData) {
-#if UNITY_EDITOR
-                if (!Application.isPlaying) {
-                    if (lastMapCheckTime == Time.time) {
-                        return result;
-                    }
-                    lastMapCheckTime = Time.time;
+                if (lastMapCheckTime == Time.time) {
+                    return result;
                 }
-#endif
+                lastMapCheckTime = Time.time;
                 if (!(mapData = FindFirstObjectByType<QuantumMapData>(FindObjectsInactive.Include))) {
                     return result;
                 }
-                cachedStage = (VersusStageData) QuantumUnityDB.GetGlobalAsset(mapData.Asset.UserAsset);
+                cachedStage = (VersusStageData) QuantumUnityDB.GetGlobalAsset(mapData.GetAsset(false).UserAsset);
                 if (!cachedStage) {
                     return result;
                 }

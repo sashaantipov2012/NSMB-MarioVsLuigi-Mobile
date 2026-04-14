@@ -11,16 +11,14 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
         public override bool IsInSubmenu => teamChooser.content.activeSelf || paletteChooser.content.activeSelf;
 
         //---Serialized Variables
-        [SerializeField] private Image[] characterButtonImages, characterButtonLogos;
-        [SerializeField] private Sprite[] enabledCharacterButtonSprites, disabledCharacterButtonSprites;
-        [SerializeField] private Color enabledCharacterButtonLogoColor, disabledCharacterButtonLogoColor;
         [SerializeField] private Image paletteBackground;
+        [SerializeField] private CharacterChooser characterChooser;
         [SerializeField] private PaletteChooser paletteChooser;
         [SerializeField] private TeamChooser teamChooser;
         [SerializeField] private SpriteChangingToggle spectateToggle;
 
         //---Private Variables
-        private int currentCharacterIndex;
+        private AssetRef<CharacterAsset> currentCharacter;
 
         public override void Initialize() {
             paletteChooser.Initialize();
@@ -45,19 +43,9 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             return base.TryGoBack(out playSound);
         }
 
-        public void OnCharacterClicked(int index) {
+        public void OnCharacterClicked(AssetRef<CharacterAsset> character) {
             var game = NetworkHandler.Runner.Game;
-            foreach (int slot in game.GetLocalPlayerSlots()) {
-                game.SendCommand(slot, new CommandChangePlayerData {
-                    EnabledChanges = CommandChangePlayerData.Changes.Character,
-                    Character = (byte) index,
-                });
-            }
-            SetCharacterButtonState(game.Frames.Predicted, index, true);
-        }
-
-        public void OnCharacterToggled() {
-            OnCharacterClicked((currentCharacterIndex + 1) % characterButtonImages.Length);
+            SetCharacterButtonState(game.Frames.Predicted, character, true);
         }
 
         public void OnSpectateToggled() {
@@ -71,41 +59,22 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             menu.Canvas.PlayConfirmSound();
         }
 
-        private void SetCharacterButtonState(Frame f, int index, bool sound) {
-            bool changed = currentCharacterIndex != index;
-            currentCharacterIndex = index;
+        private void SetCharacterButtonState(Frame f, AssetRef<CharacterAsset> characterRef, bool save) {
+            bool changed = currentCharacter != characterRef;
 
-            for (int i = 0; i < characterButtonImages.Length; i++) {
-                var image = characterButtonImages[i];
-                image.sprite = disabledCharacterButtonSprites[i];
+            currentCharacter = characterRef;
+            characterChooser.ChangeCharacterButton(characterRef);
+            paletteChooser.ChangeCharacter(characterRef);
 
-                if (i < characterButtonLogos.Length && characterButtonLogos[i]) {
-                    characterButtonLogos[i].color = disabledCharacterButtonLogoColor;
+            if (save) {
+                if (changed && f.TryFindAsset(characterRef, out var character)) {
+                    menu.Canvas.PlaySound(SoundEffect.Player_Voice_Selected, new[] { character });
                 }
-            }
-
-            characterButtonImages[index].sprite = enabledCharacterButtonSprites[index];
-            paletteBackground.sprite = disabledCharacterButtonSprites[index];
-            if (index < characterButtonLogos.Length && characterButtonLogos[index]) {
-                characterButtonLogos[index].color = enabledCharacterButtonLogoColor;
-            }
-
-            var allCharacters = f.SimulationConfig.CharacterDatas;
-            CharacterAsset characterAsset = f.FindAsset(allCharacters[Mathf.Clamp(index, 0, allCharacters.Length)]);
-            paletteChooser.ChangeCharacter(characterAsset);
-
-            if (changed) {
-                Settings.Instance.generalCharacter = index;
-                Settings.Instance.SaveSettings();
-            }
-
-            if (sound && changed) {
-                menu.Canvas.PlaySound(SoundEffect.Player_Voice_Selected, characterAsset);
             }
         }
 
-        private void SetPaletteButtonState(int index) {
-            paletteChooser.ChangePaletteButton(index);
+        private void SetPaletteButtonState(AssetRef<PaletteSet> palette) {
+            paletteChooser.ChangePaletteButton(palette);
         }
 
         //---Callbacks
@@ -118,8 +87,8 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
 
             // Set character button to the correct state
             PlayerData* data = QuantumUtils.GetPlayerData(f, e.Player);
-            SetPaletteButtonState(data->Palette);
             SetCharacterButtonState(f, data->Character, false);
+            SetPaletteButtonState(data->Palette);
             spectateToggle.SetIsOnWithoutNotify(data->ManualSpectator);
         }
     }

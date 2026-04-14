@@ -1,3 +1,6 @@
+using NSMB.Sound;
+using Quantum;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -99,16 +102,8 @@ namespace NSMB.Utilities.Extensions {
         }
 
         //easy sound clips
-        public static void PlayOneShot(this AudioSource source, SoundEffect clip, CharacterAsset character = null, int variant = 0, float volume = 1f) {
-            if (source.gameObject.activeInHierarchy) {
-                source.PlayOneShot(clip.GetClip(character, variant), volume);
-            }
-        }
-
-        public static void PlayOneShot(this AudioSource source, SoundEffectDataAttribute data, CharacterAsset character = null, int variant = 0, float volume = 1f) {
-            if (source.gameObject.activeInHierarchy) {
-                source.PlayOneShot(data.GetClip(character, variant), volume);
-            }
+        public static IList<AudioClip> PlayOneShot(this AudioSource source, SoundEffect sfx, IList<ISoundOverrideProvider> extraProviders = null, int? variant = null, float volume = 1f) {
+            return SoundEffectResolver.Instance.PlayOneShot(source, sfx, extraProviders, variant, volume);
         }
 
         public static void SetLossyScale(this Transform transform, Vector3 lossyScale) {

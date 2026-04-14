@@ -1,9 +1,12 @@
 using Photon.Deterministic;
+using Quantum.Physics2D;
 
 namespace Quantum {
     public unsafe class PiranhaPlantSystem : SystemMainThreadEntityFilter<PiranhaPlant, PiranhaPlantSystem.Filter>, ISignalOnTileChanged,
-        ISignalOnEnemyRespawned, ISignalOnBreakableObjectChangedHeight, ISignalOnIceBlockBroken {
-        
+        ISignalOnEnemyRespawned, ISignalOnBreakableObjectChangedHeight, ISignalOnIceBlockBroken, ISignalOnStageReset {
+
+        private Shape2D playerProximityShape;
+
         public struct Filter {
             public EntityRef Entity;
             public Transform2D* Transform;
@@ -18,6 +21,7 @@ namespace Quantum {
             f.Context.Interactions.Register<PiranhaPlant, MarioPlayer>(f, OnPiranhaPlantMarioInteraction);
             f.Context.Interactions.Register<PiranhaPlant, Projectile>(f, OnPiranhaPlantProjectileInteraction);
             f.Context.Interactions.Register<PiranhaPlant, IceBlock>(f, OnPiranhaPlantIceBlockInteraction);
+            playerProximityShape = Shape2D.CreateCircle(FP._0_50, FPVector2.Up);
         }
 
         public override void Update(Frame f, ref Filter filter, VersusStageData stage) {
@@ -40,9 +44,7 @@ namespace Quantum {
             } else {
                 // Not chomping, run the countdown timer.
                 if (QuantumUtils.Decrement(ref piranhaPlant->WaitingFrames)) {
-                    var playerOverlapShape = Shape2D.CreateCircle(FP._0_50, FPVector2.Up);
-
-                    Physics2D.HitCollection playerHits = f.Physics2D.OverlapShape(*transform, playerOverlapShape, f.Context.PlayerOnlyMask);
+                    HitCollection playerHits = f.Physics2D.OverlapShape(*transform, playerProximityShape, f.Context.PlayerOnlyMask);
                     if (playerHits.Count == 0) {
                         // No players nearby. pop up.
                         piranhaPlant->ChompFrames = 90;
@@ -64,7 +66,7 @@ namespace Quantum {
             var piranhaPlant = f.Unsafe.GetPointer<PiranhaPlant>(piranhaPlantEntity);
             var iceBlock = f.Unsafe.GetPointer<IceBlock>(iceBlockEntity);
 
-            piranhaPlant->Kill(f, piranhaPlantEntity, iceBlockEntity, KillReason.Special);
+            piranhaPlant->Kill(f, piranhaPlantEntity, iceBlockEntity, EnemyKillReason.Special);
         }
 
         public void OnPiranhaPlantProjectileInteraction(Frame f, EntityRef piranhaPlantEntity, EntityRef projectileEntity) {
@@ -74,7 +76,7 @@ namespace Quantum {
             switch (projectileAsset.Effect) {
             case ProjectileEffectType.KillEnemiesAndSoftKnockbackPlayers:
             case ProjectileEffectType.Fire: {
-                piranhaPlant->Kill(f, piranhaPlantEntity, projectileEntity, KillReason.Special);
+                piranhaPlant->Kill(f, piranhaPlantEntity, projectileEntity, EnemyKillReason.Special);
                 break;
             }
             case ProjectileEffectType.Freeze: {
@@ -85,7 +87,7 @@ namespace Quantum {
             }
             }
 
-            f.Signals.OnProjectileHitEntity(f, projectileEntity, piranhaPlantEntity);
+            f.Signals.OnProjectileHitEntity(projectileEntity, piranhaPlantEntity);
         }
 
         public void OnPiranhaPlantMarioInteraction(Frame f, EntityRef piranhaPlantEntity, EntityRef marioEntity) {
@@ -94,7 +96,7 @@ namespace Quantum {
 
             if (mario->InstakillsEnemies(marioPhysicsObject, false)) {
                 var piranhaPlant = f.Unsafe.GetPointer<PiranhaPlant>(piranhaPlantEntity);
-                piranhaPlant->Kill(f, piranhaPlantEntity, marioEntity, KillReason.Special);
+                piranhaPlant->Kill(f, piranhaPlantEntity, marioEntity, EnemyKillReason.Special);
 
             } else if (!mario->IsCrouchedInShell) {
                 mario->Powerdown(f, marioEntity, false, piranhaPlantEntity);
@@ -102,17 +104,17 @@ namespace Quantum {
         }
 
         public void OnTileChanged(Frame f, IntVector2 tilePosition, StageTileInstance newTile) {
-            var filter = f.Filter<Transform2D, PiranhaPlant, Enemy>();
+            var filter = f.Filter<PiranhaPlant, Enemy>();
             VersusStageData stage = f.FindAsset<VersusStageData>(f.Map.UserAsset);
 
-            while (filter.NextUnsafe(out EntityRef entity, out Transform2D* transform, out PiranhaPlant* piranhaPlant, out Enemy* enemy)) {
-                if (!enemy->IsAlive) {
-                    continue;
-                }
-
+            while (filter.NextUnsafe(out EntityRef entity, out PiranhaPlant* piranhaPlant, out Enemy* enemy)) {
                 IntVector2 tile = QuantumUtils.WorldToRelativeTile(stage, enemy->Spawnpoint);
                 if (tile.Equals(tilePosition)) {
-                    piranhaPlant->Kill(f, entity, EntityRef.None, KillReason.Special);
+                    enemy->DisableRespawning = true;
+                    if (enemy->IsAlive) {
+                        piranhaPlant->Kill(f, entity, EntityRef.None, EnemyKillReason.Special);
+                    }
+                    enemy->RespawnTimer = 0;
                 }
             }
         }
@@ -124,23 +126,33 @@ namespace Quantum {
         }
 
         public void OnBreakableObjectChangedHeight(Frame f, EntityRef breakableEntity, FP newHeight) {
-            var filter = f.Filter<Enemy, PiranhaPlant>();
-            while (filter.NextUnsafe(out EntityRef piranhaPlantEntity, out Enemy* enemy, out PiranhaPlant* piranhaPlant)) {
-                if (!enemy->IsAlive) {
-                    continue;
-                }
+            var filter = f.Filter<PiranhaPlant, Enemy>();
+            while (filter.NextUnsafe(out EntityRef piranhaPlantEntity, out PiranhaPlant* piranhaPlant, out Enemy* enemy)) {
                 var breakable = f.Unsafe.GetPointer<BreakableObject>(breakableEntity);
                 if (piranhaPlant->Pipe == breakableEntity && newHeight != breakable->OriginalHeight) {
-                    piranhaPlant->Kill(f, piranhaPlantEntity, EntityRef.None, KillReason.Special);
+                    enemy->DisableRespawning = true;
+                    if (enemy->IsAlive) {
+                        piranhaPlant->Kill(f, piranhaPlantEntity, EntityRef.None, EnemyKillReason.Special);
+                    }
+                    enemy->RespawnTimer = 0;
                 }
             }
         }
 
-
-        public void OnIceBlockBroken(Frame f, EntityRef brokenIceBlock, IceBlockBreakReason breakReason) {
+        public void OnIceBlockBroken(Frame f, EntityRef brokenIceBlock, IceBlockBreakReason breakReason, EntityRef attacker) {
             var iceBlock = f.Unsafe.GetPointer<IceBlock>(brokenIceBlock);
             if (f.Unsafe.TryGetPointer(iceBlock->Entity, out PiranhaPlant* piranhaPlant)) {
-                piranhaPlant->Kill(f, iceBlock->Entity, brokenIceBlock, KillReason.Special);
+                piranhaPlant->Kill(f, iceBlock->Entity, brokenIceBlock, EnemyKillReason.Special);
+            }
+        }
+
+        public void OnStageReset(Frame f, QBoolean full) {
+            var filter = f.Filter<PiranhaPlant, Enemy>();
+            while (filter.NextUnsafe(out EntityRef entity, out PiranhaPlant* piranhaPlant, out Enemy* enemy)) {
+                enemy->DisableRespawning = false;
+                if (!enemy->IsAlive && enemy->RespawnTimer <= 0) {
+                    piranhaPlant->Respawn(f, entity);
+                }
             }
         }
     }

@@ -111,7 +111,7 @@ namespace NSMB.Entities.World {
         private bool IsSameTeamAsCamera(int team, Camera camera, out MarioPlayer* mario) {
             Frame f = PredictedFrame;
             foreach (var playerElement in PlayerElements.AllPlayerElements) {
-                if (camera == playerElement.Camera || camera == playerElement.ScrollCamera || camera == playerElement.UICamera) {
+                if (playerElement.IsOurCamera(camera)) {
                     if (!f.Unsafe.TryGetPointer(playerElement.Entity, out mario)) {
                         return false;
                     }

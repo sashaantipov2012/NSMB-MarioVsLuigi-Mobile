@@ -7,7 +7,7 @@ namespace NSMB.Entities.CoinItems {
     public unsafe class CoinItemAnimator : QuantumEntityViewComponent {
 
         //---Serialized
-        [SerializeField] private Transform graphicsRoot;
+        [SerializeField] private Transform graphicsRoot, moveBehindBlocksRoot;
         [SerializeField] private new Renderer renderer;
         [SerializeField] private Animator childAnimator;
         [SerializeField] private Animation childAnimation;
@@ -29,6 +29,7 @@ namespace NSMB.Entities.CoinItems {
 
         public void Start() {
             QuantumEvent.Subscribe<EventCoinItemBecameActive>(this, OnCoinItemBecameActive);
+            QuantumEvent.Subscribe<EventGameEnded>(this, OnGameEnded);
         }
 
         public override void OnActivate(Frame f) {
@@ -52,6 +53,12 @@ namespace NSMB.Entities.CoinItems {
                 }
             } else if (coinItem->BlockSpawn) {
                 // Block spawn
+                if (moveBehindBlocksRoot) {
+                    Vector3 pos = moveBehindBlocksRoot.localPosition;
+                    pos.z = 1;
+                    moveBehindBlocksRoot.localPosition = pos;
+                }
+
                 renderer.sortingOrder = -1000;
                 if (!IsReplayFastForwarding) {
                     sfx.PlayOneShot(scriptable.BlockSpawnSoundEffect);
@@ -61,6 +68,12 @@ namespace NSMB.Entities.CoinItems {
                 }
             } else if (coinItem->LaunchSpawn) {
                 // Spawn with velocity
+                if (moveBehindBlocksRoot) {
+                    Vector3 pos = moveBehindBlocksRoot.localPosition;
+                    pos.z = 1;
+                    moveBehindBlocksRoot.localPosition = pos;
+                }
+
                 renderer.sortingOrder = -1000;
                 if (!IsReplayFastForwarding) {
                     sfx.PlayOneShot(scriptable.BlockSpawnSoundEffect);
@@ -79,14 +92,14 @@ namespace NSMB.Entities.CoinItems {
 
         public override void OnUpdateView() {
             Frame f = PredictedFrame;
-            if (!f.Exists(EntityRef)) {
-                return;
-            }
-
             if (!f.Unsafe.TryGetPointer(EntityRef, out CoinItem* coinItem)) {
                 return;
             }
 
+            if (childAnimator) {
+                childAnimator.SetBool("blockSpawn", coinItem->BlockSpawn && coinItem->SpawnAnimationFrames > 0);
+            }
+            
             if (f.Unsafe.TryGetPointer(EntityRef, out PhysicsObject* physicsObject)) {
                 if (childAnimator) {
                     childAnimator.SetBool("onGround", physicsObject->IsTouchingGround);
@@ -99,6 +112,7 @@ namespace NSMB.Entities.CoinItems {
 
         private void HandleSpawningAnimation(Frame f, CoinItem* coinItem) {
             if (f.Exists(coinItem->ParentMarioPlayer) && coinItem->SpawnAnimationFrames > 0) {
+                // Following player
                 float timeRemaining = coinItem->SpawnAnimationFrames / 60f;
                 float adjustment = Mathf.PingPong(timeRemaining, scaleRate) / scaleRate * scaleSize;
                 graphicsRoot.localScale = Vector3.one * (1 + adjustment);
@@ -112,6 +126,12 @@ namespace NSMB.Entities.CoinItems {
                 renderer.transform.localScale = Vector3.one;
                 inSpawnAnimation = false;
                 renderer.sortingOrder = 15;
+
+                if (moveBehindBlocksRoot) {
+                    Vector3 pos = moveBehindBlocksRoot.localPosition;
+                    pos.z = 0;
+                    moveBehindBlocksRoot.localPosition = pos;
+                }
 
                 mpb.SetFloat("WaveEnabled", 1);
                 renderer.SetPropertyBlock(mpb);
@@ -133,6 +153,15 @@ namespace NSMB.Entities.CoinItems {
             renderer.gameObject.transform.localScale = Vector3.one;
             if (childAnimator) {
                 childAnimator.enabled = true;
+            }
+        }
+
+        private void OnGameEnded(EventGameEnded e) {
+            if (childAnimator) {
+                childAnimator.enabled = false;
+            }
+            if (childAnimation) {
+                childAnimation.enabled = false;
             }
         }
     }

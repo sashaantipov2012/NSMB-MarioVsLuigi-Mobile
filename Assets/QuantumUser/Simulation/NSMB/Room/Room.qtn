@@ -26,3 +26,9 @@ synced event PlayerKickedFromRoom {
 synced event PlayerUnbanned {
 	BannedPlayerInfo PlayerInfo;
 }
+
+synced event PlayerTeamChangedByHost {
+	PlayerRef Player;
+	byte Team;
+	bool Clear;
+}

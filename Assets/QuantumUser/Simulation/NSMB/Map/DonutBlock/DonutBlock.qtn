@@ -1,0 +1,10 @@
+component DonutBlock {
+	ushort FramesUntilFall;
+	ushort FramesUntilRespawn;
+	FP FallSpeed;
+	FPVector2 Origin;
+	
+	[ExcludeFromPrototype] bool HasMario;
+	[ExcludeFromPrototype] bool IsFalling;
+	[ExcludeFromPrototype] ushort Timer;
+}
