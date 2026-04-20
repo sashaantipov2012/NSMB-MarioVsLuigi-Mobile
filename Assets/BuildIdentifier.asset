@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3829c725a771dfd4ca77ab1433002329, type: 3}
   m_Name: BuildIdentifier
   m_EditorClassIdentifier: Assembly-CSharp::NSMB.Utilities.BuildIdentifier
-  Identifier: vanilla
+  Identifier: official
