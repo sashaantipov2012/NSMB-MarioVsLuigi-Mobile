@@ -24,7 +24,10 @@ namespace NSMB.Cameras {
         //---Serialized Variables
         [SerializeField] private PlayerElements playerElements;
         [SerializeField] private List<SecondaryCameraPositioner> secondaryPositioners;
-        [SerializeField] private float zoomSpeed = 1, moveSpeed = 2;
+
+        [Header("Freecam Movement")]
+        [SerializeField] private float zoomSpeed = 1;
+        [SerializeField] private float moveSpeed = 2;
         [SerializeField] private AudioSource zoomSfx;
 
         //---Private Variables
@@ -92,7 +95,7 @@ namespace NSMB.Cameras {
         }
 
         private void UpdateCameraFollowPlayerTweening(CallbackUpdateView e) {
-            tweenTime += Time.unscaledDeltaTime;
+            tweenTime += Time.deltaTime;
             if (tweenTime < 0.5f) {
                 UpdateCameraFollowPlayerMode(e);
             } else {
@@ -313,7 +316,7 @@ namespace NSMB.Cameras {
 
             ourCamera.transform.position = newPosition;
 
-            GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_Back);
+            GlobalController.Instance.PlaySound(SoundEffect.UI_Back);
         }
 
         private void OnScreenshakeCallback(float screenshake) {

@@ -89,52 +89,58 @@ namespace NSMB {
             int newWindowWidth = Screen.width;
             int newWindowHeight = Screen.height;
 
-            //todo: this jitters to hell
-#if UNITY_STANDALONE
             var keyboard = Keyboard.current;
 
-#if !UNITY_EDITOR
+            if (keyboard[Key.F3].wasPressedThisFrame) {
+                var game = QuantumRunner.DefaultGame;
+                if (game != null) {
+                    Frame f = game.Frames.Predicted;
+                    string dump = f.DumpFrame(Frame.DumpFlag_NoHeap);
+                    string path = $"{Application.persistentDataPath}/frame_dump_{DateTimeOffset.Now.ToUnixTimeMilliseconds()}.txt";
+                    Debug.Log($"[Debug] Created frame dump for frame {f.Number}- writing to {path}");
+                    File.WriteAllText(path, dump);
+                    PlaySound(SoundEffect.Player_Sound_PowerupCollect);
+                } else {
+                    PlaySound(SoundEffect.UI_Error);
+                }
+            }
+
+#if UNITY_STANDALONE
+    #if !UNITY_EDITOR
+            //todo: this jitters to hell
             if (Screen.fullScreenMode == FullScreenMode.Windowed && keyboard.leftShiftKey.isPressed && (windowWidth != newWindowWidth || windowHeight != newWindowHeight)) {
                 newWindowHeight = (int) (newWindowWidth * (9f / 16f));
                 Screen.SetResolution(newWindowWidth, newWindowHeight, FullScreenMode.Windowed);
             }
-#endif
+    #endif
+
 
             if (keyboard[Key.F6].wasPressedThisFrame && !string.IsNullOrEmpty(Application.consoleLogPath)) {
                 System.Diagnostics.Process.Start(Path.GetDirectoryName(Application.consoleLogPath));
+                PlaySound(SoundEffect.Player_Sound_PowerupCollect);
             }
 
             if (keyboard[Key.F7].wasPressedThisFrame && !string.IsNullOrEmpty(ReplayListManager.ReplayDirectory)) {
                 System.Diagnostics.Process.Start(ReplayListManager.ReplayDirectory);
+                PlaySound(SoundEffect.Player_Sound_PowerupCollect);
             }
             
             if (keyboard[Key.F8].wasPressedThisFrame && addonManager.isActiveAndEnabled && !string.IsNullOrEmpty(AddonManager.LocalFolderPath)) {
                 System.Diagnostics.Process.Start(AddonManager.LocalFolderPath);
+                PlaySound(SoundEffect.Player_Sound_PowerupCollect);
             }
 
-            if (Debug.isDebugBuild) {
-                if (keyboard[Key.F9].wasPressedThisFrame) {
-                    if (Profiler.enabled) {
-                        Profiler.enabled = false;
-                        PlaySound(SoundEffect.Player_Sound_Powerdown);
-                    } else {
-                        Profiler.maxUsedMemory = 256 * 1024 * 1024;
-                        Profiler.logFile = "profile-" + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                        Profiler.enableBinaryLog = true;
-                        Profiler.enabled = true;
-                        PlaySound(SoundEffect.Player_Sound_PowerupCollect);
-                    }
+            if (Debug.isDebugBuild && keyboard[Key.F9].wasPressedThisFrame) {
+                if (Profiler.enabled) {
+                    Profiler.enabled = false;
+                    PlaySound(SoundEffect.Player_Sound_Powerdown);
+                } else {
+                    Profiler.maxUsedMemory = 256 * 1024 * 1024;
+                    Profiler.logFile = "profile-" + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    Profiler.enableBinaryLog = true;
+                    Profiler.enabled = true;
+                    PlaySound(SoundEffect.Player_Sound_PowerupCollect);
                 }
-
-                /*
-                if (keyboard[Key.Digit9].wasPressedThisFrame) {
-                    var canvas = FindFirstObjectByType<MainMenuCanvas>();
-                    if (canvas) {
-                        var blur = canvas.transform.Find("MainMenu").Find("Blur").gameObject;
-                        blur.SetActive(!blur.activeSelf);
-                    }
-                }
-                */
             }
 #endif
 

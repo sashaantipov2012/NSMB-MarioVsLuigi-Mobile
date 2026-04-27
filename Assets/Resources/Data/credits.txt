@@ -44,6 +44,7 @@ LiamNayru
 vincells
 
 <color=yellow>{ui.about.credits.translation}</color>
+0julien3 <color=#AAAAAA>(nl-nl)</color>
 3UP <color=#AAAAAA>(ja-jp)</color>
 6Alexis8 <color=#AAAAAA>(fr-fr)</color>
 Akselai <color=#AAAAAA>(zh-cn, zh-tw)</color>

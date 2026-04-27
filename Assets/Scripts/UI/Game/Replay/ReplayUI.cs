@@ -136,7 +136,7 @@ namespace NSMB.UI.Game.Replay {
                 builder.Clear();
                 builder.Append(Utils.SecondsToMinuteSeconds(currentSeconds));
                 builder.Append('/').Append(replayLength);
-                replayTimecode.text = builder.ToString();
+                replayTimecode.SetText(builder);
 
                 previousTimestampSeconds = currentSeconds;
             }

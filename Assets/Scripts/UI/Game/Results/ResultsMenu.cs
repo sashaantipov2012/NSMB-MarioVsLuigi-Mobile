@@ -170,21 +170,21 @@ namespace NSMB.UI.Game.Results {
             case 0:
                 if (IsReplay) {
                     ReplayListManager replayManager = ReplayListManager.Instance;
-                    int nextReplayIndex = replayManager.Replays.IndexOf(rle => rle.ReplayFile == ActiveReplayManager.Instance.CurrentReplay);
+                    int nextReplayIndex = replayManager.AllReplays.IndexOf(ActiveReplayManager.Instance.CurrentReplay);
 
                     bool success = false;
-                    ReplayListEntry newReplay = null;
-                    while (++nextReplayIndex < replayManager.Replays.Count) {
-                        newReplay = replayManager.Replays[nextReplayIndex];
-                        if (newReplay.ReplayFile != ActiveReplayManager.Instance.CurrentReplay && newReplay.ReplayFile.Header.IsCompatible) {
+                    BinaryReplayFile newReplay = null;
+                    while (++nextReplayIndex < replayManager.AllReplays.Count) {
+                        newReplay = replayManager.AllReplays[nextReplayIndex];
+                        if (newReplay != ActiveReplayManager.Instance.CurrentReplay && newReplay.Header.IsCompatible) {
                             success = true;
                             break;
                         }
                     }
                     
                     if (success) {
-                        ReplayListManager.Instance.Select(newReplay, true);
-                        ActiveReplayManager.Instance.StartReplayPlayback(newReplay.ReplayFile);
+                        _ = replayManager.CreateReplayListEntries(default, newReplay);
+                        ActiveReplayManager.Instance.StartReplayPlayback(newReplay);
                     } else {
                         labels[0].text = "» " + GlobalController.Instance.translationManager.GetTranslation("ui.game.results.nextreplay.nomore");
                         sfx.PlayOneShot(SoundEffect.UI_Error);

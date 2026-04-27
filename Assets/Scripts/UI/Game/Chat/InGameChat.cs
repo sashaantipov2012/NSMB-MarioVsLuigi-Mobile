@@ -35,7 +35,7 @@ namespace NSMB.UI.Game.Chat {
             if (data.isSystemMessage) {
                 active = true;
             } else {
-                RuntimePlayer player = QuantumRunner.DefaultGame.Frames.Predicted.GetPlayerData(data.player);
+                RuntimePlayer player = game.Frames.Predicted.GetPlayerData(data.player);
                 if (player == null) {
                     active = true;
                 } else {

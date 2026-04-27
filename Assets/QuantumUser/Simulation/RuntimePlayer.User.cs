@@ -2,6 +2,8 @@
     public partial class RuntimePlayer {
 
         public string UserId;
+        public string IpAddressHash;
+
         public bool UseColoredNickname;
         public string NicknameColor;
 

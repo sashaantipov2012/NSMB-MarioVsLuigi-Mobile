@@ -14,6 +14,7 @@ namespace Quantum {
   using UnityEngine.SceneManagement;
   using UnityEngine.Serialization;
   using System.Linq;
+  using System.Collections;
 
   /// <summary>
   /// A simple menu to utilize the most common Photon connection and game start modes.
@@ -321,6 +322,10 @@ namespace Quantum {
     /// <param name="normalizedAnimationTime">The time offset between zero and one forwarded to the show animation.</param>
     public virtual void SetPanelVisibility(bool isShowing, float normalizedAnimationTime = 0.0f) {
       if (Animator != null) {
+        if (isShowing) {
+          // A workaround to a Unity bug, that throws errors when disabling TMP Input fields inside an animation.
+          UI.PanelGroup.gameObject.SetActive(true);
+        }
         Animator.Play(isShowing ? AnimationHashShow : AnimationHashHide, 0, normalizedAnimationTime);
       } else {
         UI.PanelGroup.gameObject.SetActive(isShowing);
@@ -330,6 +335,16 @@ namespace Quantum {
         UI.MenuButtonGroup.transform.transform.Find("Open").gameObject.SetActive(isShowing == false);
         UI.MenuButtonGroup.transform.transform.Find("Close").gameObject.SetActive(isShowing);
       }
+    }
+
+    /// <summary>
+    /// A workaround to a Unity bug, that throws errors when disabling TMP Input fields inside an animation.
+    /// This is triggered from the Hide panel animation.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator DisablePanelNextFrame() {
+      yield return null;
+      UI.PanelGroup.gameObject.SetActive(false);
     }
 
     /// <summary>

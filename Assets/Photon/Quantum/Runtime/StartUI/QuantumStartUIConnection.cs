@@ -134,7 +134,7 @@ namespace Quantum {
       // Close the runtime config change it (map, simulation config)
       var runtimeConfig = new QuantumUnityJsonSerializer().CloneConfig(RuntimeConfig);
 
-      var mapData = FindFirstObjectByType<QuantumMapData>();
+      var mapData = FindAnyObjectByType<QuantumMapData>();
       if (mapData != null) {
         runtimeConfig.Map = mapData.AssetRef;
       }

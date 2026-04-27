@@ -20,6 +20,7 @@ namespace NSMB.UI.Game.Results {
         //---Private Variables
         private PlayerRef player;
         private NicknameColor nicknameColor = NicknameColor.White;
+        private int? index;
         private PlayerInformation? playerInfo;
 
         public void Start() {
@@ -31,19 +32,22 @@ namespace NSMB.UI.Game.Results {
             Settings.OnColorblindModeChanged -= OnColorblindModeChanged;
         }
 
-        public unsafe void Initialize(Frame f, GamemodeAsset gamemode, in PlayerInformation? info, int ranking, float delay, int stars = -1) {
-            playerInfo = info;
-            bool occupied = info.HasValue;
+        public unsafe void Initialize(Frame f, GamemodeAsset gamemode, int? playerInfoIndex, int ranking, float delay, int stars = -1) {
+            index = playerInfoIndex;
+            bool occupied = index.HasValue;
+            if (occupied) {
+                playerInfo = f.Global->PlayerInfo[index.Value];
+            }
             fullSlot.SetActive(occupied);
             emptySlot.SetActive(!occupied);
 
             if (occupied) {
-                player = info.Value.PlayerRef;
+                player = playerInfo.Value.PlayerRef;
 
-                usernameText.text = info.Value.Nickname.ToString().ToValidNickname(f, player);
-                nicknameColor = NicknameColor.Parse(info.Value.NicknameColor.ToString());
+                usernameText.text = playerInfo.Value.Nickname.ToString().ToValidNickname(f, player);
+                nicknameColor = NicknameColor.Parse(playerInfo.Value.NicknameColor.ToString());
                 usernameText.color = nicknameColor.Sample();
-                characterIcon.sprite = QuantumViewUtils.FindAssetOrDefault(info.Value.Character).ReadySprite;
+                characterIcon.sprite = QuantumViewUtils.FindAssetOrDefault(playerInfo.Value.Character).ReadySprite;
                 OnColorblindModeChanged();
                 
                 if (stars < 0) {
@@ -89,28 +93,32 @@ namespace NSMB.UI.Game.Results {
         }
 
         private unsafe void OnColorblindModeChanged() {
-            if (playerInfo is PlayerInformation info) {
-                if (Settings.Instance.GraphicsColorblind) {
-                    Frame f = QuantumRunner.DefaultGame.Frames.Predicted;
-                    if (f.Global->Rules.TeamsEnabled) {
-                        var teams = f.Context.GetAllAssets<TeamAsset>();
-                        if (info.Team < teams.Count) {
-                            var team = teams[info.Team];
-                            teamSprite.sprite = team.spriteColorblind;
-                        } else {
-                            teamSprite.sprite = null;
-                        }
-                    } else {
-                        var slot = Utils.GetPlayerSlotInfo(f, info.PlayerRef);
-                        if (slot) {
-                            teamSprite.sprite = slot.Sprite;
-                        } else {
-                            teamSprite.sprite = null;
-                        }
-                    }
-                    teamSprite.gameObject.SetActive(true);
+            if (playerInfo is not PlayerInformation info) {
+                return;
+            }
+
+            bool showSymbol = Settings.Instance.GraphicsColorblind;
+            teamSprite.gameObject.SetActive(showSymbol);
+
+            if (!showSymbol) {
+                return;
+            }
+
+            Frame f = QuantumRunner.DefaultGame.Frames.Predicted;
+            if (f.Global->Rules.TeamsEnabled) {
+                var teams = f.Context.GetAllAssets<TeamAsset>();
+                if (info.Team < teams.Count) {
+                    var team = teams[info.Team];
+                    teamSprite.sprite = team.spriteColorblind;
                 } else {
-                    teamSprite.gameObject.SetActive(false);
+                    teamSprite.sprite = null;
+                }
+            } else {
+                var slot = Utils.GetPlayerSlotInfo(index);
+                if (slot) {
+                    teamSprite.sprite = slot.Sprite;
+                } else {
+                    teamSprite.sprite = null;
                 }
             }
         }

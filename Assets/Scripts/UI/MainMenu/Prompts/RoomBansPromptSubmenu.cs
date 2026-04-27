@@ -1,4 +1,3 @@
-using NSMB.Utilities.Extensions;
 using Quantum;
 using System.Collections.Generic;
 using TMPro;
@@ -101,7 +100,7 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
             var game = QuantumRunner.DefaultGame;
             PlayerRef host = game.Frames.Predicted.Global->Host;
             if (!game.PlayerIsLocal(host)) {
-                GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_Error);
+                GlobalController.Instance.PlaySound(SoundEffect.UI_Error);
                 return;
             }
 
@@ -110,7 +109,7 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
                 TargetUserId = entry.UserId,
             });
 
-            GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_Decide);
+            GlobalController.Instance.PlaySound(SoundEffect.UI_Decide);
             PopulateBanList();
         }
 

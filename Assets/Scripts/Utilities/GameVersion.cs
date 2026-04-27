@@ -17,15 +17,15 @@ namespace NSMB.Utilities {
             Hotfix = hotfix;
         }
 
-        public bool Equals(GameVersion other) {
+        public readonly bool Equals(GameVersion other) {
             return Major == other.Major && Minor == other.Minor && Patch == other.Patch && Hotfix == other.Hotfix;
         }
 
-        public bool EqualsIgnoreHotfix(GameVersion other) {
+        public readonly bool EqualsIgnoreHotfix(GameVersion other) {
             return Major == other.Major && Minor == other.Minor && Patch == other.Patch;
         }
 
-        public int CompareTo(GameVersion other) {
+        public readonly int CompareTo(GameVersion other) {
             if (Major != other.Major) {
                 return Major - other.Major;
             }
@@ -54,15 +54,15 @@ namespace NSMB.Utilities {
             return x.CompareTo(y) <= 0;
         }
 
-        public override string ToString() {
+        public readonly override string ToString() {
             return $"{Major}.{Minor}.{Patch}.{Hotfix}";
         }
 
-        public string ToStringIgnoreHotfix() {
+        public readonly string ToStringIgnoreHotfix() {
             return $"{Major}.{Minor}.{Patch}";
         }
 
-        public int GetHashCode(GameVersion obj) {
+        public readonly int GetHashCode(GameVersion obj) {
             // https://stackoverflow.com/a/1646913/19635374
             unchecked {
                 int hash = 17;
@@ -74,7 +74,7 @@ namespace NSMB.Utilities {
             }
         }
 
-        public void Serialize(BinaryWriter writer) {
+        public readonly void Serialize(BinaryWriter writer) {
             writer.Write(Major);
             writer.Write(Minor);
             writer.Write(Patch);
@@ -89,7 +89,6 @@ namespace NSMB.Utilities {
                 Hotfix = reader.ReadByte(),
             };
         }
-
 
         public static GameVersion Parse(ReadOnlySpan<char> version) {
             Span<byte> parsed = stackalloc byte[4];

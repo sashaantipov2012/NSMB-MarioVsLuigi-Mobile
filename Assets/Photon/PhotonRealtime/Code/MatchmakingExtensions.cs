@@ -189,7 +189,7 @@ namespace Photon.Realtime
 
                 // Try to fast reconnect only if ClientTTL is > 0
                 if (arguments.CanRejoin && arguments.FastReconnectDisabled == false)
-                { 
+                {
                     // attempt a ReconnectAndRejoin() first (this may throw an exception if the reconnect values are not available but that is to be expected)
                     try
                     {
@@ -211,7 +211,7 @@ namespace Photon.Realtime
                 }
 
                 // We expect the connection to either be offline or connected to Master or Lobby
-                if (client.IsConnected && (client.State != ClientState.ConnectedToMasterServer || client.State == ClientState.JoinedLobby)) {
+                if (client.IsConnected && !(client.State == ClientState.ConnectedToMasterServer || client.State == ClientState.JoinedLobby)) {
                     // Wait for disconnect
                     await client.DisconnectAsync(asyncConfig);
                 }
@@ -230,7 +230,7 @@ namespace Photon.Realtime
                     client.RealtimePeer.CrcEnabled = arguments.EnableCrc;
                     arguments.PhotonSettings.FixedRegion = arguments.ReconnectInformation.Region;
 
-                    
+
                     // if this fails, the async task fails. this is mandatory, so exceptions have to be handled where the result is needed.
                     await client.ConnectUsingSettingsAsync(arguments.PhotonSettings, asyncConfig);
                 }
@@ -371,7 +371,6 @@ namespace Photon.Realtime
     /// <summary>
     /// The arguments list for the matchmaking extension method ConnectToRoomAsync().
     /// </summary>
-    [Serializable]
     public struct MatchmakingArguments
     {
         /// <summary>

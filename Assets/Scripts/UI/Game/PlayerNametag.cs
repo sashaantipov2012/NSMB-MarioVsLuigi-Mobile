@@ -30,6 +30,7 @@ namespace NSMB.UI.Game {
         private string cachedNickname = "noname";
         private NicknameColor nicknameColor = NicknameColor.White;
         private QuantumGame game;
+        private StringBuilder stringBuilder = new();
 
         public unsafe void Initialize(QuantumGame game, Frame f, PlayerElements elements, MarioPlayerAnimator parent) {
             this.game = game;
@@ -110,7 +111,6 @@ namespace NSMB.UI.Game {
             } catch { }
         }
 
-        private static readonly StringBuilder stringBuilder = new();
         public unsafe void UpdateText(Frame f) {
             if (!f.Unsafe.TryGetPointer(Entity, out MarioPlayer* mario)) {
                 return;
@@ -136,7 +136,7 @@ namespace NSMB.UI.Game {
 
             stringBuilder.Append(Utils.GetSymbolString(gamemode.ObjectiveSymbolPrefix + "x" + Mathf.Max(0, gamemode.GetObjectiveCount(f, mario))));
 
-            text.text = stringBuilder.ToString();
+            text.SetText(stringBuilder);
         }
 
         public unsafe void UpdateCachedNickname(Frame f, MarioPlayer* mario) {

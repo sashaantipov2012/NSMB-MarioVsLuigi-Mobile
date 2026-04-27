@@ -39,7 +39,7 @@ namespace Photon.Realtime
     /// </summary>
     /// <remarks>
     /// Intentionally made partial, in case you want to extend it easily.
-    /// 
+    ///
     /// In Unity, the EventBetterWorker is used to clean up unused registrations in LateUpdate() automatically.
     /// In .Net apps, the game logic should RemoveUnusedHandlers.
     /// </remarks>
@@ -190,7 +190,7 @@ namespace Photon.Realtime
         public class YieldListener<MessageType> : System.Collections.IEnumerator, IDisposable where MessageType : class
         {
             private Delegate handler;
-            
+
             internal List<MessageType> Messages { get; private set; }
             internal EventBetter EventBetterInstance;
 
@@ -327,7 +327,27 @@ namespace Photon.Realtime
             IsUnityObject = 1 << 3,
         }
 
+
         #if SUPPORTED_UNITY
+        #if UNITY_6000_4_OR_NEWER
+        private sealed class EventBetterWorker : MonoBehaviour
+        {
+            private EntityId instanceId;
+
+            public EventBetter EventBetterInstance;
+
+            void Awake()
+            {
+                instanceId = this.GetEntityId();
+            }
+
+            private void LateUpdate()
+            {
+                Debug.Assert(EventBetterInstance != null && instanceId.Equals(EventBetterInstance.s_worker.instanceId));
+                EventBetterInstance.RemoveUnusedHandlers();
+            }
+        }
+        #else
         private sealed class EventBetterWorker : MonoBehaviour
         {
             private int instanceId;
@@ -345,6 +365,7 @@ namespace Photon.Realtime
                 EventBetterInstance.RemoveUnusedHandlers();
             }
         }
+        #endif
         #else
         private sealed class EventBetterWorker
         {
@@ -615,23 +636,17 @@ namespace Photon.Realtime
             return found;
         }
 
-        private object GetAliveTarget(object target)
+        private static object GetAliveTarget(object target)
         {
             #if SUPPORTED_UNITY
-            if (target == null)
+            if (ReferenceEquals(target, null))
                 return null;
 
-            var targetAsUnityObject = target as UnityEngine.Object;
-            if (object.ReferenceEquals(targetAsUnityObject, null))
-                return target;
-
-            if (targetAsUnityObject != null)
-                return target;
-
-            return null;
-            #else
-            return target;
+            if (target is UnityEngine.Object unityObject && !unityObject)
+                return null;
             #endif
+
+            return target;
         }
 
         private void RemoveUnusedHandlers(EventEntry entry)
@@ -677,7 +692,7 @@ namespace Photon.Realtime
             s_worker = go.GetComponent<EventBetterWorker>();
             if (!s_worker)
                 throw new InvalidOperationException("Unable to create EventBetterWorker");
-            
+
             this.s_worker.EventBetterInstance = this;
             #endif
         }

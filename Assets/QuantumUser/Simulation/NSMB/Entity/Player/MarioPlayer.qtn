@@ -294,6 +294,11 @@ event PlayKnockbackEffect {
 	nothashed FPVector2? AttackerPosition;
 }
 
+event MarioPlayerBlueShellStomped
+{
+	EntityRef Entity;
+}
+
 // these events are for external replay tools
 
 event MarioPlayerTookKnockback {

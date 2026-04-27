@@ -3,6 +3,34 @@ Photon C# Client Library - Changelog
 www.photonengine.com  -  Join our Discord Server: https://dashboard.photonengine.com/account/profile
 
 
+Version 5.1.12 (01. April 2026 - rev8344)
+    Fixed: Potential divide by zero exception in TrafficStatsDelta.ToString().
+
+Version 5.1.11 (30. March 2026 - rev8336)
+    Fixed: SendPing() for TCP specifically (in Photon dll). This showed as ever-increasing roundtrip times for TCP, even for good connections. Ping messages were accidentally queued with updating a header, which they do not use.
+
+Version 5.1.10 (24. February 2026 - rev8290)
+    Fixed: ReadInt64() in Protocol18Read.cs. It was fetching 4 bytes instead of expected 8.
+    Changed: EnetPeer.Disconnect() to change the state earlier. To create the Disconnect command (for the server), it stores the previous state and passes that into NCommand Intialize now.
+    Added: Lock for EnetPeer.SendOutgoingCommands(). Everything that accesses the datagram while it's written, will be in that lock, preventing concurrency.
+    Added: Lock for Socket.Send(). With the network simulation, it's possible that there is more than one thread sending.
+    Changed: RTT and Variance values to float to get more precise values when the connection is really stable (low variance).
+    Added: Rtt variance minimum and maximum values to tweak resending of commands. A minimal variance value prevents excessive resending of commands when there is little variance.
+    Added: PhotonSocket.LogLevel property. It wraps the access to this.peerBase.LogLevel and allows use of that in inheriting classes. (This does not modify how / where the log level is stored, it just provides access.)
+    Changed: EnetPeer.ReceiveIncomingCommands() to first write any acks / track received commands, then hand if off into the processing queue. It was possible that commands got processed on another thread (from said queue) before the acknowledgement was finally written. Leading to invalid tracking of commands (and likely a ServerTimeout).
+    Changed: EnetPeer.peerConnectionState is now a property which uses Interlocked methods for atomic updates and checks. See peerConnectionState and TryUpdateConnectionState.
+    Added: ConnectionStateValue.ConnectingHandleVerifyConnect to have a short-lived state which is used while the init request is being written and queued (avoids surplus init requests).
+    Updated: Comments for CT_VERIFYCONNECT in ExecuteCommand().
+    Fixed: EnetPeer.CreateAndEnqueueCommand() now locks the channel if a range of fragments needs to be sent. This should prevent other commands from being written to the channel concurrently (which in turn would mess with the sequence numbering), fixing a problem where the first fragment's sequence number was not matching the "first fragment" value. 
+    Changed: PhotonPeer.EstablishEncryption() now passes the enqueueLock object for locking. This is the correct lock-object, as opposed to the sendOutgoingLockObject (which is for send calls done by the game logic/realtime).
+    Added: Check for payload size when initializing an NCommand from a byte-buffer coming from the network.
+    Changed: PhotonPeer.UseAck2. If ACK2 isn't compiled into the library, it can not be set and is always false. If it's compiled in, it can be set to true.
+    Note: ACK2 can only be used on recent server builds, which have the related feature flag, which is then stored in PhotonPeer.IsAck2Available.
+    Changed: The return string of VitalStatsToString() to streamline it.
+    Fixed: A minor pooling issue, which meant incoming ACK2 commands were lost instead of returning to the pool (so this allocated memory despite using the pool).
+    Removed: ITrafficRecorder.Flush() and ITrafficRecorder.Enabled. A recorder is always running while assigned to a peer and can be "flushed" there. New Traffic Recording sample code can be provided on demand.
+    Fixed: If a WS/WSS connection uses a operation Ping result as "init response" (workaround for a rare websocket problem), this now queues the OnInitResponse call to put it on the main / dispatch thread.
+
 Version 5.1.9 (10. November 2025 - rev8156)
     Changed:  Unity defaults to using the PhotonClient.dll release builds. Add PHOTON_LIBS_DEBUG to your project to use the debug builds. PHOTON_LIBS_RELEASE is no longer used.
     Added: PhotonPeer.SimulateTimeoutDisconnect() to immediately trigger a local timeout-disconnect (without informing the server) for debug purposes. This is only implemented in the debug builds of the PhotonClient dll.

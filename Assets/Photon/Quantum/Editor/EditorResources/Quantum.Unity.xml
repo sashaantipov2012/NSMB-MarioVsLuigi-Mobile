@@ -7929,6 +7929,13 @@
             <param name="isShowing">Menu main panel visibility</param>
             <param name="normalizedAnimationTime">The time offset between zero and one forwarded to the show animation.</param>
         </member>
+        <member name="M:Quantum.QuantumStartUI.DisablePanelNextFrame">
+            <summary>
+            A workaround to a Unity bug, that throws errors when disabling TMP Input fields inside an animation.
+            This is triggered from the Hide panel animation.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Quantum.QuantumStartUI.Awake">
             <summary>
             Unity Awake() method to register button listeners and get components.

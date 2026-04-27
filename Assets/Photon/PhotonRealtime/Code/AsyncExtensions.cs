@@ -842,7 +842,7 @@ namespace Photon.Realtime
                 }
                 else
                 {
-                    await completionSource.Task;
+                    await (completionSource?.Task ?? Task.CompletedTask);
                 }
 
                 // if the (handler) token did not signal, and the task is still running, mark it as cancelled

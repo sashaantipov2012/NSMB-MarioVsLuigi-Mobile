@@ -4,39 +4,39 @@ namespace Quantum {
     public unsafe partial struct PhysicsObject {
         public readonly bool IsUnderwater => UnderwaterCounter > 0;
         public bool IsTouchingGround {
-            get => HasFlag(CurrentData, PhysicsFlags.IsTouchingGround);
+            readonly get => HasFlag(CurrentData, PhysicsFlags.IsTouchingGround);
             set => SetFlag(ref CurrentData, PhysicsFlags.IsTouchingGround, value);
         }
         public bool WasTouchingGround {
-            get => HasFlag(PreviousData, PhysicsFlags.IsTouchingGround);
+            readonly get => HasFlag(PreviousData, PhysicsFlags.IsTouchingGround);
             set => SetFlag(ref PreviousData, PhysicsFlags.IsTouchingGround, value);
         }
         public bool IsTouchingLeftWall {
-            get => HasFlag(CurrentData, PhysicsFlags.IsTouchingLeftWall);
+            readonly get => HasFlag(CurrentData, PhysicsFlags.IsTouchingLeftWall);
             set => SetFlag(ref CurrentData, PhysicsFlags.IsTouchingLeftWall, value);
         }
         public bool IsTouchingRightWall {
-            get => HasFlag(CurrentData, PhysicsFlags.IsTouchingRightWall);
+            readonly get => HasFlag(CurrentData, PhysicsFlags.IsTouchingRightWall);
             set => SetFlag(ref CurrentData, PhysicsFlags.IsTouchingRightWall, value);
         }
         public bool IsTouchingCeiling {
-            get => HasFlag(CurrentData, PhysicsFlags.IsTouchingCeiling);
+            readonly get => HasFlag(CurrentData, PhysicsFlags.IsTouchingCeiling);
             set => SetFlag(ref CurrentData, PhysicsFlags.IsTouchingCeiling, value);
         }
         public bool IsOnSlideableGround {
-            get => HasFlag(CurrentData, PhysicsFlags.IsOnSlideableGround);
+            readonly get => HasFlag(CurrentData, PhysicsFlags.IsOnSlideableGround);
             set => SetFlag(ref CurrentData, PhysicsFlags.IsOnSlideableGround, value);
         }
         public bool IsOnSlipperyGround {
-            get => HasFlag(CurrentData, PhysicsFlags.IsOnSlipperyGround);
+            readonly get => HasFlag(CurrentData, PhysicsFlags.IsOnSlipperyGround);
             set => SetFlag(ref CurrentData, PhysicsFlags.IsOnSlipperyGround, value);
         }
         public bool IsBeingCrushed {
-            get => HasFlag(CurrentData, PhysicsFlags.IsBeingCrushed);
+            readonly get => HasFlag(CurrentData, PhysicsFlags.IsBeingCrushed);
             set => SetFlag(ref CurrentData, PhysicsFlags.IsBeingCrushed, value);
         }
         public bool WasBeingCrushed {
-            get => HasFlag(PreviousData, PhysicsFlags.IsBeingCrushed);
+            readonly get => HasFlag(PreviousData, PhysicsFlags.IsBeingCrushed);
             set => SetFlag(ref PreviousData, PhysicsFlags.IsBeingCrushed, value);
         }
         public FP FloorAngle {

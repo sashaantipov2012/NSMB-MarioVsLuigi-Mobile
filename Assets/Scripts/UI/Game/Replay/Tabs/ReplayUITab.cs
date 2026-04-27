@@ -28,7 +28,7 @@ namespace NSMB.UI.Game.Replay {
 
             Settings.Controls.UI.Cancel.performed += OnCancel;
             EventSystem.current.SetSelectedGameObject(DefaultSelection);
-            GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_WindowOpen);
+            GlobalController.Instance.PlaySound(SoundEffect.UI_WindowOpen);
         }
 
         public virtual void OnDisable() {
@@ -39,7 +39,7 @@ namespace NSMB.UI.Game.Replay {
 #endif
 
             Settings.Controls.UI.Cancel.performed -= OnCancel;
-            GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_WindowClose);
+            GlobalController.Instance.PlaySound(SoundEffect.UI_WindowClose);
         }
 
         private void OnCancel(InputAction.CallbackContext context) {

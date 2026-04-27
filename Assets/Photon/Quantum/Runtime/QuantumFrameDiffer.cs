@@ -72,7 +72,7 @@ namespace Quantum {
     /// </summary>
     /// <returns>The frame differ component.</returns>
     public static QuantumFrameDiffer Show() {
-      var instance = FindFirstObjectByType<QuantumFrameDiffer>();
+      var instance = FindAnyObjectByType<QuantumFrameDiffer>();
       if (instance) {
         instance._gui.Show();
         return instance;

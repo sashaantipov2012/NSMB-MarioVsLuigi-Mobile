@@ -19,6 +19,7 @@ namespace NSMB.Particles {
             QuantumEvent.Subscribe<EventCollectableDespawned>(this, OnCollectableDespawned, FilterOutReplayFastForward);
             QuantumEvent.Subscribe<EventEnemyKicked>(this, OnEnemyKicked, FilterOutReplayFastForward);
             QuantumEvent.Subscribe<EventEnemyDespawnedOffscreen>(this, OnEnemyDespawnedOffscreen, FilterOutReplayFastForward);
+            QuantumEvent.Subscribe<EventMarioPlayerBlueShellStomped>(this, OnMarioPlayerBlueShellStomped, FilterOutReplayFastForward);
         }
 
         private bool TryGetParticlePair(ParticleEffect particleEffect, out ParticlePair particlePair) {
@@ -60,6 +61,16 @@ namespace NSMB.Particles {
 
         private void OnEnemyDespawnedOffscreen(EventEnemyDespawnedOffscreen e) {
             Play(ParticleEffect.Puff, e.Position.ToUnityVector3());
+        }
+
+        private void OnMarioPlayerBlueShellStomped(EventMarioPlayerBlueShellStomped e) {
+            QuantumEntityView view = Updater.GetView(e.Entity);
+            if (view) {
+                Instantiate(
+                    Enums.PrefabParticle.Enemy_HardKick.GetGameObject(),
+                    view.transform.position + (Vector3.back * 5) + (Vector3.up * 0.1f),
+                    Quaternion.identity);
+            }
         }
 
         [Serializable]

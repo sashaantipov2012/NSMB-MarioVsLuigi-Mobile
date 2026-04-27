@@ -1354,7 +1354,7 @@ namespace Photon.Realtime
             }
             if (string.IsNullOrEmpty(queryData))
             {
-                Log.Error("Operation GetGameList requires a filter.", this.LogLevel, this.LogPrefix);
+                Log.Error("Operation GetGameList requires a filter (queryData).", this.LogLevel, this.LogPrefix);
                 return false;
             }
             if (lobby == null || lobby.Type != LobbyType.Sql || lobby.IsDefault)
@@ -1365,15 +1365,6 @@ namespace Photon.Realtime
 
             Log.Info("OpGetGameList()", this.LogLevel, this.LogPrefix);
 
-
-            if (string.IsNullOrEmpty(queryData))
-            {
-                if (this.LogLevel >= LogLevel.Info)
-                {
-                    Log.Info("OpGetGameList not sent. queryData must be not null and not empty.", this.LogLevel, this.LogPrefix);
-                }
-                return false;
-            }
 
             ParameterDictionary opParameters = this.paramDictionaryPool.Acquire();
             opParameters[(byte)ParameterCode.LobbyName] = lobby.Name;

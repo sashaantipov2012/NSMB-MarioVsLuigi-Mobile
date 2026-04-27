@@ -23,11 +23,6 @@ namespace NSMB.UI.MainMenu.Submenus.Replays {
             replayList.Initialize();
         }
 
-        public override void OnDestroy() {
-            base.OnDestroy();
-            replayList.OnDestroyCustom();
-        }
-
         public override void Show(bool first) {
             base.Show(first);
             

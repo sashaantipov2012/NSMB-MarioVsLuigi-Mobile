@@ -188,7 +188,7 @@ namespace Quantum {
       Debug.LogFormat("### Starting quantum instant replay at frame {0} ###", game.Frames.Predicted.Number);
 
       // FindObjectOfType is super slow, but it serves the demo purpose here.
-      var entityViewUpdater = FindFirstObjectByType<QuantumEntityViewUpdater>();
+      var entityViewUpdater = FindAnyObjectByType<QuantumEntityViewUpdater>();
       if (entityViewUpdater != null) {
         entityViewUpdater.SetCurrentGame(game);
         entityViewUpdater.TeleportAllEntities();
@@ -200,7 +200,7 @@ namespace Quantum {
     void OnReplayStopped() {
       Debug.LogFormat("### Stopping Quantum instant replay and resuming the live game ###");
 
-      var entityViewUpdater = FindFirstObjectByType<QuantumEntityViewUpdater>();
+      var entityViewUpdater = FindAnyObjectByType<QuantumEntityViewUpdater>();
       if (entityViewUpdater != null) {
         entityViewUpdater.SetCurrentGame(QuantumRunner.Default.Game);
         entityViewUpdater.TeleportAllEntities();

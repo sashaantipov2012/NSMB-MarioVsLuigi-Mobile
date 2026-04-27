@@ -325,26 +325,27 @@ namespace Quantum {
                 // Moving (either in shell, or walking)
                 if (attackedFromAbove) {
                     // drop a powerUP if it has one, otherwise enter shell
-                    if (!koopa->IsKicked && koopa->SpawnPowerupWhenStomped.IsValid) {
-                        PowerupAsset powerupAsset = f.FindAsset(koopa->SpawnPowerupWhenStomped);
-                        EntityRef newPowerup = f.Create(powerupAsset.Prefab);
-                        var powerupTransform = f.Unsafe.GetPointer<Transform2D>(newPowerup);
-                        var coinItem = f.Unsafe.GetPointer<CoinItem>(newPowerup);
-                        var powerupPhysicsObject = f.Unsafe.GetPointer<PhysicsObject>(newPowerup);
+                    if (mario->CurrentPowerupState != PowerupState.MiniMushroom || mario->IsGroundpoundActive) {
+                        if (!koopa->IsKicked && koopa->SpawnPowerupWhenStomped.IsValid) {
+                            PowerupAsset powerupAsset = f.FindAsset(koopa->SpawnPowerupWhenStomped);
+                            EntityRef newPowerup = f.Create(powerupAsset.Prefab);
+                            var powerupTransform = f.Unsafe.GetPointer<Transform2D>(newPowerup);
+                            var coinItem = f.Unsafe.GetPointer<CoinItem>(newPowerup);
+                            var powerupPhysicsObject = f.Unsafe.GetPointer<PhysicsObject>(newPowerup);
 
-                        powerupTransform->Position = koopaTransform->Position;
-                        coinItem->Initialize(f, newPowerup, 15, PowerupSpawnReason.BlueKoopa);
-                        coinItem->IgnorePlayerFrames = 15;
-                        powerupPhysicsObject->DisableCollision = false;
+                            powerupTransform->Position = koopaTransform->Position;
+                            coinItem->Initialize(f, newPowerup, 15, PowerupSpawnReason.BlueKoopa);
+                            coinItem->IgnorePlayerFrames = 15;
+                            powerupPhysicsObject->DisableCollision = false;
 
-                        koopaEnemy->IsActive = false;
-                        koopaEnemy->IsDead = true;
-                        koopaEnemy->SetDelayedRespawn(600); // a little longer...
-                        koopaPhysicsObject->IsFrozen = true;
-
-                    } else if (mario->CurrentPowerupState != PowerupState.MiniMushroom || mario->IsGroundpoundActive) {
-                        koopa->EnterShell(f, koopaEntity, marioEntity, false, false);
-                        koopaEnemy->IgnoreOffscreen = true; // stationary shells also don't return home
+                            koopaEnemy->IsActive = false;
+                            koopaEnemy->IsDead = true;
+                            koopaEnemy->SetDelayedRespawn(600); // a little longer...
+                            koopaPhysicsObject->IsFrozen = true;
+                        } else {
+                            koopa->EnterShell(f, koopaEntity, marioEntity, false, false);
+                            koopaEnemy->IgnoreOffscreen = true; // moving shells also don't return home
+                        }
                     }
                     mario->DoEntityBounce = true;
                     koopaHoldable->PreviousHolder = marioEntity;

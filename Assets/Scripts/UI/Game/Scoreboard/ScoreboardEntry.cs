@@ -21,6 +21,7 @@ namespace NSMB.UI.Game.Scoreboard {
         private NicknameColor nicknameColor = NicknameColor.White;
         private string cachedNickname, cachedPingSymbol;
         private bool nicknameMayHaveChanged;
+        private StringBuilder stringBuilder = new();
 
         public void Start() {
             QuantumCallback.Subscribe<CallbackGameResynced>(this, OnGameResynced);
@@ -100,7 +101,7 @@ namespace NSMB.UI.Game.Scoreboard {
                         teamSprite.sprite = null;
                     }
                 } else {
-                    var slot = Utils.GetPlayerSlotInfo(f, info.PlayerRef);
+                    var slot = Utils.GetPlayerSlotInfo(Index);
                     if (slot) {
                         teamSprite.sprite = slot.Sprite;
                     } else {
@@ -120,13 +121,13 @@ namespace NSMB.UI.Game.Scoreboard {
                 lives = mario->Disconnected ? 0 : mario->Lives;
             }
 
-            StringBuilder scoreBuilder = new();
+            stringBuilder.Clear();
             if (f.Global->Rules.IsLivesEnabled) {
-                scoreBuilder.Append(character.UiString).Append(Utils.GetSymbolString(lives.ToString()));
+                stringBuilder.Append(character.UiString).Append(Utils.GetSymbolString(lives.ToString()));
             }
-            scoreBuilder.Append(Utils.GetSymbolString(gamemode.ObjectiveSymbolPrefix + objective.ToString()));
+            stringBuilder.Append(Utils.GetSymbolString(gamemode.ObjectiveSymbolPrefix + objective.ToString()));
 
-            scoreText.text = scoreBuilder.ToString();
+            scoreText.SetText(stringBuilder);
             updater.RequestSorting = true;
         }
 

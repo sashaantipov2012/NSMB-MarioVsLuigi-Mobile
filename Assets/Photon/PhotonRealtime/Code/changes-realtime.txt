@@ -3,6 +3,24 @@ Photon Realtime C# Client - Changelog
 www.photonengine.com  -  Join our Discord Server: https://dashboard.photonengine.com/account/profile
 
 
+Version 5.1.12 (01. April 2026 - rev8344)
+    Updated: EventBetterWorker instance checks for Unity 6.4 and up (using GetEntityId()). This avoids warnings for using obsolete APIs.
+
+Version 5.1.11 (30. March 2026 - rev8336)
+    Fixed: Lookup for SocketNativeSource used the old namespace in ConfigUnitySockets() (RealtimeClient and ChatClient).
+    Changed: SocketWebTcp now removes surplus dashes from addresses, if present. This makes sure all APIs can use the addresses properly.
+
+Version 5.1.10 (24. February 2026 - rev8290)
+    Changed: ToProtocolAddress now removes trailing slashes from the server address to connect to (especially the Name Server address for WS/WSS). This should avoid issues with WS/WSS APIs, which do not accept two slashes where the URL query starts (address//?query).
+    Fixed: A condition in MatchmakingExtensions.ReconnectToRoomAsync().
+    Changed: RoomInfo.InternalCacheProperties() to InternalCachePropertiesRoomInfo() which is no longer virtual. Separating InternalCachePropertiesRoomInfo() from Room.InternalCacheProperties() allows calls from the constructor(s).
+    Updated: EventBetter.GetAliveTarget() with simpler checks. The method is now static.
+    Updated: Compile defines used for Switch 2.
+    Updated: AppSettings internally.
+    Added: Several null checks.
+    Changed: The internal RoomOptionBit now has a Flags attribute.
+    Changed: MatchmakingArguments are no longer Serializable (it was not planned to use them this way).
+
 Version 5.1.9 (10. November 2025 - rev8156)
     Changed: RegionHandler to check if a RegionPinger started successfully before adding it to the list of RegionPingers to finish.
     Changed: Unity 6 made AsyncSetup.GlobalCancellationSource obsolete. We will conditionally use Application.exitCancellationToken.

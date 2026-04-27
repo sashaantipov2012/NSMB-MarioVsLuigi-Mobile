@@ -3,6 +3,7 @@ using NSMB.UI.Translation;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace NSMB.UI.MainMenu.Submenus.Prompts {
     public class JoinRoomPromptSubmenu : PromptSubmenu {
@@ -26,6 +27,13 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
                 IDTextChanged();
             }
             success = false;
+
+            Settings.Controls.UI.Submit.performed += OnSubmit;
+        }
+
+        public override void Hide(SubmenuHideReason hideReason) {
+            base.Hide(hideReason);
+            Settings.Controls.UI.Submit.performed -= OnSubmit;
         }
 
         public override bool TryGoBack(out bool playSound) {
@@ -60,6 +68,16 @@ namespace NSMB.UI.MainMenu.Submenus.Prompts {
             } else {
                 invalidText.text = tm.GetTranslation("ui.rooms.joinprivate.invalid");
                 invalidText.color = invalidIdColor;
+            }
+        }
+
+        private void OnSubmit(InputAction.CallbackContext context) {
+            if (Canvas.EventSystem.currentSelectedGameObject == idInputField.gameObject
+                && context.control.device.name == "Keyboard"
+                && context.control.name.Length != 1) {
+                // Allow submit to confirm, but only when not using gamepad
+                ConfirmClicked();
+                idInputField.ActivateInputField();
             }
         }
     }

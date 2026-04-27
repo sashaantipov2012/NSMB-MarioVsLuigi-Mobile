@@ -1,15 +1,17 @@
+using System;
 using System.Collections.Generic;
 
 namespace NSMB.UI.Translation {
-    public abstract class JsonTranslationSource : ITranslationSource {
+    public abstract class JsonTranslationSource : ITranslationSource, IComparable {
 
         //---Properties
         public int Priority { get; set; }
+        public bool IsRTL => (loadedTranslations["rtl"] ?? "").Equals("true", StringComparison.InvariantCultureIgnoreCase);
 
         //---Protected Variables
         protected Dictionary<string, string> loadedTranslations;
 
-        public bool TryGetTranslation(string key, out string result) {
+        bool ITranslationSource.TryGetTranslation(string key, out string result) {
             if (loadedTranslations == null || key == null) {
                 result = null;
                 return false;
@@ -20,13 +22,14 @@ namespace NSMB.UI.Translation {
 
         public abstract void Reload();
 
-        public int CompareTo(object other) {
+        public abstract bool Equals(ITranslationSource other);
+
+        int IComparable.CompareTo(object other) {
             if (other is not ITranslationSource otherTranslationSource) {
                 return 0;
             }
             return Priority.CompareTo(otherTranslationSource.Priority);
         }
 
-        public abstract bool Equals(ITranslationSource other);
     }
 }

@@ -191,6 +191,10 @@ namespace NSMB.Utilities {
 
         public static PlayerSlotInfo GetPlayerSlotInfo(Frame f, PlayerRef player) {
             int? index = GetPlayerSlotIndex(f, player);
+            return GetPlayerSlotInfo(index);
+        }
+
+        public static PlayerSlotInfo GetPlayerSlotInfo(int? index) {
             var slots = GlobalController.Instance.playerSlots;
             return index.HasValue && index < slots.Length ? slots[index.Value] : null;
         }

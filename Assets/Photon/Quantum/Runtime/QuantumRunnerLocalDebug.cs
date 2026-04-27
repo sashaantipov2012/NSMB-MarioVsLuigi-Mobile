@@ -113,7 +113,7 @@ namespace Quantum {
         return;
       }
 
-      var gameMenu = FindFirstObjectByType<QuantumStartUI>();
+      var gameMenu = FindAnyObjectByType<QuantumStartUI>();
       if (gameMenu != null && gameMenu.gameObject.activeSelf) {
         // If a game menu / start GUI is present, we assume that the game is started from the menu code.
         // In this case, we don't want to start the simulation here, but rather let the menu scene handle it.
@@ -154,7 +154,7 @@ namespace Quantum {
     public void StartWithFrame(int frameNumber = 0, byte[] frameData = null) {
       Log.Debug("### Starting quantum in local debug mode ###");
 
-      var mapdata = FindFirstObjectByType<QuantumMapData>();
+      var mapdata = FindAnyObjectByType<QuantumMapData>();
       if (mapdata == null) {
         throw new Exception("No MapData object found, can't debug start scene");
       }

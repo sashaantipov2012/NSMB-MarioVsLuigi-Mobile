@@ -93,6 +93,7 @@ Windows, Linux, and Mac Builds: https://github.com/ipodtouch0218/NSMB-MarioVsLui
 * vincells
 
 ### Translators:
+* 0julien3 *(nl-nl)*
 * 3UP *(ja-jp)*
 * 6Alexis8 *(fr-fr)*
 * Akselai *(zh-cn, zh-tw)*

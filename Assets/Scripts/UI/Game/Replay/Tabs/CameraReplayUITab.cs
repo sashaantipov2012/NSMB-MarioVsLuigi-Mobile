@@ -81,7 +81,7 @@ namespace NSMB.UI.Game.Replay {
                 parent.playerElements.CameraAnimator.Mode = CameraAnimator.CameraMode.Freecam;
                 parent.playerElements.Entity = EntityRef.None;
                 parent.playerElements.UpdateSpectateUI();
-                GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_Decide);
+                GlobalController.Instance.PlaySound(SoundEffect.UI_Decide);
             } else {
                 // Player index
                 Frame f = QuantumRunner.DefaultGame.Frames.Predicted;
@@ -92,9 +92,9 @@ namespace NSMB.UI.Game.Replay {
                     parent.playerElements.CameraAnimator.Mode = CameraAnimator.CameraMode.FollowPlayer;
                     parent.playerElements.Entity = marioEntity;
                     parent.playerElements.UpdateSpectateUI();
-                    GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_Decide);
+                    GlobalController.Instance.PlaySound(SoundEffect.UI_Decide);
                 } else {
-                    GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_Error);
+                    GlobalController.Instance.PlaySound(SoundEffect.UI_Error);
                 }
             }
 

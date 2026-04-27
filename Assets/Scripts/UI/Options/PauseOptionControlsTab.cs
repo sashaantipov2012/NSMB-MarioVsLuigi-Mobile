@@ -170,8 +170,9 @@ namespace NSMB.UI.Options {
             TranslationManager tm = GlobalController.Instance.translationManager;
 
             string control = tm.GetTranslation($"ui.options.controls.{targetAction.actionMap.name}.{targetAction.name.Replace(" ", "")}");
-            tm.TryGetTranslation($"ui.generic.{targetAction.bindings[index].name}", out string binding);
-            binding ??= "";
+            if (!tm.TryGetTranslation($"ui.generic.{targetBinding.name}", out string binding)) {
+                binding = "";
+            }
             string device = tm.GetTranslation($"ui.options.controls.rebind.device.{targetBinding.groups}");
             string deviceSlot = tm.GetTranslation($"ui.options.controls.header.{targetBinding.groups}{((option.bindingIndex % 2 == 0) ? "primary" : "secondary")}");
 

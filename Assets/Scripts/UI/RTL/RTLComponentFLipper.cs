@@ -18,6 +18,7 @@ namespace NSMB.UI.RTL {
         }
 
         public virtual void OnDisable() {
+            Reset();
             TranslationManager.OnLanguageChanged -= OnLanguageChanged;
         }
 
@@ -31,6 +32,10 @@ namespace NSMB.UI.RTL {
         }
 
         protected abstract void ApplyDirection(bool rtl);
+
+        protected virtual void Reset() {
+            ApplyDirection(false);
+        }
 
         private void OnLanguageChanged(TranslationManager tm) {
             ApplyDirection(tm.RightToLeft);

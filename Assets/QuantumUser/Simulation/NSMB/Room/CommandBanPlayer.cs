@@ -19,10 +19,8 @@ namespace Quantum {
             }
 
             RuntimePlayer targetPlayerData = f.GetPlayerData(Target);
-            f.ResolveList(f.Global->BannedPlayerIds).Add(new BannedPlayerInfo {
-                Nickname = targetPlayerData.PlayerNickname,
-                UserId = targetPlayerData.UserId,
-            });
+            f.ResolveList(f.Global->BannedPlayerIds).Add(new BannedPlayerInfo(targetPlayerData));
+
             f.Events.PlayerKickedFromRoom(Target, true);
             f.Signals.OnPlayerRemoved(Target);
         }

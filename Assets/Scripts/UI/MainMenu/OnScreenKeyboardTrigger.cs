@@ -2,25 +2,27 @@ using NSMB.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace NSMB.UI.MainMenu {
     [RequireComponent(typeof(TMP_InputField))]
     public class OnScreenKeyboardTrigger : MonoBehaviour, ISubmitHandler {
 
-        public TMP_InputField InputField;
-        public string DisabledCharacters;
+        //---Serialized Variables
+        [SerializeField, FormerlySerializedAs("InputField")] private TMP_InputField inputField;
+        [SerializeField, FormerlySerializedAs("DisabledCharacters")] private string disabledCharacters;
 
         public void OnValidate() {
-            this.SetIfNull(ref InputField);
+            this.SetIfNull(ref inputField);
         }
 
         public void Start() {
-            InputField.shouldActivateOnSelect = false;
+            inputField.shouldActivateOnSelect = false;
         }
 
         public void OnSubmit(BaseEventData eventData) {
             OnScreenKeyboard kb = FindFirstObjectByType<OnScreenKeyboard>();
-            kb.OpenIfNeeded(InputField, new string[] { "QWERTYUIOP\b", "ASDFGHJKL", "ZXCVBNM" }, DisabledCharacters);
+            kb.OpenIfNeeded(inputField, new string[] { "QWERTYUIOP\b", "ASDFGHJKL", "ZXCVBNM" }, disabledCharacters);
         }
     }
 }

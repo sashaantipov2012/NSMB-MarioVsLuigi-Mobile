@@ -8,7 +8,12 @@ namespace Quantum.Editor {
   using UnityEditor;
   using UnityEditor.IMGUI.Controls;
   using UnityEngine;
-  using static QuantumUnityExtensions;
+  
+#if !UNITY_6000_4_OR_NEWER
+  using UnityStatics = QuantumUnityExtensions;
+#else
+  using UnityStatics = UnityEngine.Object;
+#endif
 
 #if UNITY_6000_2_OR_NEWER
   using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
@@ -579,7 +584,7 @@ namespace Quantum.Editor {
     private void SelectCorrespondingEntityNode(IEnumerable<QuantumEntityView> views) {
       var newSelection = new List<int>();
 
-      var updaters = FindObjectsByType<QuantumEntityViewUpdater>(FindObjectsSortMode.None)
+      var updaters = UnityStatics.FindObjectsByType<QuantumEntityViewUpdater>()
         .Select(x => new { Updater = x, RunnerId = QuantumRunner.FindRunner(x.ObservedGame)?.Id })
         .Where(x => !string.IsNullOrEmpty(x.RunnerId))
         .ToList();
@@ -605,7 +610,7 @@ namespace Quantum.Editor {
     }
 
     private void SelectCorrespondingGameObjects(params QTuple<QuantumRunner, EntityRef>[] entities) {
-      var updaters = FindObjectsByType<QuantumEntityViewUpdater>(FindObjectsSortMode.None);
+      var updaters = UnityStatics.FindObjectsByType<QuantumEntityViewUpdater>();
 
       var newSelection = new List<UnityEngine.Object>();
 

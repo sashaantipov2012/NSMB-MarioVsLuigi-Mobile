@@ -71,11 +71,7 @@ namespace Quantum {
                     }
                     p = FPVector2.Scale(p, scale) / 2;
                     // Rotate
-#if OLD
-                    p = RotateAroundOrigin(p, Rotation / ((FP) ushort.MaxValue / 360));
-#else
                     p = FPVector2.Rotate(p, Rotation / ((FP) ushort.MaxValue / FP.PiTimes2));
-#endif
                     // Translate
                     p += worldPos.Value;
 
@@ -83,14 +79,6 @@ namespace Quantum {
                 }
             }
             return true;
-        }
-
-        private static FPVector2 RotateAroundOrigin(FPVector2 point, FP rotationDegrees) {
-            FP rotation = rotationDegrees * FP.Deg2Rad;
-            return new(
-                point.X * FPMath.Cos(rotation) - point.Y * FPMath.Sin(rotation),
-                point.Y * FPMath.Cos(rotation) + point.X * FPMath.Sin(rotation)
-            );
         }
 
         public readonly bool Equals(StageTileInstance other) {

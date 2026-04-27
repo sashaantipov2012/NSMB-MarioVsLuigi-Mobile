@@ -55,27 +55,23 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
                 Button b = cb.button;
                 newButton.name = character.name;
                 newButton.SetActive(true);
-
-                Navigation navigation = new() { mode = Navigation.Mode.Explicit };
-
-                if (i > 0 && i % charactersPerRow != 0) {
-                    Navigation n = navigations[i - 1];
-                    n.selectOnRight = b;
-                    navigations[i - 1] = n;
-                    navigation.selectOnLeft = characterButtons[i - 1].button;
-                }
-                if (i >= charactersPerRow) {
-                    Navigation n = navigations[i - charactersPerRow];
-                    n.selectOnDown = b;
-                    navigations[i - charactersPerRow] = n;
-                    navigation.selectOnUp = characterButtons[i - charactersPerRow].button;
-                }
-
-                navigations.Add(navigation);
             }
 
             for (int i = 0; i < characterButtons.Count; i++) {
-                characterButtons[i].button.navigation = navigations[i];
+                Selectable button = characterButtons[i].button;
+                Navigation nav = button.navigation;
+                nav.mode = Navigation.Mode.Explicit;
+
+                if (i % charactersPerRow != charactersPerRow - 1) {
+                    nav.selectOnRight = Utils.IndexIntoOrDefault(characterButtons, i + 1, null)?.button;
+                }
+                if (i % charactersPerRow != 0) {
+                    nav.selectOnLeft = Utils.IndexIntoOrDefault(characterButtons, i - 1, null)?.button;
+                }
+                nav.selectOnUp = Utils.IndexIntoOrDefault(characterButtons, i - charactersPerRow, null)?.button;
+                nav.selectOnDown = Utils.IndexIntoOrDefault(characterButtons, i + charactersPerRow, null)?.button;
+
+                button.navigation = nav;
             }
         }
 

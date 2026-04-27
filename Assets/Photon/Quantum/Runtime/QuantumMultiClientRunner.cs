@@ -306,7 +306,7 @@ namespace Quantum {
       }
 
       var runtimeConfig = RuntimeConfig ?? new RuntimeConfig();
-      var mapAssetRef = FindFirstObjectByType<QuantumMapData>().AssetRef;
+      var mapAssetRef = FindAnyObjectByType<QuantumMapData>().AssetRef;
       if (mapAssetRef.IsValid) {
         runtimeConfig.Map = mapAssetRef;
       }

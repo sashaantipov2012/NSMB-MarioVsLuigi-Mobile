@@ -89,7 +89,7 @@ namespace Photon.Client
                 this.Listener.DebugReturn(LogLevel.Info, "ReadProxyConfigScheme() failed. Using no proxy.");
             }
 
-
+            this.ConnectAddress = this.ConnectAddress.Replace("//?", "/?");      // workaround for a bug in some versions of Photon .NET Client v4 and v5
             try
             {
                 this.sock = new WebSocket(new Uri(this.ConnectAddress), proxyServerAddress, this.OpenCallback, this.ReceiveCallback, this.ErrorCallback, this.CloseCallback, this.SerializationProtocol);

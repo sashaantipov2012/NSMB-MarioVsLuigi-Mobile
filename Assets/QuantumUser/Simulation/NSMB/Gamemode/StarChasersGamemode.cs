@@ -108,9 +108,9 @@ namespace Quantum {
             int starsLastPlace = GetLastPlaceObjectiveCount(f);
 
             FP avgDiff = ourStars - starsAvg;
-            int diffLeader = starsFirstPlace - ourStars;
+            FP diffLeader = starsFirstPlace - ourStars;
 
-            int starBand = starsFirstPlace - starsLastPlace;
+            FP starBand = starsFirstPlace - starsLastPlace;
 
             FP normLeader = (FP)starsFirstPlace / starsToWin;
             FP normStarAvg = starsAvg / starsToWin;

@@ -97,7 +97,7 @@ namespace NSMB.Replay {
             // Make room for this replay - delete old ones.
             var manager = ReplayListManager.Instance;
             if (manager) {
-                var deletions = manager.GetTemporaryReplaysToDelete();
+                var deletions = ReplayListManager.GetTemporaryReplaysToDelete();
                 foreach (var replayPath in deletions) {
                     Debug.Log($"[Replay] Automatically deleting temporary replay '{replayPath}'.");
                     File.Delete(replayPath);

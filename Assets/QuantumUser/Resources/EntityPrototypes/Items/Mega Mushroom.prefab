@@ -250,7 +250,7 @@ PrefabInstance:
     - target: {fileID: 3093743753026942761, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
         type: 3}
       propertyPath: Prototype.BroadRadius.RawValue
-      value: 49152
+      value: 65536
       objectReference: {fileID: 0}
     - target: {fileID: 3502658418062677356, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
         type: 3}
@@ -280,17 +280,22 @@ PrefabInstance:
     - target: {fileID: 6673749068647908742, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
         type: 3}
       propertyPath: PhysicsCollider.Shape2D.BoxExtents.X.RawValue
-      value: 29491
+      value: 42598
       objectReference: {fileID: 0}
     - target: {fileID: 6673749068647908742, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
         type: 3}
       propertyPath: PhysicsCollider.Shape2D.BoxExtents.Y.RawValue
-      value: 29491
+      value: 42598
+      objectReference: {fileID: 0}
+    - target: {fileID: 6673749068647908742, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
+        type: 3}
+      propertyPath: PhysicsCollider.Shape2D.PositionOffset.X.RawValue
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6673749068647908742, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
         type: 3}
       propertyPath: PhysicsCollider.Shape2D.PositionOffset.Y.RawValue
-      value: 29491
+      value: 36045
       objectReference: {fileID: 0}
     - target: {fileID: 6673749068647908742, guid: 6dbe32ab0e6d5bc4c8fe9722f4c86d19,
         type: 3}

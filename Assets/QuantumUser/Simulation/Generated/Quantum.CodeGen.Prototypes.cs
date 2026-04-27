@@ -56,10 +56,13 @@ namespace Quantum.Prototypes {
     public string Nickname;
     [MaxStringByteCount(38, "UTF-8")]
     public string UserId;
+    [MaxStringByteCount(46, "UTF-8")]
+    public string IpAddressHash;
     partial void MaterializeUser(Frame frame, ref Quantum.BannedPlayerInfo result, in PrototypeMaterializationContext context);
     public void Materialize(Frame frame, ref Quantum.BannedPlayerInfo result, in PrototypeMaterializationContext context = default) {
         PrototypeValidator.AssignQString(this.Nickname, 48, in context, out result.Nickname);
         PrototypeValidator.AssignQStringUtf8(this.UserId, 40, in context, out result.UserId);
+        PrototypeValidator.AssignQStringUtf8(this.IpAddressHash, 48, in context, out result.IpAddressHash);
         MaterializeUser(frame, ref result, in context);
     }
   }
@@ -748,7 +751,6 @@ namespace Quantum.Prototypes {
     public QBoolean DisableCollision;
     public QBoolean SlowInLiquids;
     public QBoolean IsWaterSolid;
-    public QBoolean BreakMegaObjects;
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
         Quantum.PhysicsObject component = default;
         Materialize((Frame)f, ref component, in context);
@@ -761,7 +763,6 @@ namespace Quantum.Prototypes {
         result.DisableCollision = this.DisableCollision;
         result.SlowInLiquids = this.SlowInLiquids;
         result.IsWaterSolid = this.IsWaterSolid;
-        result.BreakMegaObjects = this.BreakMegaObjects;
     }
   }
   [System.SerializableAttribute()]

@@ -24,7 +24,7 @@ namespace Quantum {
         }
 
         if (_instance == null) {
-          _instance = FindFirstObjectByType<QuantumMapLoader>();
+          _instance = FindAnyObjectByType<QuantumMapLoader>();
         }
 
         if (_instance == null) {

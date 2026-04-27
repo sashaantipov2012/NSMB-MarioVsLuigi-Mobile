@@ -16,5 +16,11 @@ namespace NSMB.UI.RTL {
             scale.x = rtl ? -originalXScale : originalXScale;
             component.localScale = scale;
         }
+
+        protected override void Reset() {
+            Vector3 scale = component.localScale;
+            scale.x = originalXScale;
+            component.localScale = scale;
+        }
     }
 }

@@ -7,6 +7,7 @@ global {
 struct BannedPlayerInfo {
 	QString<48> Nickname;
 	QStringUtf8<40> UserId;
+	QStringUtf8<48> IpAddressHash;
 }
 
 event PlayerStartedTyping {

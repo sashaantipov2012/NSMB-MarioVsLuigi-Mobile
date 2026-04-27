@@ -300,6 +300,9 @@
             <summary></summary>
             <returns></returns>
         </member>
+        <member name="F:Photon.Client.EnetPeer.datagramAccessLockObject">
+            <summary>Use to prevent concurrent access to the datagram when writing and sending it. Top level use in SendOutgoingCommands().</summary>
+        </member>
         <member name="M:Photon.Client.EnetPeer.SendOutgoingCommands(System.Boolean)">
             <summary>Fills one datagram to send outgoing commands (acks, ping, commands sent by game logic).</summary>
             <param name="sendAcksOnly">Skips sending "new" commands and does not time out, when true. Default: false.</param>
@@ -587,26 +590,25 @@
             </summary>
         </member>
         <member name="T:Photon.Client.ITrafficRecorder">
-            <summary>
-            Interface for (UDP) traffic capturing.
-            </summary>
-        </member>
-        <member name="P:Photon.Client.ITrafficRecorder.Enabled">
-            <summary>Indicates if the PhotonPeer should call Record or not.</summary>
+            <summary>Interface for (UDP) traffic capturing.</summary>
         </member>
         <member name="M:Photon.Client.ITrafficRecorder.Record(System.Byte[],System.Int32,System.Boolean,System.Int16,Photon.Client.PhotonSocket)">
-            <summary>Implement to record network traffic. Called by PhotonPeer for each UDP message sent and received.</summary>
-            <remarks>
-            The buffer will not contain Ethernet Header, IP, UDP level data. Only the payload received by the client.
+             <summary>Called by PhotonPeer for each UDP datagram sent and received (from different threads).</summary>
+             <remarks>
+             The data contains the payload of a datagram. This array can be overwritten anytime after the Record call.
+             The byte[] may be larger than the actual data, so check dataLength.
             
-            It is advised to not use NetworkSimulation when recording traffic.
-            The recording is done on the timing of actual receive- and send-calls and internal simulation would offset the timing.
-            </remarks>
-            <param name="inBuffer">Buffer to be sent or received. Check length value for actual content length.</param>
-            <param name="length">Length of the network data.</param>
-            <param name="incoming">Indicates incoming (true) or outgoing (false) traffic.</param>
-            <param name="peerId">The local peerId for the connection. Defaults to 0xFFFF until assigned by the Server.</param>
-            <param name="connection">The currently used PhotonSocket of this Peer. Enables you to track the connection endpoint.</param>
+             Assign a ITrafficRecorder instance to: PhotonPeer.TrafficRecorder.
+             Useful base implementations can be provided by the Photon team. Mail us: hello@photonengine.com.
+            
+             It is advised to not use NetworkSimulation when recording traffic.
+             The recording is done on the timing of actual receive- and send-calls and internal simulation would offset the timing.
+             </remarks>
+             <param name="data">Buffer to be sent or received. Check dataLength value for actual content length.</param>
+             <param name="dataLength">Length of the network data.</param>
+             <param name="incoming">Indicates incoming (true) or outgoing (false) data.</param>
+             <param name="peerId">Local peerId for the connection. Defaults to 0xFFFF until assigned by the Server. Helps identify the connection.</param>
+             <param name="connection">PhotonSocket of this Peer. Provides access to remote IP (connection.ServerIpAddress).</param>
         </member>
         <member name="T:Photon.Client.NCommand">
             <summary> Internal class for "commands" - the package in which operations are sent.</summary>
@@ -631,7 +633,7 @@
             <param name="sentTime"></param>
             <returns></returns>
         </member>
-        <member name="M:Photon.Client.NCommand.Initialize(Photon.Client.EnetPeer,System.Byte,Photon.Client.StreamBuffer,System.Byte)">
+        <member name="M:Photon.Client.NCommand.Initialize(Photon.Client.EnetPeer,System.Byte,Photon.Client.StreamBuffer,System.Byte,Photon.Client.ConnectionStateValue)">
             <summary>this variant does only create outgoing commands and increments . incoming ones are created from a DataInputStream</summary>
         </member>
         <member name="T:Photon.Client.SimulationItem">
@@ -890,6 +892,9 @@
         <member name="F:Photon.Client.ConnectionStateValue.Connecting">
             <summary>Establishing a connection already. The app should wait for a status callback.</summary>
         </member>
+        <member name="F:Photon.Client.ConnectionStateValue.ConnectingHandleVerifyConnect">
+            <summary>Short lived state used when the verify connect is received and an init request gets written.</summary>
+        </member>
         <member name="F:Photon.Client.ConnectionStateValue.Connected">
             <summary>
             The low level connection with Photon is established. On connect, the library will automatically
@@ -923,11 +928,20 @@
         <member name="P:Photon.Client.PeerBase.ProxyServerAddress">
             <summary>Optional proxy address defined for the current WS/WSS connection. Ignored by other protocols.</summary>
         </member>
-        <member name="F:Photon.Client.PeerBase.peerConnectionState">
+        <member name="F:Photon.Client.PeerBase.peerConnectionStateField">
+            <summary>Backing field for peerConnectionState.</summary>
+        </member>
+        <member name="P:Photon.Client.PeerBase.peerConnectionState">
             <summary>
             This is the (low level) connection state of the peer. It's internal and based on eNet's states.
             </summary>
             <remarks>Applications can read the "high level" state as PhotonPeer.PeerState, which uses a different enum.</remarks>
+        </member>
+        <member name="M:Photon.Client.PeerBase.TryUpdateConnectionState(Photon.Client.ConnectionStateValue,Photon.Client.ConnectionStateValue)">
+            <summary>
+            Interlocked.CompareExchange wrapper on ConnectionState.
+            </summary>
+            <returns>Returns if the original value was the expected one (and the field us updated to the desired parameter).</returns>
         </member>
         <member name="F:Photon.Client.PeerBase.ByteCountLastOperation">
             <summary>Byte count of last sent operation (set during serialization).</summary>
@@ -946,6 +960,10 @@
             <summary>
             The serverTimeOffset is serverTimestamp - localTime. Used to approximate the serverTimestamp with help of localTime
             </summary>
+        </member>
+        <member name="P:Photon.Client.PeerBase.TimeoutVarianceCompensation">
+            <summary>Used as variance-compensation to calculate when a command needs re-sending.</summary>
+            <remarks>Variance gets clamped between varianceJitterMin and varianceJitterMax. Result is multiplied with varianceJitterFactor.</remarks>
         </member>
         <member name="P:Photon.Client.PeerBase.PeerID">
             <summary>When using UDP, the server will assign a PeerID (int) to each connection. This is an internal value but useful to know for debugging connections.</summary>
@@ -1075,13 +1093,21 @@
         <member name="F:Photon.Client.PhotonPeer.UseInitV3">
             <summary>Option to enable V3 Init Requests (WIP).</summary>
         </member>
-        <member name="F:Photon.Client.PhotonPeer.UseAck2">
-            <summary>If true and IsAck2Available is also true, sequential acknowledgements will be used between this client and server.</summary>
-            <remarks>Even if this gets set to true, ACK2 is only used if the connected server also supports this feature.</remarks>
+        <member name="P:Photon.Client.PhotonPeer.UseAck2">
+             <summary>Set to true to try to use sequential acknowledgements (ACK2) with the server.</summary>
+             <remarks>
+             If this PhotonPeer does not support ACK2, this value will always be false.
+            
+             ACK2 can only be used if the client and connected server both support this feature.
+             If UseAck2 and IsAck2Available are both true, sequential acknowledgements will be used for the connection.
+             </remarks>
         </member>
         <member name="P:Photon.Client.PhotonPeer.IsAck2Available">
-            <summary>After connecting, this indicates if the server has the ACK2 feature. If the client does not have the feature, this is always false.</summary>
-            <remarks>Can only be available for UDP connections.</remarks>
+            <summary>After connecting, this indicates if the current server has the ACK2 feature.</summary>
+            <remarks>
+            ACK2 can only be used if the client and connected server both support this feature.
+            If UseAck2 and IsAck2Available are both true, sequential acknowledgements will be used for the connection.
+            </remarks>
         </member>
         <member name="F:Photon.Client.PhotonPeer.EnableEncryptedFlag">
             <summary>
@@ -1237,7 +1263,7 @@
              Any resend within the QuickResendAttempts will use the initial timing for resending (RTT+4*Variance).
             
              Default: 2. Range: 1 to 4.
-             
+            
              Make sure to adjust MaxResends to a slightly higher value, as more repeats happen.
              </remarks>
         </member>
@@ -1247,7 +1273,7 @@
              </summary>
              <remarks>
              The initial timeout countdown of a command is calculated by the current roundTripTime + 4 * roundTripTimeVariance.
-             
+            
              Please note that the timeout span until a command will be resent is not constant, but based on
              the roundtrip time at the initial sending, which (after the QuickResends) will be doubled with every failed retry.
             
@@ -1867,6 +1893,9 @@
         <member name="F:Photon.Client.PhotonSocket.ConnectAddress">
             <summary>Address, as defined via a Connect() call. Including protocol, port and or path.</summary>
             <remarks>This is set in the constructor and in Connect() again. Typically the address does not change after the PhotonSocket is instantiated.</remarks>
+        </member>
+        <member name="P:Photon.Client.PhotonSocket.LogLevel">
+            <summary>Accesses the peerBase.LogLevel (the Socket does not have an independent log level).</summary>
         </member>
         <member name="P:Photon.Client.PhotonSocket.ServerAddress">
             <summary>Contains only the server's hostname (stripped protocol, port and or path). Set in PhotonSocket.Connect().</summary>
@@ -2517,7 +2546,7 @@
             Writes the exception's stack trace to the received stream.
             </summary>
             <param name="throwable">Exception to obtain information from.</param>
-            <param name="stream">Output sream used to write to.</param>
+            <param name="stream">Output stream used to write to.</param>
         </member>
         <member name="M:Photon.Client.SupportClass.DictionaryToString(System.Collections.IDictionary,System.Boolean)">
             <summary>

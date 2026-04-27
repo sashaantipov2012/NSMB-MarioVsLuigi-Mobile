@@ -15,6 +15,8 @@ namespace Photon.Realtime
 {
     using System;
     using Photon.Client;
+    using System.Collections.Generic;
+    using System.Text;
 
     #if SUPPORTED_UNITY
     using SupportClass = Photon.Client.SupportClass;
@@ -228,30 +230,43 @@ namespace Photon.Realtime
         /// <summary>ToString but with more details.</summary>
         public string ToStringFull()
         {
-            return string.Format(
-                                 "appId {0}{1}{2}{3}" +
-                                 "use ns: {4}, reg: {5}, {9}, " +
-                                 "{6}{7}{8}" +
-                                 "auth: {10}",
-                                 string.IsNullOrEmpty(this.AppIdRealtime) ? string.Empty : "Realtime/PUN: " + this.HideAppId(this.AppIdRealtime) + ", ",
-                                 string.IsNullOrEmpty(this.AppIdFusion) ? string.Empty : "Fusion: " + this.HideAppId(this.AppIdFusion) + ", ",
-                                 string.IsNullOrEmpty(this.AppIdQuantum) ? string.Empty : "Quantum: " + this.HideAppId(this.AppIdQuantum) + ", ",
-                                 string.IsNullOrEmpty(this.AppIdChat) ? string.Empty : "Chat: " + this.HideAppId(this.AppIdChat) + ", ",
-                                 string.IsNullOrEmpty(this.AppIdVoice) ? string.Empty : "Voice: " + this.HideAppId(this.AppIdVoice) + ", ",
-                                 string.IsNullOrEmpty(this.AppVersion) ? string.Empty : "AppVersion: " + this.AppVersion + ", ",
-                                 "UseNameServer: " + this.UseNameServer + ", ",
-                                 "Fixed Region: " + this.FixedRegion + ", ",
-                                 //this.BestRegionSummaryFromStorage,
-                                 string.IsNullOrEmpty(this.Server) ? string.Empty : "Server: " + this.Server + ", ",
-                                 this.IsDefaultPort ? string.Empty : "Port: " + this.Port + ", ",
-                                 string.IsNullOrEmpty(this.ProxyServer) ? string.Empty : "Proxy: " + this.ProxyServer + ", ",
-                                 this.Protocol,
-                                 this.AuthMode
-                                 //this.EnableLobbyStatistics,
-                                 //this.NetworkLogging,
-                                );
-        }
+            var sb = new StringBuilder();
 
+            sb.Append("AppId ");
+
+            var appIds = new List<string>();
+
+            AppendAppIdIfNotEmpty(appIds, "Realtime/PUN", AppIdRealtime);
+            AppendAppIdIfNotEmpty(appIds, "Fusion", AppIdFusion);
+            AppendAppIdIfNotEmpty(appIds, "Quantum", AppIdQuantum);
+            AppendAppIdIfNotEmpty(appIds, "Chat", AppIdChat);
+            AppendAppIdIfNotEmpty(appIds, "Voice", AppIdVoice);
+
+            sb.Append(string.Join(", ", appIds));
+
+            sb.Append($", NameServer: {UseNameServer}");
+            sb.Append($", Region: {FixedRegion}");
+            sb.Append($", AppVersion: {AppVersion}");
+            sb.Append($", Server: {Server}");
+            sb.Append($", Port: {Port}");
+            sb.Append($", Proxy: {ProxyServer}");
+            sb.Append($", AuthMode: {AuthMode}");
+            sb.Append($", Protocol: {Protocol}");
+            sb.Append($", Enable Protocol Fallback: {EnableProtocolFallback}");
+            sb.Append($", Lobby Statistics: {EnableLobbyStatistics}");
+            sb.Append($", Network Logging: {NetworkLogging}");
+            sb.Append($", Client Logging: {ClientLogging}");
+
+            return sb.ToString();
+
+            void AppendAppIdIfNotEmpty(List<string> list, string label, string value)
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    list.Add($"{label}: {HideAppId(value)}");
+                }
+            }
+        }
 
         /// <summary>Checks if a string is a Guid by attempting to create one.</summary>
         /// <param name="val">The potential guid to check.</param>

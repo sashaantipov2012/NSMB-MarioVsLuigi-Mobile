@@ -20,7 +20,7 @@ namespace NSMB.UI.Game.Replay {
         public void ChangePlaybackSpeedViaIndex(int index) {
             parent.ChangeReplaySpeed(index);
             EventSystem.current.SetSelectedGameObject(speedButtons[index]);
-            GlobalController.Instance.sfx.PlayOneShot(SoundEffect.UI_Decide);
+            GlobalController.Instance.PlaySound(SoundEffect.UI_Decide);
             ApplyColor();
         }
 

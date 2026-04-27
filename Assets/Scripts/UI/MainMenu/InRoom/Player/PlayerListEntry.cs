@@ -137,7 +137,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
                     winsText.text = "";
                 } else {
                     builder.Clear();
-                    winsText.text = builder.Append("<sprite name=room_wins>").Append(playerData->Wins).ToString();
+                    winsText.SetText(builder.Append("<sprite name=room_wins>").Append(playerData->Wins));
                 }
                 cachedWins = playerData->Wins;
             }
@@ -172,7 +172,7 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
             }
 
             builder.Append(cachedNickname);
-            nameText.text = builder.ToString();
+            nameText.SetText(builder);
 
             Transform parent = transform.parent;
             orderIndex = 0;

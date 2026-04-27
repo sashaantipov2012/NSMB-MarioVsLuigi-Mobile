@@ -24,7 +24,6 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
 
         //---Private Variables
         private readonly List<PaletteButton> paletteButtons = new();
-        private readonly List<Navigation> navigations = new();
         private GameObject blocker;
         private AssetRef<CharacterAsset> character;
         private AssetRef<PaletteSet> selectedPalette;
@@ -59,27 +58,23 @@ namespace NSMB.UI.MainMenu.Submenus.InRoom {
                 }
 
                 newButton.SetActive(true);
-
-                Navigation navigation = new() { mode = Navigation.Mode.Explicit };
-
-                if (i > 0 && i % palettesPerRow != 0) {
-                    Navigation n = navigations[i - 1];
-                    n.selectOnRight = b;
-                    navigations[i - 1] = n;
-                    navigation.selectOnLeft = paletteButtons[i - 1].button;
-                }
-                if (i >= palettesPerRow) {
-                    Navigation n = navigations[i - palettesPerRow];
-                    n.selectOnDown = b;
-                    navigations[i - palettesPerRow] = n;
-                    navigation.selectOnUp = paletteButtons[i - palettesPerRow].button;
-                }
-
-                navigations.Add(navigation);
             }
 
             for (int i = 0; i < paletteButtons.Count; i++) {
-                paletteButtons[i].button.navigation = navigations[i];
+                Selectable button = paletteButtons[i].button;
+                Navigation nav = button.navigation;
+                nav.mode = Navigation.Mode.Explicit;
+
+                if (i % palettesPerRow != palettesPerRow - 1) {
+                    nav.selectOnRight = Utils.IndexIntoOrDefault(paletteButtons, i + 1, null)?.button;
+                }
+                if (i % palettesPerRow != 0) {
+                    nav.selectOnLeft = Utils.IndexIntoOrDefault(paletteButtons, i - 1, null)?.button;
+                }
+                nav.selectOnUp = Utils.IndexIntoOrDefault(paletteButtons, i - palettesPerRow, null)?.button;
+                nav.selectOnDown = Utils.IndexIntoOrDefault(paletteButtons, i + palettesPerRow, null)?.button;
+
+                button.navigation = nav;
             }
 
             foreach (PaletteButton b in paletteButtons) {

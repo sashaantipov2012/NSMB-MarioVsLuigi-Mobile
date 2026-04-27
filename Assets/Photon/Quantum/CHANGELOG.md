@@ -1,3 +1,20 @@
+# 3.0.11
+
+## Stable
+
+### Build 2034 (Apr 09, 2026)
+
+**Changes**
+
+- Updated Photon Realtime SDK to version  `5.1.12`
+
+**Bug Fixes**
+
+- Fixed: Deprecated warnings in Unity `6000.4`
+- Fixed: An issue where `frame.DestroyPending(entity)` was giving incorrect results (again). When `frame.Destroy(entity)` is called, `frame.DestroyPending(entity)` is expected return `true` during `Destroy` (remove callbacks) and afterward until the destroy is committed. Before 3.0.10 build 1991, `DestroyPending` did return `true` during `Destroy` but `false` afterward. In 3.0.10 build 1991, it returned `true` after `Destroy` but `false` during. With this fix, `DestroyPending` returns the correct result in both scenarios
+- Fixed: FIxed: An issue that caused an Unity TMP error to be logged when using the StartUI
+- Fixed: A possible `NullReferenceException` in `AssetRefDrawer` when used with Odin drawers
+
 # 3.0.10
 
 ## Stable
